@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <RootNamespace>BTDeviceBatteryInfo</RootNamespace>
+    <AssemblyName>BTDeviceBatteryInfo</AssemblyName>
+    <Product>BT Device Battery Info</Product>
+    <Description>Widget para consultar el estado y la batería de dispositivos Bluetooth en Windows.</Description>
+    <Version>0.10</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+
+</Project>

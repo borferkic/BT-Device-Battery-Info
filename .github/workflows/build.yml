@@ -1,0 +1,25 @@
+name: Compilación
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restaurar dependencias
+        run: dotnet restore ".\BT Device Battery Info.slnx"
+
+      - name: Compilar Release
+        run: dotnet build ".\BT Device Battery Info.slnx" --configuration Release --no-restore

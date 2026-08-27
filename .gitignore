@@ -1,0 +1,19 @@
+# Visual Studio / .NET
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Publicaciones y artefactos locales
+publish/
+artifacts/
+**/Builds-Test/
+**/Builds/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+*.swp
