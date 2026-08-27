@@ -17,4 +17,4 @@
 
 Windows Bluetooth APIs can behave differently depending on the hardware. Document known limitations and avoid exposing sensitive device identifiers in shared screenshots or logs.
 
-Local builds and the `bin`, `obj`, `publish`, and `Builds-Test` folders are excluded from the repository. The current public baseline is version `0.10 — BUILD INICIAL`.
+Local builds and the `bin`, `obj`, `publish`, and `Builds-Test` folders are excluded from the repository. The current public baseline is version `0.11 — Application Icon`.

@@ -3,6 +3,7 @@ using BTDeviceBatteryInfo.Services;
 using BTDeviceBatteryInfo.ViewModels;
 using System.ComponentModel;
 using System.Windows;
+using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
 namespace BTDeviceBatteryInfo;
@@ -16,6 +17,7 @@ public partial class MainWindow : Window, IDisposable
     private readonly AppSettings _settings;
     private readonly BluetoothService _bluetooth;
     private Forms.NotifyIcon? _tray;
+    private Drawing.Icon? _trayIcon;
     private Forms.ToolStripMenuItem? _toggleWidgetMenuItem;
     private Forms.ToolStripMenuItem? _startWithWindowsMenuItem;
     private bool _isExiting;
@@ -70,7 +72,7 @@ public partial class MainWindow : Window, IDisposable
         _tray = new Forms.NotifyIcon
         {
             Text = AppIdentity.DisplayName,
-            Icon = System.Drawing.SystemIcons.Information,
+            Icon = _trayIcon ??= LoadTrayIcon(),
             ContextMenuStrip = menu,
             Visible = true
         };
@@ -163,6 +165,16 @@ public partial class MainWindow : Window, IDisposable
             _toggleWidgetMenuItem.Text = IsVisible ? "Hide widget" : "Show widget";
     }
 
+    private static Drawing.Icon LoadTrayIcon()
+    {
+        var resource = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Icon.ico", UriKind.Absolute));
+        if (resource is null) return (Drawing.Icon)Drawing.SystemIcons.Information.Clone();
+
+        using (resource.Stream)
+        using (var icon = new Drawing.Icon(resource.Stream))
+            return (Drawing.Icon)icon.Clone();
+    }
+
     private async Task ToggleStartWithWindowsAsync()
     {
         var enabled = _startWithWindowsMenuItem?.Checked != true;
@@ -192,6 +204,7 @@ public partial class MainWindow : Window, IDisposable
     public void Dispose()
     {
         _tray?.Dispose();
+        _trayIcon?.Dispose();
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
         ViewModel.Dispose();
         _bluetooth.Dispose();

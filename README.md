@@ -1,6 +1,6 @@
 # BT Device Battery Info
 
-Version `0.10` — **BUILD INICIAL**
+Version `0.11` — **Application Icon**
 
 BT Device Battery Info is an open-source Windows desktop widget that displays connected Bluetooth devices and their battery level when Windows makes that information available.
 
@@ -79,7 +79,7 @@ See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Español
 
-Versión `0.10` — **BUILD INICIAL**
+Versión `0.11` — **Icono de la aplicación**
 
 BT Device Battery Info es un widget de escritorio open source para Windows que muestra los dispositivos Bluetooth conectados y su nivel de batería cuando Windows proporciona esa información.
 
