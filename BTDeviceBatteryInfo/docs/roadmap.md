@@ -1,17 +1,25 @@
 # Roadmap
 
-## Current state
+## Estado actual
 
-The project is published as **BT Device Battery Info** and has a functional Windows foundation: connected-device discovery, PnP/GATT battery reading where available, automatic Bose/QuietComfort prioritization, system tray support, internal preferences, and local logging.
+La versión pública `0.12` contiene la base funcional de descubrimiento Bluetooth Classic/BLE, lectura PnP/GATT, priorización Bose/QuietComfort, widget WPF, bandeja del sistema, preferencias internas, registro local, arranque incremental y agrupación de dispositivos desconectados.
 
-## Next steps
+Los cambios locales posteriores a `0.12` están en preparación para la siguiente versión y se documentan en `changelog/unreleased.md`.
 
-- Add unit tests for `ReconnectPolicy`, settings, and data transformations.
-- Define a validation matrix by device model, driver, and Windows version.
-- Prepare a distributable package with an icon, visible version, and release notes.
-- Evaluate an update and uninstall approach that does not depend solely on manual publishing.
-- Review accessibility, localization, and error states in the UI.
+## Próximo foco
 
-## Current scope boundary
+El primer objetivo es reducir y medir el tiempo de inicio. Después se abordarán la actualización fiable de batería, la definición de dispositivos visibles, la cobertura automatizada y la exposición coherente de las acciones de reconexión.
 
-The application cannot generally command Bluetooth Classic audio-profile connections through a public desktop API. Any improvement in this area must rely on an official, verifiable Windows capability; destructive commands and simulated states must not be introduced.
+La lista detallada, con prioridades y criterios de aceptación, está en [Pendientes](pending.md). No se deben duplicar tareas aquí.
+
+## Dirección posterior
+
+- Definir una matriz de validación por modelo de dispositivo, controlador y versión de Windows.
+- Preparar un paquete distribuible con icono, versión visible y notas de versión.
+- Evaluar actualización y desinstalación sin depender únicamente de publicación manual.
+- Revisar accesibilidad, localización y estados de error.
+- Evaluar si los endpoints que comparten `ContainerId` deben poder agruparse o mostrarse por separado.
+
+## Límite de alcance
+
+La aplicación no simulará conexiones Bluetooth ni ejecutará acciones destructivas. Cualquier mejora de conexión Bluetooth Classic debe basarse en una capacidad oficial y verificable de Windows.

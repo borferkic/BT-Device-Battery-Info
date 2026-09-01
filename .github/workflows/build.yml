@@ -21,5 +21,11 @@ jobs:
       - name: Restaurar dependencias
         run: dotnet restore ".\BT Device Battery Info.slnx"
 
+      - name: Verificar formato
+        run: dotnet format ".\BT Device Battery Info.slnx" --verify-no-changes --no-restore
+
       - name: Compilar Release
         run: dotnet build ".\BT Device Battery Info.slnx" --configuration Release --no-restore
+
+      - name: Ejecutar pruebas
+        run: dotnet test ".\BT Device Battery Info.slnx" --configuration Release --no-restore

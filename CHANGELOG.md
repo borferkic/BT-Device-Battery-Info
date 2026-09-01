@@ -2,6 +2,31 @@
 
 All notable user-facing changes to BT Device Battery Info are documented in this file.
 
+## [Unreleased]
+
+No hay cambios publicados posteriores a la versión `0.12`.
+
+## [0.12] — Confiabilidad y experiencia
+
+### Añadido
+
+- Se agruparon los dispositivos desconectados en `Disconected Devices`, con contador y control para expandir o contraer el grupo.
+- Se añadió una ventana `About` con avatar, copyright de Boris SdK y enlaces individuales de Instagram, Twitch y LinkedIn acompañados por insignias minimalistas.
+- Se reorganizó la documentación y se añadió un backlog priorizado para la próxima versión.
+
+### Cambiado
+
+- Se mejoró el seguimiento de dispositivos Bluetooth emparejados, conectados y desconectados.
+- Se aceleró la presentación inicial mediante descubrimiento Bluetooth incremental, sin esperar una consulta completa ni la lectura de batería.
+- Se eliminó la opción de inicio minimizado; la ventana siempre se muestra al iniciar la aplicación.
+
+### Corregido
+
+- Se protegieron errores no controlados durante el arranque y los eventos asíncronos para evitar el cierre con `0xe0434352`.
+- Se añadieron reintentos de batería y consultas PnP/GATT sobre el contenedor y sus endpoints relacionados.
+
+El detalle y la validación están en [Versión 0.12 — Confiabilidad y experiencia](BTDeviceBatteryInfo/docs/changelog/0.12.md).
+
 ## [0.11] — Application Icon
 
 ### Added

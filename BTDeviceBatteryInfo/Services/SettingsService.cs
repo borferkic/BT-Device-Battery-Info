@@ -1,6 +1,6 @@
-using BTDeviceBatteryInfo.Models;
 using System.IO;
 using System.Text.Json;
+using BTDeviceBatteryInfo.Models;
 
 namespace BTDeviceBatteryInfo.Services;
 

@@ -9,6 +9,31 @@
         WindowStyle="None" ResizeMode="NoResize"
         Background="#FF202020" AllowsTransparency="False"
         ShowInTaskbar="False">
+    <Window.Resources>
+        <DataTemplate x:Key="BluetoothDeviceTemplate">
+            <Border Background="Transparent" Padding="2,11" Margin="0" MinHeight="56">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Name}" Foreground="#FFF2F2F2" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding ConnectionText}" Foreground="{Binding ConnectionBrush}" FontSize="11" HorizontalAlignment="Right"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0">
+                            <Grid Width="23" Height="12" Margin="0,0,6,0" VerticalAlignment="Center" ToolTip="{Binding BatteryText}">
+                                <Border Width="19" Height="10" HorizontalAlignment="Left" VerticalAlignment="Center" BorderBrush="{Binding BatteryBrush}" BorderThickness="1" CornerRadius="2">
+                                    <Border Width="{Binding BatteryFillWidth}" Height="6" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,0,0,0" Background="{Binding BatteryBrush}" CornerRadius="1"/>
+                                </Border>
+                                <Border Width="2" Height="5" HorizontalAlignment="Right" VerticalAlignment="Center" Background="{Binding BatteryBrush}" CornerRadius="0,1,1,0"/>
+                            </Grid>
+                            <TextBlock Text="{Binding BatteryText}" Foreground="{Binding BatteryBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
     <Border Style="{StaticResource WidgetBorder}" MouseLeftButtonDown="DragWindow">
         <Grid Margin="18,12,18,12">
             <Grid.RowDefinitions>
@@ -25,7 +50,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="BT Device Battery Info" Style="{StaticResource TitleText}" VerticalAlignment="Center"/>
                 <Button Grid.Column="1" Content="&#xE921;" ToolTip="Minimize to tray" Style="{StaticResource IconButton}" Click="Minimize_Click"/>
-                <TextBlock Grid.Column="2" Text="&#xE713;" ToolTip="Settings unavailable" Width="30" Height="30" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FFE0E0E0" Opacity="0.45" TextAlignment="Center" VerticalAlignment="Center" Padding="0,6,0,0"/>
+                <Button Grid.Column="2" Content="&#xE713;" ToolTip="About" Style="{StaticResource IconButton}" Click="About_Click"/>
                 <Button Grid.Column="3" Content="&#xE8BB;" ToolTip="Exit" Style="{StaticResource CloseIconButton}" Click="Exit_Click"/>
             </Grid>
             <Grid Grid.Row="1" Margin="0,16,0,0">
@@ -36,33 +61,27 @@
                 </Grid.RowDefinitions>
                 <TextBlock Text="Your devices" Style="{StaticResource SectionTitleText}"/>
                 <TextBlock Grid.Row="1" Text="{Binding DeviceListMessage}" Visibility="{Binding DeviceListMessageVisibility}" Foreground="#FFB8B8B8" FontSize="12" Margin="0,6,0,10" TextWrapping="Wrap"/>
-                <ItemsControl Grid.Row="2" ItemsSource="{Binding Devices}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="Transparent" Padding="2,11" Margin="0" MinHeight="56">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding Name}" Foreground="#FFF2F2F2" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                        <StackPanel Grid.Column="1" Margin="12,0,0,0" HorizontalAlignment="Right">
-                                            <TextBlock Text="Connected" Foreground="#FF69D36F" FontSize="11" HorizontalAlignment="Right"/>
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0">
-                                                <Grid Width="23" Height="12" Margin="0,0,6,0" VerticalAlignment="Center" ToolTip="{Binding BatteryText}">
-                                                    <Border Width="19" Height="10" HorizontalAlignment="Left" VerticalAlignment="Center" BorderBrush="{Binding BatteryBrush}" BorderThickness="1" CornerRadius="2">
-                                                        <Border Width="{Binding BatteryFillWidth}" Height="6" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,0,0,0" Background="{Binding BatteryBrush}" CornerRadius="1"/>
-                                                    </Border>
-                                                    <Border Width="2" Height="5" HorizontalAlignment="Right" VerticalAlignment="Center" Background="{Binding BatteryBrush}" CornerRadius="0,1,1,0"/>
-                                                </Grid>
-                                                <TextBlock Text="{Binding BatteryText}" Foreground="{Binding BatteryBrush}" FontSize="12" HorizontalAlignment="Right"/>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Grid>
+                <StackPanel Grid.Row="2">
+                    <ItemsControl ItemsSource="{Binding ConnectedDevices}" ItemTemplate="{StaticResource BluetoothDeviceTemplate}"/>
+                    <Expander IsExpanded="{Binding IsDisconnectedDevicesExpanded, Mode=TwoWay}"
+                              Visibility="{Binding DisconnectedDevicesVisibility}"
+                              Foreground="#FFE0E0E0"
+                              HorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <Grid Width="310" Margin="2,8,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Disconected Devices" Foreground="#FFD0D0D0" FontSize="12" FontWeight="SemiBold"/>
+                                <Border Grid.Column="1" MinWidth="24" Height="20" Padding="6,1" Background="#FF343434" CornerRadius="10">
+                                    <TextBlock Text="{Binding DisconnectedDeviceCountText}" Foreground="#FFF2F2F2" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                            </Grid>
+                        </Expander.Header>
+                        <ItemsControl ItemsSource="{Binding DisconnectedDevices}" ItemTemplate="{StaticResource BluetoothDeviceTemplate}"/>
+                    </Expander>
+                </StackPanel>
             </Grid>
             <Grid Grid.Row="1" Background="#FF202020" Visibility="{Binding LoadingVisibility}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

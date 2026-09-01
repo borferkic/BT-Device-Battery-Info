@@ -13,6 +13,9 @@ artifacts/
 **/Builds-Test/
 **/Builds/
 
+# Borrador local legado; el backlog versionado está en docs/pending.md
+BTDeviceBatteryInfo/docs/improvement-plan.md
+
 # Sistema operativo y editores
 .DS_Store
 Thumbs.db

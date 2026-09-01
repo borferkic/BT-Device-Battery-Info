@@ -1,8 +1,8 @@
+using System.ComponentModel;
+using System.Windows;
 using BTDeviceBatteryInfo.Models;
 using BTDeviceBatteryInfo.Services;
 using BTDeviceBatteryInfo.ViewModels;
-using System.ComponentModel;
-using System.Windows;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
@@ -16,6 +16,7 @@ public partial class MainWindow : Window, IDisposable
 
     private readonly AppSettings _settings;
     private readonly BluetoothService _bluetooth;
+    private readonly FileLogger _logger;
     private Forms.NotifyIcon? _tray;
     private Drawing.Icon? _trayIcon;
     private Forms.ToolStripMenuItem? _toggleWidgetMenuItem;
@@ -30,6 +31,7 @@ public partial class MainWindow : Window, IDisposable
 
         _settings = settings;
         _bluetooth = bluetooth;
+        _logger = logger;
         RestorePlacement();
         Topmost = settings.AlwaysOnTop;
         Opacity = settings.Opacity;
@@ -40,15 +42,29 @@ public partial class MainWindow : Window, IDisposable
 
         Loaded += async (_, _) =>
         {
-            CreateTrayIcon();
-            UpdateWindowHeight();
-            await ViewModel.InitializeAsync();
+            try
+            {
+                UpdateWindowHeight();
+                await ViewModel.InitializeAsync();
+                CreateTrayIcon();
+            }
+            catch (Exception ex)
+            {
+                await HandleBackgroundErrorAsync("Window initialization", ex);
+            }
         };
         LocationChanged += async (_, _) =>
         {
-            _settings.Left = Left;
-            _settings.Top = Top;
-            await SettingsService.SaveAsync(_settings);
+            try
+            {
+                _settings.Left = Left;
+                _settings.Top = Top;
+                await SettingsService.SaveAsync(_settings);
+            }
+            catch (Exception ex)
+            {
+                await HandleBackgroundErrorAsync("Window placement save", ex);
+            }
         };
         Closing += OnClosing;
     }
@@ -82,13 +98,13 @@ public partial class MainWindow : Window, IDisposable
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainViewModel.DeviceCount))
+        if (e.PropertyName is nameof(MainViewModel.DeviceCount) or nameof(MainViewModel.VisibleDeviceRowCount))
             Dispatcher.BeginInvoke(UpdateWindowHeight);
     }
 
     private void UpdateWindowHeight()
     {
-        var extraDevices = Math.Max(0, ViewModel.DeviceCount - VisibleDeviceSlots);
+        var extraDevices = Math.Max(0, ViewModel.VisibleDeviceRowCount - VisibleDeviceSlots);
         var targetHeight = DefaultWindowHeight + extraDevices * AdditionalDeviceHeight;
         Height = targetHeight;
     }
@@ -120,6 +136,12 @@ public partial class MainWindow : Window, IDisposable
         UpdateWidgetMenuItem();
     }
     private void Exit_Click(object sender, RoutedEventArgs e) => ExitApplication();
+
+    private void About_Click(object sender, RoutedEventArgs e)
+    {
+        var aboutWindow = new AboutWindow { Owner = this };
+        aboutWindow.ShowDialog();
+    }
 
     private void ExitApplication()
     {
@@ -198,6 +220,18 @@ public partial class MainWindow : Window, IDisposable
                 "BT Device Battery Info",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
+        }
+    }
+
+    private async Task HandleBackgroundErrorAsync(string operation, Exception exception)
+    {
+        try
+        {
+            await _logger.LogAsync($"{operation} error: {exception}");
+        }
+        catch
+        {
+            // An error while recording a background failure must not become a second UI failure.
         }
     }
 

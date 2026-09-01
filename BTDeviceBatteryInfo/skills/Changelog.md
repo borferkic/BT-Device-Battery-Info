@@ -3,6 +3,8 @@ name: changelog-generator
 description: Crea automáticamente changelogs orientados a los usuarios a partir de commits de Git, analizando el historial de commits, categorizando los cambios, detectando el idioma requerido y transformando commits técnicos en notas de versión claras y fáciles de entender. El changelog se genera automáticamente en el idioma indicado por el usuario o detectado a partir del contexto existente.
 ---
 
+> Estado: material de apoyo legado. La skill operativa del proyecto es `bt-device-battery-info-project`; las reglas documentales versionadas están en `docs/documentation-standard.md`.
+
 # Generador de Changelog
 
 Esta skill transforma commits técnicos de Git en changelogs claros, profesionales y fáciles de entender para clientes y usuarios.
@@ -65,29 +67,29 @@ Además, detecta automáticamente el idioma que debe utilizar el changelog y man
 La detección y selección del idioma debe seguir este orden de prioridad:
 
 1. **Idioma especificado explícitamente por el usuario**
-   
+
    Si el usuario solicita un idioma concreto, siempre debe utilizarse ese idioma.
 
    Ejemplo:
-   
+
    `Genera el changelog en inglés`
 
    Resultado: todo el changelog debe generarse en inglés.
 
 2. **Idioma del changelog existente**
-   
+
    Si existe un archivo `CHANGELOG.md`, analiza su contenido y utiliza el idioma predominante como idioma de salida.
 
 3. **Idioma definido en CHANGELOG_STYLE.md**
-   
+
    Si existe un archivo `CHANGELOG_STYLE.md` y contiene instrucciones relacionadas con el idioma, estas deben respetarse.
 
 4. **Idioma utilizado por el usuario**
-   
+
    Si no existe ninguna instrucción explícita ni archivos que permitan determinar el idioma, utiliza el idioma principal utilizado por el usuario en su solicitud.
 
 5. **Idioma de los commits**
-   
+
    El idioma de los commits puede utilizarse como referencia secundaria, pero no debe tener prioridad sobre las reglas anteriores.
 
 ## Consistencia del idioma
@@ -283,7 +285,7 @@ Si el usuario solicita:
 
 Y el idioma detectado es español:
 
-# Actualizaciones - Semana del 10 de marzo de 2024
+### Ejemplo de changelog — Semana del 10 de marzo de 2024
 
 ## ✨ Nuevas funciones
 

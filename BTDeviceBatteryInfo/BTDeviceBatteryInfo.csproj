@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -7,7 +7,7 @@
     <AssemblyName>BTDeviceBatteryInfo</AssemblyName>
     <Product>BT Device Battery Info</Product>
     <Description>Widget para consultar el estado y la batería de dispositivos Bluetooth en Windows.</Description>
-    <Version>0.11</Version>
+    <Version>0.12</Version>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Resource Include="Icon.ico" />
+    <Resource Include="avatarapp.png" />
   </ItemGroup>
 
 </Project>

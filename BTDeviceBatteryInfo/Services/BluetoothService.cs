@@ -1,6 +1,6 @@
-using BTDeviceBatteryInfo.Models;
 using System.Diagnostics;
 using System.Globalization;
+using BTDeviceBatteryInfo.Models;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
@@ -11,10 +11,14 @@ namespace BTDeviceBatteryInfo.Services;
 /// <summary>Keeps an in-memory view of Windows Bluetooth endpoints and updates it when Windows reports a change.</summary>
 public sealed class BluetoothService : IDisposable
 {
+    private static readonly TimeSpan InitialDiscoveryTimeout = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan BatteryQueryTimeout = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan BatteryUnavailableRetryDelay = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan BatteryRefreshInterval = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan BatteryValueExpiration = TimeSpan.FromMinutes(10);
     private const string BluetoothClassicProtocolId = "{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}";
     private const string BluetoothLeProtocolId = "{bb7bb05e-5972-42b5-94fc-76eaa7084d49}";
     private static readonly string BluetoothSelector = $"System.Devices.Aep.ProtocolId:=\"{BluetoothClassicProtocolId}\" OR System.Devices.Aep.ProtocolId:=\"{BluetoothLeProtocolId}\"";
-    private static readonly string ConnectedBluetoothSelector = $"({BluetoothSelector}) AND System.Devices.Aep.IsConnected:=System.StructuredQueryType.Boolean#True";
     private static readonly string[] RequestedProperties =
     [
         "System.Devices.Aep.IsConnected",
@@ -32,47 +36,69 @@ public sealed class BluetoothService : IDisposable
     private readonly object _endpointsLock = new();
     private readonly SemaphoreSlim _initializeGate = new(1, 1);
     private readonly SemaphoreSlim _reconciliationGate = new(1, 1);
+    private readonly SemaphoreSlim _watcherRecoveryGate = new(1, 1);
     private readonly Dictionary<string, DeviceInformation> _endpoints = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, int?> _containerBatteries = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, BatteryCacheEntry> _containerBatteries = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _pendingBatteryContainers = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _removedEndpointIds = new(StringComparer.OrdinalIgnoreCase);
     private DeviceWatcher? _deviceWatcher;
+    private System.Threading.Timer? _reconciliationTimer;
+    private CancellationTokenSource? _initialDiscoveryCts;
+    private Stopwatch? _initialDiscoveryStopwatch;
     private string? _selectedId;
+    private string? _selectedName;
     private bool _initialized;
+    private bool _initialDiscoveryCompleted;
+    private bool _isDisposing;
     private bool? _lastConnected;
 
     public event EventHandler<BluetoothDeviceInfo>? StateChanged;
     public event EventHandler? DevicesChanged;
+    public event EventHandler? InitialDiscoveryCompleted;
     public BluetoothService(FileLogger logger) => _logger = logger;
 
-    public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindConnectedDevicesAsync()
+    public bool IsInitialDiscoveryCompleted
     {
-        await EnsureInitializedAsync();
-        lock (_endpointsLock) return BuildConnectedSnapshot();
+        get
+        {
+            lock (_endpointsLock) return _initialDiscoveryCompleted;
+        }
     }
 
+    public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindDevicesAsync()
+    {
+        await EnsureInitializedAsync();
+        lock (_endpointsLock) return BuildDeviceSnapshot();
+    }
+
+    public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindConnectedDevicesAsync() =>
+        (await FindDevicesAsync()).Where(device => device.IsConnected).ToArray();
+
     public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindBoseDevicesAsync() =>
-        (await FindConnectedDevicesAsync())
+        (await FindDevicesAsync())
             .Where(device => device.Name.Contains("Bose", StringComparison.OrdinalIgnoreCase) || device.Name.Contains("QuietComfort", StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
     public async Task<BluetoothDeviceInfo?> SelectAsync(string id)
     {
         _selectedId = id;
-        var current = (await FindConnectedDevicesAsync()).FirstOrDefault(device => device.Id == id);
-        if (current is not null) await _logger.LogAsync("Device selected: " + current.Name);
+        var current = (await FindDevicesAsync()).FirstOrDefault(device => device.Id == id);
+        _selectedName = current?.Name ?? _selectedName;
+        _lastConnected = current?.IsConnected;
+        if (current is not null) await LogSafeAsync("Device selected: " + current.Name);
         return current;
     }
 
     public async Task<BluetoothDeviceInfo?> CurrentAsync() =>
         string.IsNullOrWhiteSpace(_selectedId)
             ? null
-            : (await FindConnectedDevicesAsync()).FirstOrDefault(device => device.Id == _selectedId);
+            : (await FindDevicesAsync()).FirstOrDefault(device => device.Id == _selectedId);
 
     public async Task<bool> RequestConnectionAsync(CancellationToken token)
     {
         if ((await CurrentAsync())?.IsConnected ?? false) return true;
 
-        await _logger.LogAsync("Connection requested: Windows exposes no public command to connect Bluetooth Classic audio.");
+        await LogSafeAsync("Connection requested: Windows exposes no public command to connect Bluetooth Classic audio.");
         await Task.Delay(1500, token);
         return (await CurrentAsync())?.IsConnected ?? false;
     }
@@ -86,22 +112,12 @@ public sealed class BluetoothService : IDisposable
         {
             if (_initialized) return;
 
-            // The first screen only needs devices that are already connected; do not enumerate all paired endpoints first.
-            var stopwatch = Stopwatch.StartNew();
-            var endpoints = await DeviceInformation.FindAllAsync(ConnectedBluetoothSelector, RequestedProperties, DeviceInformationKind.AssociationEndpoint);
-            lock (_endpointsLock)
-            {
-                foreach (var endpoint in endpoints) _endpoints[endpoint.Id] = endpoint;
-            }
-            _ = _logger.LogAsync($"Initial connected-device query completed in {stopwatch.ElapsedMilliseconds} ms ({endpoints.Count} endpoints).");
-
-            _deviceWatcher = DeviceInformation.CreateWatcher(BluetoothSelector, RequestedProperties, DeviceInformationKind.AssociationEndpoint);
-            _deviceWatcher.Added += OnEndpointAdded;
-            _deviceWatcher.Updated += OnEndpointUpdated;
-            _deviceWatcher.Removed += OnEndpointRemoved;
-            _deviceWatcher.Start();
+            _initialDiscoveryCts = new CancellationTokenSource();
+            _initialDiscoveryStopwatch = Stopwatch.StartNew();
             _initialized = true;
-            QueueBatteryHydration(endpoints);
+            _ = CompleteInitialDiscoveryAfterTimeoutAsync(_initialDiscoveryCts.Token);
+            await LogSafeAsync("Initial Bluetooth watcher start requested.");
+            _ = StartWatcherInBackgroundAsync();
         }
         finally
         {
@@ -109,53 +125,181 @@ public sealed class BluetoothService : IDisposable
         }
     }
 
+    private async Task StartWatcherInBackgroundAsync()
+    {
+        try
+        {
+            await Task.Run(StartWatcher);
+            await LogSafeAsync($"Initial Bluetooth watcher start returned after {_initialDiscoveryStopwatch?.ElapsedMilliseconds ?? 0} ms.");
+        }
+        catch (Exception ex)
+        {
+            StopWatcher();
+            await LogSafeAsync("Initial Bluetooth watcher start error: " + ex);
+            CompleteInitialDiscovery("watcher start failed");
+            ScheduleEndpointReconciliation();
+        }
+    }
+
     private void OnEndpointAdded(DeviceWatcher sender, DeviceInformation endpoint)
     {
-        lock (_endpointsLock) _endpoints[endpoint.Id] = endpoint;
-        if (GetBoolean(endpoint, "System.Devices.Aep.IsConnected")) QueueBatteryHydration([endpoint]);
-        PublishChanges();
+        try
+        {
+            lock (_endpointsLock)
+            {
+                _removedEndpointIds.Remove(endpoint.Id);
+                _endpoints[endpoint.Id] = endpoint;
+            }
+            if (IsInitialDiscoveryCompleted && GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
+                QueueBatteryHydration([endpoint], force: true);
+            PublishChanges();
+        }
+        catch (Exception ex)
+        {
+            _ = LogSafeAsync("Bluetooth endpoint-added callback error: " + ex);
+        }
     }
 
     private void OnEndpointUpdated(DeviceWatcher sender, DeviceInformationUpdate update)
     {
-        DeviceInformation? endpoint = null;
-        lock (_endpointsLock)
+        try
         {
-            if (_endpoints.TryGetValue(update.Id, out endpoint)) endpoint.Update(update);
+            DeviceInformation? endpoint = null;
+            var becameConnected = false;
+            lock (_endpointsLock)
+            {
+                if (_endpoints.TryGetValue(update.Id, out endpoint))
+                {
+                    var wasConnected = GetBoolean(endpoint, "System.Devices.Aep.IsConnected");
+                    endpoint.Update(update);
+                    becameConnected = !wasConnected && GetBoolean(endpoint, "System.Devices.Aep.IsConnected");
+                }
+            }
+            if (IsInitialDiscoveryCompleted && endpoint is not null && GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
+                QueueBatteryHydration([endpoint], force: becameConnected);
+            else if (IsInitialDiscoveryCompleted && endpoint is null)
+                ScheduleEndpointReconciliation(delay: true);
+            PublishChanges();
         }
-        if (endpoint is not null && GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
-            QueueBatteryHydration([endpoint]);
-        else if (endpoint is null)
-            ScheduleConnectedEndpointReconciliation();
-        PublishChanges();
+        catch (Exception ex)
+        {
+            _ = LogSafeAsync("Bluetooth endpoint-updated callback error: " + ex);
+        }
     }
 
     private void OnEndpointRemoved(DeviceWatcher sender, DeviceInformationUpdate update)
     {
-        lock (_endpointsLock) _endpoints.Remove(update.Id);
-        PublishChanges();
+        try
+        {
+            lock (_endpointsLock)
+            {
+                var containerId = _endpoints.TryGetValue(update.Id, out var endpoint)
+                    ? GetString(endpoint, "System.Devices.Aep.ContainerId")
+                    : null;
+                _endpoints.Remove(update.Id);
+                _removedEndpointIds.Add(update.Id);
+                if (!string.IsNullOrWhiteSpace(containerId)
+                    && !_endpoints.Values.Any(current => string.Equals(GetString(current, "System.Devices.Aep.ContainerId"), containerId, StringComparison.OrdinalIgnoreCase)))
+                    _containerBatteries.Remove(containerId);
+            }
+            PublishChanges();
+        }
+        catch (Exception ex)
+        {
+            _ = LogSafeAsync("Bluetooth endpoint-removed callback error: " + ex);
+        }
     }
 
-    private void ScheduleConnectedEndpointReconciliation() => _ = ReconcileConnectedEndpointsAsync();
+    private void ScheduleEndpointReconciliation(bool delay = false) => _ = ReconcileEndpointsAsync(delay);
 
-    private async Task ReconcileConnectedEndpointsAsync()
+    private async Task CompleteInitialDiscoveryAfterTimeoutAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(InitialDiscoveryTimeout, token);
+            CompleteInitialDiscovery("timeout");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void CompleteInitialDiscovery(string reason)
+    {
+        DeviceInformation[] endpoints;
+        long elapsedMilliseconds;
+        lock (_endpointsLock)
+        {
+            if (_initialDiscoveryCompleted) return;
+            _initialDiscoveryCompleted = true;
+            endpoints = _endpoints.Values.ToArray();
+            elapsedMilliseconds = _initialDiscoveryStopwatch?.ElapsedMilliseconds ?? 0;
+        }
+
+        _initialDiscoveryCts?.Cancel();
+        _ = LogSafeAsync($"Initial Bluetooth discovery ready after {elapsedMilliseconds} ms ({reason}, {endpoints.Length} endpoints cached).");
+        QueueBatteryHydration(endpoints);
+
+        try
+        {
+            InitialDiscoveryCompleted?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            _ = LogSafeAsync("Initial Bluetooth discovery callback error: " + ex);
+        }
+    }
+
+    private void StartReconciliationTimer()
+    {
+        lock (_endpointsLock)
+        {
+            if (_isDisposing || _reconciliationTimer is not null) return;
+            _reconciliationTimer = new System.Threading.Timer(
+                _ => ScheduleEndpointReconciliation(),
+                null,
+                TimeSpan.FromSeconds(10),
+                TimeSpan.FromSeconds(10));
+        }
+    }
+
+    private async Task ReconcileEndpointsAsync(bool delay)
     {
         if (!await _reconciliationGate.WaitAsync(0)) return;
 
         try
         {
-            await Task.Delay(250);
-            var endpoints = await DeviceInformation.FindAllAsync(ConnectedBluetoothSelector, RequestedProperties, DeviceInformationKind.AssociationEndpoint);
+            if (delay) await Task.Delay(250);
+            var endpoints = await DeviceInformation.FindAllAsync(BluetoothSelector, RequestedProperties, DeviceInformationKind.AssociationEndpoint);
+
+            // A transient adapter reset can produce an empty but otherwise successful query. Confirm it
+            // before erasing the in-memory inventory that keeps the widget stable during recovery.
+            var confirmEmptyResult = false;
+            if (endpoints.Count == 0)
+            {
+                lock (_endpointsLock) confirmEmptyResult = _endpoints.Count > 0;
+            }
+            if (confirmEmptyResult)
+            {
+                await LogSafeAsync("Empty Bluetooth endpoint query; confirming before clearing the inventory.");
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                endpoints = await DeviceInformation.FindAllAsync(BluetoothSelector, RequestedProperties, DeviceInformationKind.AssociationEndpoint);
+            }
+
             lock (_endpointsLock)
             {
-                foreach (var endpoint in endpoints) _endpoints[endpoint.Id] = endpoint;
+                var discovered = endpoints.ToDictionary(endpoint => endpoint.Id, StringComparer.OrdinalIgnoreCase);
+                foreach (var id in _endpoints.Keys.Where(id => !discovered.ContainsKey(id)).ToArray())
+                    _endpoints.Remove(id);
+                foreach (var endpoint in endpoints.Where(endpoint => !_removedEndpointIds.Contains(endpoint.Id)))
+                    _endpoints[endpoint.Id] = endpoint;
             }
             QueueBatteryHydration(endpoints);
             PublishChanges();
         }
         catch (Exception ex)
         {
-            await _logger.LogAsync("Connected-device reconciliation error: " + ex.Message);
+            await LogSafeAsync("Bluetooth endpoint reconciliation error: " + ex);
         }
         finally
         {
@@ -166,39 +310,99 @@ public sealed class BluetoothService : IDisposable
     private void PublishChanges()
     {
         IReadOnlyList<BluetoothDeviceInfo> devices;
-        lock (_endpointsLock) devices = BuildConnectedSnapshot();
+        lock (_endpointsLock) devices = BuildDeviceSnapshot();
 
         var selected = string.IsNullOrWhiteSpace(_selectedId) ? null : devices.FirstOrDefault(device => device.Id == _selectedId);
-        if (selected is not null && _lastConnected != selected.IsConnected)
+        var selectedStateChanged = false;
+        if (selected is null && !string.IsNullOrWhiteSpace(_selectedId) && _lastConnected != false)
+        {
+            _lastConnected = false;
+            selected = new BluetoothDeviceInfo(_selectedId, _selectedName ?? "Selected Bluetooth device", false, false, null);
+            selectedStateChanged = true;
+        }
+        else if (selected is not null && _lastConnected != selected.IsConnected)
         {
             _lastConnected = selected.IsConnected;
-            _ = _logger.LogAsync(selected.IsConnected ? "Connected" : "Disconnected");
-            StateChanged?.Invoke(this, selected);
+            selectedStateChanged = true;
         }
 
-        DevicesChanged?.Invoke(this, EventArgs.Empty);
+        if (selected is not null && selectedStateChanged)
+        {
+            _ = LogSafeAsync(selected.IsConnected ? "Connected" : "Disconnected");
+            try
+            {
+                StateChanged?.Invoke(this, selected);
+            }
+            catch (Exception ex)
+            {
+                _ = LogSafeAsync("Bluetooth state-changed callback error: " + ex);
+            }
+        }
+
+        try
+        {
+            DevicesChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            _ = LogSafeAsync("Bluetooth devices-changed callback error: " + ex);
+        }
     }
 
-    private void QueueBatteryHydration(IEnumerable<DeviceInformation> endpoints)
+    private async Task LogSafeAsync(string message)
+    {
+        try
+        {
+            await _logger.LogAsync(message);
+        }
+        catch
+        {
+            // Logging must not turn a recoverable device event into an unhandled exception.
+        }
+    }
+
+    private void QueueBatteryHydration(IEnumerable<DeviceInformation> endpoints, bool force = false)
     {
         BatteryCandidate[] candidates;
         lock (_endpointsLock)
         {
-            candidates = endpoints
-                .Where(endpoint => GetBoolean(endpoint, "System.Devices.Aep.IsConnected") && GetBatteryPercent(endpoint) is null)
-                .Select(endpoint =>
-                {
-                    var containerId = GetString(endpoint, "System.Devices.Aep.ContainerId");
-                    return string.IsNullOrWhiteSpace(containerId)
-                        ? null
-                        : new BatteryCandidate(containerId, endpoint.Id, GetBluetoothAddress(endpoint));
-                })
-                .Where(candidate => candidate is not null)
-                .Select(candidate => candidate!)
-                .GroupBy(candidate => candidate.ContainerId, StringComparer.OrdinalIgnoreCase)
-                .Select(group => group.OrderByDescending(candidate => candidate.BluetoothAddress.HasValue).First())
-                .Where(candidate => !_containerBatteries.ContainsKey(candidate.ContainerId) && _pendingBatteryContainers.Add(candidate.ContainerId))
+            var now = DateTimeOffset.UtcNow;
+            var containerIds = endpoints
+                .Where(endpoint => GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
+                .Select(endpoint => GetString(endpoint, "System.Devices.Aep.ContainerId"))
+                .Where(containerId => !string.IsNullOrWhiteSpace(containerId))
+                .Select(containerId => containerId!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
+
+            var pendingCandidates = new List<BatteryCandidate>();
+            foreach (var containerId in containerIds)
+            {
+                var physicalEndpoints = _endpoints.Values
+                    .Where(endpoint => string.Equals(GetString(endpoint, "System.Devices.Aep.ContainerId"), containerId, StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+                var directBattery = physicalEndpoints.Select(GetBatteryPercent).FirstOrDefault(battery => battery is not null);
+                if (directBattery is int battery)
+                {
+                    _containerBatteries[containerId] = new BatteryCacheEntry(battery, now, now, "endpoint");
+                    continue;
+                }
+
+                if (!force && _containerBatteries.TryGetValue(containerId, out var cachedBattery))
+                {
+                    var retryDelay = cachedBattery.Value is null ? BatteryUnavailableRetryDelay : BatteryRefreshInterval;
+                    if (now - cachedBattery.LastAttemptUtc < retryDelay) continue;
+                }
+                if (!_pendingBatteryContainers.Add(containerId)) continue;
+
+                var endpointCandidates = physicalEndpoints
+                    .Select(endpoint => new BatteryEndpointCandidate(endpoint.Id, GetBluetoothAddress(endpoint)))
+                    .DistinctBy(candidate => candidate.EndpointId, StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+                pendingCandidates.Add(new BatteryCandidate(containerId, endpointCandidates));
+            }
+
+            candidates = pendingCandidates.ToArray();
         }
 
         if (candidates.Length > 0) _ = HydrateBatteriesAsync(candidates);
@@ -206,43 +410,69 @@ public sealed class BluetoothService : IDisposable
 
     private async Task HydrateBatteriesAsync(IReadOnlyCollection<BatteryCandidate> candidates)
     {
-        var stopwatch = Stopwatch.StartNew();
-        var batteries = await Task.WhenAll(candidates.Select(ReadBatteryAsync));
-        lock (_endpointsLock)
+        try
         {
-            foreach (var (candidate, result) in candidates.Zip(batteries))
+            var stopwatch = Stopwatch.StartNew();
+            var batteries = await Task.WhenAll(candidates.Select(ReadBatteryAsync));
+            lock (_endpointsLock)
             {
-                _pendingBatteryContainers.Remove(candidate.ContainerId);
-                _containerBatteries[candidate.ContainerId] = result.Value;
+                foreach (var (candidate, result) in candidates.Zip(batteries))
+                {
+                    _pendingBatteryContainers.Remove(candidate.ContainerId);
+                    var now = DateTimeOffset.UtcNow;
+                    if (result.Value is int battery)
+                    {
+                        _containerBatteries[candidate.ContainerId] = new BatteryCacheEntry(battery, now, now, result.Source);
+                    }
+                    else
+                    {
+                        _containerBatteries.TryGetValue(candidate.ContainerId, out var previous);
+                        _containerBatteries[candidate.ContainerId] = new BatteryCacheEntry(previous?.Value, now, previous?.LastSuccessUtc, previous?.Source);
+                    }
+                }
             }
-        }
 
-        var found = batteries.Count(pair => pair.Value is not null);
-        await _logger.LogAsync($"Battery query (PnP/GATT) completed in {stopwatch.ElapsedMilliseconds} ms ({found}/{batteries.Length} devices with data).");
-        PublishChanges();
+            var found = batteries.Count(pair => pair.Value is not null);
+            var sources = string.Join(", ", batteries
+                .Where(result => result.Value is not null)
+                .GroupBy(result => result.Source)
+                .Select(group => $"{group.Key}:{group.Count()}"));
+            await LogSafeAsync($"Battery query (PnP/GATT) completed in {stopwatch.ElapsedMilliseconds} ms ({found}/{batteries.Length} devices with data{(sources.Length > 0 ? $", {sources}" : string.Empty)}).");
+            PublishChanges();
+        }
+        catch (Exception ex)
+        {
+            lock (_endpointsLock)
+            {
+                foreach (var candidate in candidates) _pendingBatteryContainers.Remove(candidate.ContainerId);
+            }
+            await LogSafeAsync("Bluetooth battery hydration error: " + ex);
+        }
     }
 
-    private static async Task<KeyValuePair<string, int?>> ReadBatteryAsync(BatteryCandidate candidate)
+    private static async Task<BatteryReadResult> ReadBatteryAsync(BatteryCandidate candidate)
     {
-        var pnpTask = ReadPnpContainerBatteryAsync(candidate);
-        var gattTask = ReadGattBatteryAsync(candidate);
-        var pending = new List<Task<int?>> { pnpTask, gattTask };
-        var timeout = Task.Delay(TimeSpan.FromSeconds(5));
+        var pending = new List<Task<BatteryReadResult>>
+        {
+            ReadPnpContainerBatteryAsync(candidate)
+        };
+        pending.AddRange(candidate.Endpoints.Select(ReadGattBatteryAsync));
+        var timeout = Task.Delay(BatteryQueryTimeout);
 
         while (pending.Count > 0)
         {
             var completed = await Task.WhenAny(pending.Append(timeout));
             if (completed == timeout) break;
 
-            var battery = await (Task<int?>)completed;
-            if (battery is not null) return new KeyValuePair<string, int?>(candidate.ContainerId, battery);
-            pending.Remove((Task<int?>)completed);
+            var result = await (Task<BatteryReadResult>)completed;
+            if (result.Value is not null) return result;
+            pending.Remove((Task<BatteryReadResult>)completed);
         }
 
-        return new KeyValuePair<string, int?>(candidate.ContainerId, null);
+        return new BatteryReadResult(null, "unavailable");
     }
 
-    private IReadOnlyList<BluetoothDeviceInfo> BuildConnectedSnapshot() =>
+    private IReadOnlyList<BluetoothDeviceInfo> BuildDeviceSnapshot() =>
         _endpoints.Values
             .Select(endpoint => new
             {
@@ -251,27 +481,113 @@ public sealed class BluetoothService : IDisposable
                     ?? GetString(endpoint, "System.Devices.Aep.DeviceAddress")
                     ?? endpoint.Id
             })
-            .Where(item => item.Device.IsConnected && !string.IsNullOrWhiteSpace(item.Device.Name))
+            .Where(item => (item.Device.IsPaired || item.Device.IsConnected) && !string.IsNullOrWhiteSpace(item.Device.Name))
             .GroupBy(item => item.PhysicalDeviceKey, StringComparer.OrdinalIgnoreCase)
             .Select(group => group
-                .OrderByDescending(item => item.Device.BatteryPercent.HasValue)
+                .OrderByDescending(item => string.Equals(item.Device.Id, _selectedId, StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(item => item.Device.IsConnected)
+                .ThenByDescending(item => item.Device.BatteryPercent.HasValue)
                 .ThenByDescending(item => item.Device.Name.Length)
                 .First()
                 .Device)
-            .OrderBy(device => device.Name, StringComparer.CurrentCultureIgnoreCase)
+            .OrderByDescending(device => device.IsConnected)
+            .ThenBy(device => device.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToArray();
+
+    private void StartWatcher()
+    {
+        var watcher = DeviceInformation.CreateWatcher(BluetoothSelector, RequestedProperties, DeviceInformationKind.AssociationEndpoint);
+        watcher.Added += OnEndpointAdded;
+        watcher.Updated += OnEndpointUpdated;
+        watcher.Removed += OnEndpointRemoved;
+        watcher.EnumerationCompleted += OnEnumerationCompleted;
+        watcher.Stopped += OnWatcherStopped;
+        _deviceWatcher = watcher;
+        watcher.Start();
+    }
+
+    private void OnEnumerationCompleted(DeviceWatcher sender, object args)
+    {
+        if (_isDisposing || !ReferenceEquals(sender, _deviceWatcher)) return;
+
+        int endpointCount;
+        long elapsedMilliseconds;
+        lock (_endpointsLock)
+        {
+            endpointCount = _endpoints.Count;
+            elapsedMilliseconds = _initialDiscoveryStopwatch?.ElapsedMilliseconds ?? 0;
+        }
+
+        _ = LogSafeAsync($"Bluetooth watcher enumeration completed in {elapsedMilliseconds} ms ({endpointCount} endpoints cached).");
+        StartReconciliationTimer();
+        CompleteInitialDiscovery("watcher enumeration completed");
+    }
+
+    private void OnWatcherStopped(DeviceWatcher sender, object args)
+    {
+        if (_isDisposing || !ReferenceEquals(sender, _deviceWatcher)) return;
+        var status = sender.Status;
+        if (status is not (DeviceWatcherStatus.Aborted or DeviceWatcherStatus.Stopped)) return;
+
+        _ = LogSafeAsync("Bluetooth watcher status: " + status);
+        _ = RestartWatcherAsync();
+    }
+
+    private async Task RestartWatcherAsync()
+    {
+        if (!await _watcherRecoveryGate.WaitAsync(0)) return;
+
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            if (_isDisposing) return;
+
+            StopWatcher();
+            StartWatcher();
+            await LogSafeAsync("Bluetooth watcher restarted.");
+            if (IsInitialDiscoveryCompleted)
+                await ReconcileEndpointsAsync(delay: false);
+        }
+        catch (Exception ex)
+        {
+            await LogSafeAsync("Bluetooth watcher restart error: " + ex);
+        }
+        finally
+        {
+            _watcherRecoveryGate.Release();
+        }
+    }
+
+    private void StopWatcher()
+    {
+        var watcher = _deviceWatcher;
+        _deviceWatcher = null;
+        if (watcher is null) return;
+
+        watcher.Added -= OnEndpointAdded;
+        watcher.Updated -= OnEndpointUpdated;
+        watcher.Removed -= OnEndpointRemoved;
+        watcher.EnumerationCompleted -= OnEnumerationCompleted;
+        watcher.Stopped -= OnWatcherStopped;
+        try { watcher.Stop(); } catch { }
+    }
 
     private BluetoothDeviceInfo ToBluetoothDevice(DeviceInformation endpoint)
     {
         var containerId = GetString(endpoint, "System.Devices.Aep.ContainerId");
         var battery = GetBatteryPercent(endpoint);
-        if (battery is null && containerId is not null && _containerBatteries.TryGetValue(containerId, out var containerBattery))
-            battery = containerBattery;
+        if (battery is null
+            && containerId is not null
+            && _containerBatteries.TryGetValue(containerId, out var containerBattery)
+            && containerBattery.Value is int cachedBattery
+            && containerBattery.LastSuccessUtc is DateTimeOffset lastSuccess
+            && DateTimeOffset.UtcNow - lastSuccess <= BatteryValueExpiration)
+            battery = cachedBattery;
 
         return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name, GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), GetBoolean(endpoint, "System.Devices.Aep.IsConnected"), battery);
     }
 
-    private static async Task<int?> ReadGattBatteryAsync(BatteryCandidate candidate)
+    private static async Task<BatteryReadResult> ReadGattBatteryAsync(BatteryEndpointCandidate candidate)
     {
         BluetoothLEDevice? device = null;
         try
@@ -282,40 +598,42 @@ public sealed class BluetoothService : IDisposable
             if (device is null && candidate.BluetoothAddress is ulong address)
                 device = await BluetoothLEDevice.FromBluetoothAddressAsync(address);
 
-            if (device is null) return null;
+            if (device is null) return new BatteryReadResult(null, "GATT");
 
-            var servicesResult = await device.GetGattServicesForUuidAsync(BatteryServiceUuid, BluetoothCacheMode.Uncached);
-            if (servicesResult.Status != GattCommunicationStatus.Success)
-                return null;
-
-            foreach (var service in servicesResult.Services)
+            foreach (var cacheMode in new[] { BluetoothCacheMode.Cached, BluetoothCacheMode.Uncached })
             {
-                try
+                var servicesResult = await device.GetGattServicesForUuidAsync(BatteryServiceUuid, cacheMode);
+                if (servicesResult.Status != GattCommunicationStatus.Success) continue;
+
+                foreach (var service in servicesResult.Services)
                 {
-                    var characteristicsResult = await service.GetCharacteristicsForUuidAsync(BatteryLevelCharacteristicUuid, BluetoothCacheMode.Uncached);
-                    if (characteristicsResult.Status != GattCommunicationStatus.Success) continue;
+                    try
+                    {
+                        var characteristicsResult = await service.GetCharacteristicsForUuidAsync(BatteryLevelCharacteristicUuid, cacheMode);
+                        if (characteristicsResult.Status != GattCommunicationStatus.Success) continue;
 
-                    var characteristic = characteristicsResult.Characteristics.FirstOrDefault();
-                    if (characteristic is null) continue;
+                        var characteristic = characteristicsResult.Characteristics.FirstOrDefault();
+                        if (characteristic is null) continue;
 
-                    var valueResult = await characteristic.ReadValueAsync(BluetoothCacheMode.Uncached);
-                    if (valueResult.Status != GattCommunicationStatus.Success || valueResult.Value.Length < 1) continue;
+                        var valueResult = await characteristic.ReadValueAsync(BluetoothCacheMode.Uncached);
+                        if (valueResult.Status != GattCommunicationStatus.Success || valueResult.Value.Length < 1) continue;
 
-                    using var reader = DataReader.FromBuffer(valueResult.Value);
-                    var battery = reader.ReadByte();
-                    if (battery <= 100) return battery;
-                }
-                finally
-                {
-                    service.Dispose();
+                        using var reader = DataReader.FromBuffer(valueResult.Value);
+                        var battery = reader.ReadByte();
+                        if (battery <= 100) return new BatteryReadResult(battery, "GATT");
+                    }
+                    finally
+                    {
+                        service.Dispose();
+                    }
                 }
             }
 
-            return null;
+            return new BatteryReadResult(null, "GATT");
         }
         catch
         {
-            return null;
+            return new BatteryReadResult(null, "GATT");
         }
         finally
         {
@@ -323,35 +641,66 @@ public sealed class BluetoothService : IDisposable
         }
     }
 
-    private static async Task<int?> ReadPnpContainerBatteryAsync(BatteryCandidate candidate)
+    private static async Task<BatteryReadResult> ReadPnpContainerBatteryAsync(BatteryCandidate candidate)
     {
-        if (candidate.BluetoothAddress is not ulong address) return null;
+        try
+        {
+            var container = await DeviceInformation.CreateFromIdAsync(candidate.ContainerId, ContainerBatteryProperty, DeviceInformationKind.DeviceContainer);
+            var containerBattery = GetBatteryPercent(container);
+            if (containerBattery is not null) return new BatteryReadResult(containerBattery, "PnP container");
+        }
+        catch
+        {
+            // Some drivers expose the container identity but do not allow direct container access.
+        }
 
         try
         {
-            var addressText = address.ToString("X12", CultureInfo.InvariantCulture);
-            var selector = $"System.Devices.DeviceInstanceId:~~\"BTHLE\\\\DEV_{addressText}*\" OR System.Devices.DeviceInstanceId:~~\"BTHENUM\\\\DEV_{addressText}*\"";
-            var devices = await DeviceInformation.FindAllAsync(selector, PnpBatteryProperties, DeviceInformationKind.Device);
-
-            foreach (var device in devices)
+            var escapedContainerId = candidate.ContainerId.Replace("\"", "\"\"", StringComparison.Ordinal);
+            var containerSelector = $"System.Devices.ContainerId:=\"{escapedContainerId}\"";
+            var containerDevices = await DeviceInformation.FindAllAsync(containerSelector, PnpBatteryProperties, DeviceInformationKind.Device);
+            foreach (var device in containerDevices)
             {
-                var directBattery = GetBatteryPercent(device);
-                if (directBattery is not null) return directBattery;
-
-                var containerId = GetString(device, "System.Devices.ContainerId");
-                if (string.IsNullOrWhiteSpace(containerId)) continue;
-
-                var container = await DeviceInformation.CreateFromIdAsync(containerId, ContainerBatteryProperty, DeviceInformationKind.DeviceContainer);
-                var containerBattery = GetBatteryPercent(container);
-                if (containerBattery is not null) return containerBattery;
+                var battery = GetBatteryPercent(device);
+                if (battery is not null) return new BatteryReadResult(battery, "PnP device");
             }
         }
         catch
         {
-            // Some drivers do not allow their container to be enumerated; the GATT fallback remains available.
+            // Continue with address-based PnP nodes when the container selector is unsupported.
         }
 
-        return null;
+        foreach (var address in candidate.Endpoints
+                     .Where(endpoint => endpoint.BluetoothAddress.HasValue)
+                     .Select(endpoint => endpoint.BluetoothAddress!.Value)
+                     .Distinct())
+        {
+            try
+            {
+                var addressText = address.ToString("X12", CultureInfo.InvariantCulture);
+                var selector = $"System.Devices.DeviceInstanceId:~~\"BTHLE\\\\DEV_{addressText}*\" OR System.Devices.DeviceInstanceId:~~\"BTHENUM\\\\DEV_{addressText}*\"";
+                var devices = await DeviceInformation.FindAllAsync(selector, PnpBatteryProperties, DeviceInformationKind.Device);
+
+                foreach (var device in devices)
+                {
+                    var directBattery = GetBatteryPercent(device);
+                    if (directBattery is not null) return new BatteryReadResult(directBattery, "PnP device");
+
+                    var containerId = GetString(device, "System.Devices.ContainerId");
+                    if (string.IsNullOrWhiteSpace(containerId)) continue;
+
+                    var relatedContainer = await DeviceInformation.CreateFromIdAsync(containerId, ContainerBatteryProperty, DeviceInformationKind.DeviceContainer);
+                    var relatedBattery = GetBatteryPercent(relatedContainer);
+                    if (relatedBattery is not null) return new BatteryReadResult(relatedBattery, "PnP container");
+                }
+            }
+            catch
+            {
+                // Continue with other addresses; the GATT fallback remains available in parallel.
+            }
+        }
+
+        return new BatteryReadResult(null, "PnP");
     }
 
     private static bool GetBoolean(DeviceInformation endpoint, string propertyName) =>
@@ -379,15 +728,16 @@ public sealed class BluetoothService : IDisposable
 
     public void Dispose()
     {
-        if (_deviceWatcher is not null)
-        {
-            _deviceWatcher.Added -= OnEndpointAdded;
-            _deviceWatcher.Updated -= OnEndpointUpdated;
-            _deviceWatcher.Removed -= OnEndpointRemoved;
-            _deviceWatcher.Stop();
-        }
+        _isDisposing = true;
+        _initialDiscoveryCts?.Cancel();
+        _initialDiscoveryCts?.Dispose();
+        _reconciliationTimer?.Dispose();
+        StopWatcher();
         _initializeGate.Dispose();
     }
 
-    private sealed record BatteryCandidate(string ContainerId, string EndpointId, ulong? BluetoothAddress);
+    private sealed record BatteryCacheEntry(int? Value, DateTimeOffset LastAttemptUtc, DateTimeOffset? LastSuccessUtc, string? Source);
+    private sealed record BatteryEndpointCandidate(string EndpointId, ulong? BluetoothAddress);
+    private sealed record BatteryCandidate(string ContainerId, IReadOnlyList<BatteryEndpointCandidate> Endpoints);
+    private sealed record BatteryReadResult(int? Value, string Source);
 }

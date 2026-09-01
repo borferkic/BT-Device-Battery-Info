@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 namespace BTDeviceBatteryInfo.Services;
+
 public static class StartupService
 {
     private const string Name = AppIdentity.DisplayName;
