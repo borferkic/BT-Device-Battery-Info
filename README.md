@@ -34,6 +34,8 @@ The release requires the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/d
 
 If you find BT Device Battery Info useful, you can support its development with a donation through [PayPal](https://paypal.me/borissdk). Thank you for helping keep the project moving forward.
 
+[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/borissdk)
+
 ## Build and run
 
 From the repository root:
