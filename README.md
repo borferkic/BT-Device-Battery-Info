@@ -30,6 +30,10 @@ Download the latest version from [GitHub Releases](https://github.com/borferkic/
 
 The release requires the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) for Windows. Developers building from source need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
 
+## Support the project
+
+If you find BT Device Battery Info useful, you can support its development with a donation through [PayPal](https://paypal.me/borissdk). Thank you for helping keep the project moving forward.
+
 ## Build and run
 
 From the repository root:
@@ -117,6 +121,10 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 Descarga la versión más reciente desde [GitHub Releases](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest), extrae el archivo ZIP y ejecuta `BTDeviceBatteryInfo.exe`.
 
 La versión publicada requiere el [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) para Windows. Para compilar desde el código fuente se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
+
+### Apoya el proyecto
+
+Si BT Device Battery Info te resulta útil, puedes apoyar su desarrollo con una donación mediante [PayPal](https://paypal.me/borissdk). Gracias por ayudar a que el proyecto siga avanzando.
 
 ### Compilar y ejecutar
 
