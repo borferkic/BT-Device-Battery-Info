@@ -14,32 +14,19 @@ Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto
 
 ## Prioridad alta
 
-### P-001 — Reducir el tiempo de inicio
-
-- [ ] Medir por separado el tiempo desde el lanzamiento hasta que aparece la ventana y hasta que se muestra la primera lista de dispositivos.
-- [ ] Comparar arranque en frío y en caliente con cero, uno y varios dispositivos emparejados.
-- [x] Mostrar la ventana y el estado inicial sin bloquearla con consultas no esenciales (`2026-09-01`).
-- [x] Mantener la hidratación de batería y otras tareas secundarias fuera del camino crítico cuando sea seguro (`2026-09-01`).
-- [ ] Definir un objetivo de tiempo después de obtener la línea base y registrarlo en `docs/testing.md`.
-
-Causa técnica confirmada: `MainWindow.Loaded` esperaba una consulta completa de endpoints Bluetooth antes de recibir el inventario inicial. La primera corrección sustituyó esa consulta por publicación incremental mediante `DeviceWatcher`, movió su inicio a segundo plano y pospuso la hidratación de batería.
-
-Observación de QA del `2026-09-01`: la ventana fue localizada visible durante la reproducción, pero la consulta inicial no había terminado después de `55` segundos y no había escrito su registro de finalización. La cifra es una evidencia de este equipo, no todavía un objetivo general de producto.
-
-Evidencia posterior a la primera corrección (`2026-09-01`): en una ejecución real, el watcher retornó en `57` ms y el dispositivo persistido fue seleccionado en el mismo segundo del lanzamiento. La ventana y el proceso respondieron a los `3` y `12` segundos, no hubo nuevas excepciones y el límite de `8008` ms cerró la enumeración con `25` endpoints en caché. Faltan las series en frío/caliente y verificar manualmente que la lista visual no omita dispositivos.
-
-Criterios de aceptación: existe una línea base reproducible, la ventana aparece antes de las consultas secundarias y una prueba repetida demuestra una mejora sin perder dispositivos ni estados.
-
 ### P-002 — Actualizar la batería durante la sesión
+
+Implementación para `0.13` (`2026-09-05`): consulta desde la detección, publicación independiente, retención de operaciones nativas pendientes, deduplicación por dirección, límite de dos consultas GATT y reintentos progresivos. Las pruebas del coordinador y la compilación no sustituyen la aceptación con hardware; el criterio de latencia permanece pendiente.
 
 - [x] Evitar que el caché conserve indefinidamente un porcentaje antiguo o `Battery unavailable` (`2026-09-01`).
 - [x] Reintentar PnP/GATT cuando el dispositivo se conecte, cambie de estado o venza una actualización periódica (`2026-09-01`).
 - [x] Evitar consultas duplicadas simultáneas para el mismo contenedor (`2026-09-01`).
 - [x] Consultar directamente el `DeviceContainer` y probar los endpoints BLE candidatos del mismo dispositivo antes de declarar la batería no disponible (`2026-09-01`).
+- [ ] Reducir el tiempo desde que el dispositivo aparece en la lista hasta que se muestra su batería, sin retrasar la ventana ni el inventario inicial.
 
-Criterios de aceptación: un dispositivo BLE/GATT que cambia de nivel refleja el nuevo porcentaje sin reiniciar la aplicación; los fallos transitorios se pueden recuperar. La implementación está aplicada, pero falta confirmar este criterio con un Bose que vuelva a exponer batería después de desconectar y reconectar.
+Criterios de aceptación: un dispositivo BLE/GATT que cambia de nivel refleja el nuevo porcentaje sin reiniciar la aplicación; los fallos transitorios se pueden recuperar y el indicador aparece en un tiempo perceptiblemente ágil después de detectar el dispositivo. La implementación está aplicada, pero falta confirmar este criterio con un Bose que vuelva a exponer batería después de desconectar y reconectar.
 
-Hallazgo de QA del `2026-09-01`: algunos auriculares Bose conectados muestran `Battery unavailable` de forma intermitente. Los registros contienen consultas agotadas a los cinco segundos y resultados `0/1`. El código actual guarda `null` en `_containerBatteries`, lo trata como resultado definitivo y elige un solo endpoint por `ContainerId`; un fallo transitorio o la elección de un endpoint Classic puede impedir nuevos intentos durante toda la sesión.
+Hallazgo histórico de QA del `2026-09-01`: algunos auriculares Bose conectados mostraban `Battery unavailable` de forma intermitente. La implementación anterior conservaba resultados vacíos sin reintentar. Ese comportamiento ya había sido modificado en 0.12; en 0.13 se corrigen además la espera del descubrimiento y la publicación conjunta que retrasaban resultados disponibles.
 
 ### P-003 — Definir el alcance de la lista de dispositivos
 
@@ -59,6 +46,17 @@ Criterios de aceptación: el comportamiento esperado está escrito, probado con 
 Hallazgo de QA del `2026-09-01`: después de desconectar algunos dispositivos, la interfaz puede seguir indicando `Connected`. En una sesión se observaron alternancias repetidas cada 30 segundos; Windows no reportaba endpoints Classic presentes, mientras la aplicación conservaba una instancia activa. `BuildDeviceSnapshot()` selecciona un único endpoint y prioriza cualquiera que tenga `IsConnected`, lo que puede confundir un endpoint BLE auxiliar con la conexión principal o mantener una identidad seleccionada que ya no representa al dispositivo agrupado.
 
 Criterios de aceptación: al desconectar físicamente un dispositivo, la interfaz cambia a `Disconnected` sin volver a `Connected` por un endpoint auxiliar; al reconectarlo, recupera el estado y la batería sin reiniciar la aplicación.
+
+### P-016 — Detectar y activar Bluetooth desactivado
+
+- [ ] Detectar cuando el adaptador Bluetooth de Windows esté desactivado y mostrar el mensaje en inglés `Bluetooth is turned off.`.
+- [ ] Añadir un botón `Turn on Bluetooth` que intente activar Bluetooth directamente desde la aplicación.
+- [ ] Investigar y validar una API oficial de Windows compatible con la versión mínima soportada antes de implementar la activación.
+- [ ] No simular una activación: si Windows no permite activarlo por API o requiere intervención del usuario, informar el resultado real y ofrecer una alternativa segura.
+
+Objetivo observable: cuando el usuario apaga Bluetooth desde Windows, el widget deja de presentar la lista como un fallo genérico, explica que Bluetooth está desactivado y ofrece la acción directa solicitada.
+
+Criterios de aceptación: el estado se actualiza al apagar o encender Bluetooth, el botón comunica claramente éxito o motivo de imposibilidad y no modifica otros adaptadores ni emparejamientos.
 
 ### P-015 — Añadir pantalla About
 
@@ -134,8 +132,20 @@ Criterios de aceptación: cerrar la aplicación durante una consulta no produce 
 
 - [ ] Evaluar una preferencia para mostrar por separado o agrupar endpoints que compartan `ContainerId`.
 
+### P-017 — Gadget individual en la barra de inicio
+
+- [ ] Permitir fijar un gadget individual para uno de los dispositivos seleccionados.
+- [ ] Mostrar en ese gadget el nombre, estado de conexión y batería del dispositivo indicado.
+- [ ] Investigar el mecanismo oficial de Windows para integrarlo en la barra de inicio y definir sus limitaciones.
+- [ ] Mantener la selección y la actualización del dispositivo aunque la ventana principal esté cerrada o minimizada.
+
+Objetivo observable: el usuario puede elegir un dispositivo y consultar sus datos desde un gadget independiente en la barra de inicio, sin abrir toda la lista.
+
+Criterios de aceptación: el gadget muestra únicamente el dispositivo elegido, actualiza sus datos sin duplicar consultas y ofrece un comportamiento claro cuando el dispositivo está desconectado o no expone batería.
+
 ## Completado recientemente
 
+- [x] Reducir el tiempo de inicio: la ventana y el inventario inicial se publican sin esperar consultas secundarias; validado funcionalmente por el responsable del proyecto (`2026-09-01`).
 - [x] Eliminar la opción de inicio minimizado y mostrar siempre la ventana al iniciar (`2026-09-01`).
 - [x] Crear una skill de proyecto para documentación, QA y changelog (`2026-09-01`).
 - [x] Crear este backlog canónico y el registro `Unreleased` (`2026-09-01`).

@@ -52,7 +52,7 @@ App.OnStartup
 4. `BluetoothService` inicia el `DeviceWatcher` en segundo plano y devuelve inmediatamente una instantánea del inventario en memoria, aunque el watcher todavía esté enumerando.
 5. Cada evento `Added` publica progresivamente la lista. El dispositivo persistido se selecciona cuando aparece; si no aparece, el fallback se decide al completar o agotar la enumeración inicial.
 6. `EnumerationCompleted` o un límite blando de ocho segundos cierran el estado de carga inicial. Este límite no retrasa la publicación de los dispositivos encontrados antes.
-7. La hidratación de batería comienza después de cerrar el descubrimiento inicial y no forma parte del camino crítico de presentación.
+7. Desde 0.13, cada dispositivo conectado inicia su consulta de batería en segundo plano al aparecer, sin esperar el cierre del descubrimiento. Cada resultado válido se publica de forma independiente.
 
 La primera optimización del arranque eliminó la consulta completa `DeviceInformation.FindAllAsync` del camino crítico. El rendimiento continúa como pendiente de prioridad alta hasta medir repetidamente ventana, primera lista y batería en arranques fríos y calientes; véase `pending.md`.
 
@@ -66,9 +66,13 @@ La reconciliación completa se ejecuta fuera del arranque inicial. Si el watcher
 
 ## Batería
 
-La batería se intenta obtener desde la propiedad PnP del endpoint, el `DeviceContainer`, los nodos PnP del contenedor y el servicio GATT estándar `180F`/característica `2A19` en todos los endpoints candidatos. Los resultados válidos se conservan temporalmente; los resultados vacíos caducan y se reintentan. La interfaz muestra `Battery unavailable` cuando ninguna fuente entrega un porcentaje válido entre 0 y 100.
+La batería se intenta obtener desde `System.Devices.BatteryLife` y desde la propiedad raw `{104EA319-6EE2-4701-BD47-8DDBF425BBE5} 2` (`DEVPKEY_Bluetooth_BatteryLevel`) en el endpoint, el `DeviceContainer` y todos los nodos PnP del contenedor. La búsqueda por dirección incluye los IDs `BTHLE` y todos los `BTHENUM` (incluidos HFP/AVRCP), no solo el formato `BTHENUM\\DEV_<dirección>`. Esto permite unir los nodos HFP/AVRCP/BLE de un auricular Bose mediante su `ContainerId`; Windows suele publicar el valor Classic HFP en el nodo `Hands-Free AG`. GATT estándar `180F`/`2A19` permanece como fallback. Los candidatos se deduplican por dirección. Hay como máximo dos consultas GATT activas en toda la aplicación.
 
-La actualización de valores obtenidos por hidratación está pendiente: el caché actual puede conservar indefinidamente un valor o un resultado vacío. No debe considerarse resuelto hasta completar una prueba con un dispositivo BLE/GATT que cambie de nivel durante la sesión.
+`BatteryQueryRunner` publica el primer resultado válido sin esperar las demás fuentes. Cancela trabajo en cola y observa hasta su finalización las operaciones nativas ya iniciadas, manteniendo ocupado el contenedor para impedir consultas superpuestas. Los ocho segundos ya no descartan resultados tardíos: Windows determina la duración de sus operaciones. Un controlador que no termina una solicitud puede mantener ocupado ese contenedor; no se fuerza otra solicitud sobre él.
+
+Las generaciones de conexión invalidan resultados anteriores cuando cambian los endpoints. Al finalizar una consulta obsoleta se vuelve a evaluar el contenedor actual. Los fallos sin valor previo programan reintentos a los 3, 10 y luego 20 segundos desde la finalización; un valor previo mantiene el intervalo de dos minutos. Los valores de hidratación caducan a los diez minutos. El cierre cancela los reintentos y consultas en cola, y suprime resultados de batería posteriores.
+
+La reconciliación de diez segundos permanece como recuperación y comienza también al cerrar el descubrimiento por timeout. Las instantáneas idénticas no generan notificaciones y el ViewModel reemplaza únicamente filas cuyo contenido cambió. La posición se guarda al terminar el arrastre y al salir, evitando escrituras por cada movimiento.
 
 ## Límites técnicos
 

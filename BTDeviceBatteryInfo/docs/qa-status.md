@@ -1,11 +1,23 @@
 # Estado del QA
 
+## Build 0.13 — 2026-09-05
+
+- Cambios: batería temprana e independiente, control de operaciones pendientes, reintentos progresivos, menos actualizaciones visuales y guardado de posición al finalizar el arrastre.
+- Validación: compilación Release con cero errores y advertencias; cinco escenarios del ejecutable de validación del coordinador aprobados.
+- Pendiente: prueba física de batería y reconexión, medición comparativa de latencia y consumo, y comprobación visual WPF.
+- Ajuste puntual posterior: `FromIdAsync` ya no se filtra por prefijo del identificador; la validación física del Bose sigue pendiente.
+- El Bose expuso `DEVPKEY_Bluetooth_BatteryLevel = 100` en `Hands-Free AG`; la ruta PnP ya solicita y procesa esa propiedad. Falta repetir la prueba con la aplicación ejecutándose.
+- El selector por dirección fue ampliado para localizar el nodo `Hands-Free AG` junto al endpoint base. Falta repetir la prueba con la aplicación ejecutándose.
+- La consulta HFP `0000111E` se realiza explícitamente y filtra por `ContainerId`; falta confirmar el porcentaje en la interfaz con el Bose.
+- La ruta HFP nativa consulta `DEVPKEY_Bluetooth_BatteryLevel` mediante `CfgMgr32` y agrupa todos los devnodes por `ContainerId`; falta confirmar el porcentaje en la interfaz con el Bose.
+- `P-002` conserva la aceptación de hardware pendiente y `P-014` sigue abierto. No se declara corregida la interpretación de los perfiles de conexión.
+
 ## Revisión actual
 
 - Fecha: `2026-09-01`
 - Alcance: documentación, estructura del código, compilación, formato, flujo de inicio, ejecución del binario, hardware disponible y cambios incluidos en `0.12`.
-- Estado: `No aprobado para cierre`.
-- Bloqueador funcional principal: `P-001` ya tiene una primera optimización, pero todavía no cuenta con la línea base repetida ni un objetivo de tiempo aprobado.
+- Estado: `Aprobado funcionalmente con validaciones de hardware pendientes`.
+- Validación del responsable: el inicio ya se percibe rápido en el uso normal; `P-001` queda cerrado funcionalmente (`2026-09-01`).
 
 ## Validaciones ejecutadas
 
@@ -25,8 +37,7 @@
 
 ## Hallazgos abiertos
 
-- `P-001`: completar la línea base en frío/caliente, verificar integridad visual de la lista y definir el objetivo después de la primera optimización.
-- `P-002`: confirmar con hardware Bose que los reintentos recuperan el nivel de batería después de reconectar.
+- `P-002`: confirmar con hardware Bose que los reintentos recuperan el nivel de batería después de reconectar y reducir el tiempo de presentación del indicador.
 - `P-003`: validar en más modelos el grupo de dispositivos desconectados.
 - `P-014`: corregir estados `Connected` falsos y oscilaciones causadas por múltiples endpoints del mismo dispositivo.
 - `P-005`: alinear la reconexión interna con la interfaz y la documentación.
@@ -49,4 +60,4 @@
 
 ## Criterio para continuar
 
-Continuar con `P-001`: repetir la matriz de medición en frío/caliente y confirmar visualmente que la publicación incremental conserva todos los dispositivos y estados antes de definir el objetivo de tiempo.
+Continuar con `P-014`: reproducir una desconexión física y corregir los estados `Connected` falsos sin confundir endpoints auxiliares BLE con una conexión principal.

@@ -53,18 +53,10 @@ public partial class MainWindow : Window, IDisposable
                 await HandleBackgroundErrorAsync("Window initialization", ex);
             }
         };
-        LocationChanged += async (_, _) =>
+        LocationChanged += (_, _) =>
         {
-            try
-            {
-                _settings.Left = Left;
-                _settings.Top = Top;
-                await SettingsService.SaveAsync(_settings);
-            }
-            catch (Exception ex)
-            {
-                await HandleBackgroundErrorAsync("Window placement save", ex);
-            }
+            _settings.Left = Left;
+            _settings.Top = Top;
         };
         Closing += OnClosing;
     }
@@ -125,9 +117,15 @@ public partial class MainWindow : Window, IDisposable
         }
     }
 
-    private void DragWindow(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private async void DragWindow(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        if (e.ChangedButton == System.Windows.Input.MouseButton.Left) DragMove();
+        if (e.ChangedButton != System.Windows.Input.MouseButton.Left) return;
+        try
+        {
+            DragMove();
+            await SettingsService.SaveAsync(_settings);
+        }
+        catch (Exception ex) { await HandleBackgroundErrorAsync("Window placement save", ex); }
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e)
@@ -143,9 +141,12 @@ public partial class MainWindow : Window, IDisposable
         aboutWindow.ShowDialog();
     }
 
-    private void ExitApplication()
+    private async void ExitApplication()
     {
+        if (_isExiting) return;
         _isExiting = true;
+        try { await SettingsService.SaveAsync(_settings); }
+        catch (Exception ex) { await HandleBackgroundErrorAsync("Exit settings save", ex); }
         if (_tray is not null) _tray.Visible = false;
         System.Windows.Application.Current.Shutdown();
     }

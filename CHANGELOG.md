@@ -4,7 +4,19 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
-No hay cambios publicados posteriores a la versión `0.12`.
+### Performance — build 0.13
+
+- Battery queries start as soon as a device is detected, and each percentage is published independently.
+- Reduced duplicate GATT queries, unnecessary UI updates, and window-position writes.
+
+### Fixed
+
+- Pending and late Bluetooth query results are handled safely, with progressive retries when battery data is unavailable.
+- Results from previous connections are discarded.
+- HFP, AVRCP, BLE, and base endpoints are unified by `ContainerId`.
+- Bose headsets now use Windows' native `DEVPKEY_Bluetooth_BatteryLevel` property.
+
+Local build `0.13`, validated with a connected Bose QC Ultra 2. [Details and limitations](BTDeviceBatteryInfo/docs/changelog/unreleased.md).
 
 ## [0.12] — Confiabilidad y experiencia
 

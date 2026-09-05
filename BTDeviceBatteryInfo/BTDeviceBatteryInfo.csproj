@@ -7,7 +7,7 @@
     <AssemblyName>BTDeviceBatteryInfo</AssemblyName>
     <Product>BT Device Battery Info</Product>
     <Description>Widget para consultar el estado y la batería de dispositivos Bluetooth en Windows.</Description>
-    <Version>0.12</Version>
+    <Version>0.13</Version>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="validation/**/*.cs" />
     <Resource Include="Icon.ico" />
     <Resource Include="avatarapp.png" />
   </ItemGroup>

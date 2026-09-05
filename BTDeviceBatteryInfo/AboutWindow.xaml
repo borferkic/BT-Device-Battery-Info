@@ -36,7 +36,7 @@
                     </Ellipse.Fill>
                 </Ellipse>
                 <TextBlock Text="BT Device Battery Info" Foreground="#FFFFFFFF" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                <TextBlock Text="Version 0.12" Foreground="#FFB8B8B8" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                <TextBlock Text="Version 0.13" Foreground="#FFB8B8B8" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Row="2" Margin="0,24,0,0">

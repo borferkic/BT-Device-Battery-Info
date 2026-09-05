@@ -170,16 +170,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 var discoveryCompleted = _bluetooth.IsInitialDiscoveryCompleted;
                 await InvokeOnUiAsync(() =>
                 {
-                    _connectedDevices.Clear();
-                    _disconnectedDevices.Clear();
-                    foreach (var device in latestDevices)
-                    {
-                        var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent);
-                        if (device.IsConnected)
-                            _connectedDevices.Add(item);
-                        else
-                            _disconnectedDevices.Add(item);
-                    }
+                    SynchronizeItems(_connectedDevices, latestDevices.Where(device => device.IsConnected));
+                    SynchronizeItems(_disconnectedDevices, latestDevices.Where(device => !device.IsConnected));
                     if (_disconnectedDevices.Count == 0)
                         _disconnectedDevicesExpanded = false;
                     DeviceListMessage = latestDevices.Count == 0
@@ -222,6 +214,19 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             if (refreshFailed && !_isDisposed && Interlocked.Exchange(ref _refreshQueued, 0) != 0)
                 _ = RefreshDevicesAsync();
         }
+    }
+
+    private static void SynchronizeItems(ObservableCollection<BluetoothDeviceItem> target, IEnumerable<BluetoothDeviceInfo> devices)
+    {
+        var index = 0;
+        foreach (var device in devices)
+        {
+            var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent);
+            if (index == target.Count) target.Add(item);
+            else if (target[index] != item) target[index] = item;
+            index++;
+        }
+        while (target.Count > index) target.RemoveAt(target.Count - 1);
     }
 
     private async Task TrySelectPreferredDeviceAsync(IReadOnlyList<BluetoothDeviceInfo> devices, bool discoveryCompleted)

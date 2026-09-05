@@ -14,7 +14,13 @@ dotnet test ".\BT Device Battery Info.slnx" --configuration Release --no-restore
 git diff --check
 ```
 
-El proyecto actualmente no contiene un proyecto de pruebas ni referencias a `Microsoft.NET.Test.Sdk`, xUnit, NUnit o MSTest. Por eso `dotnet test` puede terminar correctamente sin descubrir pruebas; ese resultado no sustituye la validación manual.
+No hay una suite basada en `Microsoft.NET.Test.Sdk`, xUnit, NUnit o MSTest: `dotnet test` termina sin pruebas descubiertas. Desde 0.13 existe además un ejecutable de validación del coordinador, sin dependencias externas ni hardware:
+
+```powershell
+dotnet run --project BTDeviceBatteryInfo/validation/BatteryQueries/BatteryQueries.csproj -c Release
+```
+
+Comprueba publicación temprana, retención de operaciones pendientes, rechazo de valores inválidos, cancelación, resultados tardíos e independencia entre dispositivos. No valida WinRT, la agrupación de endpoints ni el aspecto visual.
 
 La integración continua ejecuta `restore`, `format`, `build` y `test` en `windows-latest`; `test` todavía no descubre una suite de pruebas.
 
@@ -64,6 +70,8 @@ Evidencia inicial posterior a la primera optimización (`2026-09-01`, una ejecuc
 Evidencia de interfaz y batería (`2026-09-01`): UI Automation expandió `Disconected Devices` correctamente; la ventana pasó de 306 a 530 px y mostró cuatro dispositivos desconectados. En una sesión prolongada, una consulta obtuvo `1/2` baterías mediante GATT y los resultados vacíos se reintentaron después; el Bose probado continuó sin dato de Windows en esos ciclos.
 
 ## Evidencia de una prueba
+
+Validación manual pendiente para 0.13: repetir arranque con varios dispositivos y confirmar que una batería rápida aparece aunque otra no responda; desconectar y reconectar durante una consulta; cerrar mientras Windows responde; arrastrar la ventana y comprobar que conserva su posición al reiniciar. Comparar el tiempo de los registros `Batería disponible en ... ms` y el tiempo hasta el porcentaje visible con la versión anterior. El registro mide desde la programación de la consulta, no desde el lanzamiento del proceso.
 
 ```text
 Fecha:
