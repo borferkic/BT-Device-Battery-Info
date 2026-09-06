@@ -4,7 +4,7 @@
 
 Information in: [English](#english) | [Español](#espanol)
 
-Build local `0.13` — **Batería y eficiencia** (pendiente de validación con hardware).
+Release `0.14` — **Refresco manual y recuperación de batería**.
 
 BT Device Battery Info is an open-source Windows desktop widget that displays paired or connected Bluetooth devices and their battery level when Windows makes that information available.
 
@@ -19,6 +19,7 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 - Shows a loading indicator during the initial device scan.
 - Grows or shrinks the complete widget automatically as devices appear or disappear, without a scrollbar.
 - Provides tray actions to show or hide the widget, enable or disable Start with Windows, and exit the application.
+- Provides `Refresh now` in the widget and system tray to refresh devices and trigger a new battery query.
 - Prevents multiple instances from running at the same time and informs the user when the application is already open.
 - Includes an About window with project information and creator links.
 - Stores application data and diagnostic logs in `%LocalAppData%\BTDeviceBatteryInfo`.
@@ -30,7 +31,7 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 
 ## Download
 
-Download the latest version from [GitHub Releases](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest), extract the ZIP file, and run `BTDeviceBatteryInfo.exe`.
+Download [version 0.14](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.14) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
 
 The release requires the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) for Windows. Developers building from source need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
 
@@ -100,7 +101,7 @@ The project documentation is organized in [BTDeviceBatteryInfo/docs/README.md](B
 
 ## Español
 
-Build local `0.13` — **Batería y eficiencia** (pendiente de validación con hardware).
+Release `0.14` — **Refresco manual y recuperación de batería**.
 
 BT Device Battery Info es un widget de escritorio open source para Windows que muestra los dispositivos Bluetooth emparejados o conectados y su nivel de batería cuando Windows proporciona esa información.
 
@@ -115,6 +116,7 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 - Muestra un indicador de carga durante la búsqueda inicial.
 - Aumenta o reduce automáticamente el tamaño completo del widget según aparezcan o desaparezcan dispositivos, sin barra de desplazamiento.
 - Incluye opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows y salir de la aplicación.
+- Incluye `Refresh now` en el widget y el área de notificaciones para actualizar los dispositivos y volver a consultar la batería.
 - Evita que se ejecuten varias instancias al mismo tiempo y avisa si la aplicación ya está abierta.
 - Incluye una ventana About con información del proyecto y enlaces del creador.
 - Guarda la configuración y los registros en `%LocalAppData%\BTDeviceBatteryInfo`.
@@ -126,7 +128,7 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 
 ### Descargar
 
-Descarga la versión más reciente desde [GitHub Releases](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest), extrae el archivo ZIP y ejecuta `BTDeviceBatteryInfo.exe`.
+Descarga la [versión 0.14](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.14) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
 
 La versión publicada requiere el [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) para Windows. Para compilar desde el código fuente se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
 
