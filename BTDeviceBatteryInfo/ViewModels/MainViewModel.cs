@@ -21,6 +21,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly ReadOnlyObservableCollection<BluetoothDeviceItem> _readOnlyConnectedDevices;
     private readonly ReadOnlyObservableCollection<BluetoothDeviceItem> _readOnlyDisconnectedDevices;
     private CancellationTokenSource? _reconnectCts;
+    private CancellationTokenSource? _manualRefreshCts;
     private int _refreshQueued;
     private int _reconnectGeneration;
     private bool _isDisposed;
@@ -28,6 +29,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private bool _disconnectedDevicesExpanded;
     private string _status = "DISCONNECTED";
     private string _deviceListMessage = "Searching for paired or connected Bluetooth devices…";
+    private string _refreshStatus = string.Empty;
     private bool _isLoading = true;
 
     public MainViewModel(AppSettings settings, BluetoothService bluetooth, FileLogger logger)
@@ -77,6 +79,18 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
     }
     public Visibility DeviceListMessageVisibility => string.IsNullOrWhiteSpace(DeviceListMessage) ? Visibility.Collapsed : Visibility.Visible;
+    public string RefreshStatus
+    {
+        get => _refreshStatus;
+        private set
+        {
+            if (_refreshStatus == value) return;
+            _refreshStatus = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(RefreshStatusVisibility));
+        }
+    }
+    public Visibility RefreshStatusVisibility => string.IsNullOrWhiteSpace(RefreshStatus) ? Visibility.Collapsed : Visibility.Visible;
     public Visibility LoadingVisibility => _isLoading ? Visibility.Visible : Visibility.Collapsed;
     public string ActionText => _status == "CONNECTED" ? "RECONNECT" : "CONNECT";
     public System.Windows.Media.Brush StatusBrush => _status == "ERROR" ? System.Windows.Media.Brushes.IndianRed : ConnectedDeviceCount <= 0 ? System.Windows.Media.Brushes.Goldenrod : System.Windows.Media.Brushes.MediumSeaGreen;
@@ -94,6 +108,40 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         await RefreshDevicesAsync();
         if (_bluetooth.IsInitialDiscoveryCompleted)
             await CompleteLoadingAsync();
+    }
+
+    public async Task RefreshNowAsync()
+    {
+        if (_isDisposed) return;
+
+        var refreshCts = new CancellationTokenSource();
+        var previousRefresh = Interlocked.Exchange(ref _manualRefreshCts, refreshCts);
+        previousRefresh?.Cancel();
+        var token = refreshCts.Token;
+
+        try
+        {
+            await InvokeOnUiAsync(() => RefreshStatus = "Refreshing devices and battery…");
+            await _bluetooth.RefreshNowAsync();
+            await RefreshDevicesAsync();
+
+            await Task.Delay(TimeSpan.FromSeconds(10), token);
+            await InvokeOnUiAsync(() => RefreshStatus = string.Empty);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+        }
+        catch (Exception ex)
+        {
+            await _logger.LogAsync("Manual Bluetooth refresh error: " + ex.Message);
+            await InvokeOnUiAsync(() => RefreshStatus = "Unable to refresh Bluetooth devices.");
+        }
+        finally
+        {
+            if (ReferenceEquals(Volatile.Read(ref _manualRefreshCts), refreshCts))
+                Interlocked.CompareExchange(ref _manualRefreshCts, null, refreshCts);
+            refreshCts.Dispose();
+        }
     }
 
     public async Task ReconnectAsync(bool force)
@@ -322,6 +370,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         _isDisposed = true;
         _lifetimeCts.Cancel();
+        _manualRefreshCts?.Cancel();
         Interlocked.Exchange(ref _reconnectCts, null)?.Cancel();
         _bluetooth.StateChanged -= OnStateChanged;
         _bluetooth.DevicesChanged -= OnDevicesChanged;

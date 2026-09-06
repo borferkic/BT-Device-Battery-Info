@@ -20,6 +20,7 @@ public partial class MainWindow : Window, IDisposable
     private Forms.NotifyIcon? _tray;
     private Drawing.Icon? _trayIcon;
     private Forms.ToolStripMenuItem? _toggleWidgetMenuItem;
+    private Forms.ToolStripMenuItem? _refreshMenuItem;
     private Forms.ToolStripMenuItem? _startWithWindowsMenuItem;
     private bool _isExiting;
 
@@ -69,6 +70,9 @@ public partial class MainWindow : Window, IDisposable
         _toggleWidgetMenuItem = new Forms.ToolStripMenuItem();
         _toggleWidgetMenuItem.Click += (_, _) => ToggleWidgetFromTray();
         menu.Items.Add(_toggleWidgetMenuItem);
+        _refreshMenuItem = new Forms.ToolStripMenuItem("Refresh now");
+        _refreshMenuItem.Click += async (_, _) => await ViewModel.RefreshNowAsync();
+        menu.Items.Add(_refreshMenuItem);
         _startWithWindowsMenuItem = new Forms.ToolStripMenuItem("Start with Windows")
         {
             Checked = StartupService.IsEnabled()
@@ -134,6 +138,8 @@ public partial class MainWindow : Window, IDisposable
         UpdateWidgetMenuItem();
     }
     private void Exit_Click(object sender, RoutedEventArgs e) => ExitApplication();
+
+    private async void RefreshNow_Click(object sender, RoutedEventArgs e) => await ViewModel.RefreshNowAsync();
 
     private void About_Click(object sender, RoutedEventArgs e)
     {

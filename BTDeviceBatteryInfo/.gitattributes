@@ -1,0 +1,2 @@
+prebuild/0.14/BTDeviceBatteryInfo.exe filter=lfs diff=lfs merge=lfs -text
+prebuild/0.14/BTDeviceBatteryInfo.pdb filter=lfs diff=lfs merge=lfs -text

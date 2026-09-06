@@ -1,5 +1,20 @@
 # Unreleased Changes
 
+## 0.14 — Manual refresh and battery recovery
+
+Local prebuild prepared on `2026-09-06`.
+
+## Added
+
+- `Refresh now` in the system-tray menu.
+- A temporary visual status while devices and battery information are refreshed.
+- Manual endpoint reconciliation that forces a new PnP/GATT battery query.
+
+## Validation and limitations
+
+- Release build and publish validation are pending for this prebuild.
+- Battery timing remains device-dependent; Windows controls the duration of native Bluetooth requests.
+
 ## 0.13 — Battery and performance
 
 Local build prepared on `2026-09-05`.

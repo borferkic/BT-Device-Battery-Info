@@ -80,6 +80,12 @@ public sealed class BluetoothService : IDisposable
         lock (_endpointsLock) return BuildDeviceSnapshot();
     }
 
+    public async Task RefreshNowAsync()
+    {
+        await EnsureInitializedAsync();
+        await ReconcileEndpointsAsync(delay: false, forceBattery: true);
+    }
+
     public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindConnectedDevicesAsync() =>
         (await FindDevicesAsync()).Where(device => device.IsConnected).ToArray();
 
@@ -223,7 +229,7 @@ public sealed class BluetoothService : IDisposable
         }
     }
 
-    private void ScheduleEndpointReconciliation(bool delay = false) => _ = ReconcileEndpointsAsync(delay);
+    private void ScheduleEndpointReconciliation(bool delay = false) => _ = ReconcileEndpointsAsync(delay, forceBattery: false);
 
     private async Task CompleteInitialDiscoveryAfterTimeoutAsync(CancellationToken token)
     {
@@ -277,7 +283,7 @@ public sealed class BluetoothService : IDisposable
         }
     }
 
-    private async Task ReconcileEndpointsAsync(bool delay)
+    private async Task ReconcileEndpointsAsync(bool delay, bool forceBattery)
     {
         if (!await _reconciliationGate.WaitAsync(0)) return;
 
@@ -316,7 +322,7 @@ public sealed class BluetoothService : IDisposable
                     _endpoints[endpoint.Id] = endpoint;
                 }
             }
-            QueueBatteryHydration(endpoints);
+            QueueBatteryHydration(endpoints, force: forceBattery);
             PublishChanges();
         }
         catch (Exception ex)
@@ -622,7 +628,7 @@ public sealed class BluetoothService : IDisposable
             StartWatcher();
             await LogSafeAsync("Bluetooth watcher restarted.");
             if (IsInitialDiscoveryCompleted)
-                await ReconcileEndpointsAsync(delay: false);
+                await ReconcileEndpointsAsync(delay: false, forceBattery: false);
         }
         catch (Exception ex)
         {

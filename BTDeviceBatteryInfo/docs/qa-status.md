@@ -1,5 +1,11 @@
 # Estado del QA
 
+## Prebuild 0.14 — 2026-09-06
+
+- Cambios incluidos: `Refresh now` en la bandeja, reconciliación manual de endpoints y consulta PnP/GATT de batería forzada.
+- Validación: publicación `win-x64`, self-contained y single-file completada correctamente; versión del ejecutable `0.14.0.0`.
+- Pendiente: prueba visual del menú de bandeja y validación física con los auriculares; el tiempo de batería continúa dependiendo de Windows y del dispositivo.
+
 ## Build 0.13 — 2026-09-05
 
 - Cambios: batería temprana e independiente, control de operaciones pendientes, reintentos progresivos, menos actualizaciones visuales y guardado de posición al finalizar el arrastre.

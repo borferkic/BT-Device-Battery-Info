@@ -70,9 +70,12 @@ Criterios de aceptación: la ventana mantiene el estilo del widget, los textos s
 
 ### P-004 — Añadir actualización manual
 
-- [ ] Incorporar `Refresh now` al menú de bandeja.
-- [ ] Mostrar un estado temporal y conservar la coalescencia de eventos Bluetooth.
+- [x] Incorporar `Refresh now` al menú de bandeja (`2026-09-05`).
+- [x] Mostrar un estado temporal y conservar la coalescencia de eventos Bluetooth (`2026-09-05`).
+- [x] Forzar la reconciliación de endpoints y una nueva consulta PnP/GATT de batería (`2026-09-05`).
 - [ ] Registrar el tiempo de la consulta sin exponer identificadores sensibles.
+
+La consulta de batería continúa en segundo plano; el estado visual se mantiene durante una ventana de espera de diez segundos para cubrir consultas GATT lentas sin bloquear el widget.
 
 ### P-005 — Alinear la reconexión con la interfaz
 

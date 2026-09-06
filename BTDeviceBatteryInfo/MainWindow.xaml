@@ -60,7 +60,10 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Text="Your devices" Style="{StaticResource SectionTitleText}"/>
-                <TextBlock Grid.Row="1" Text="{Binding DeviceListMessage}" Visibility="{Binding DeviceListMessageVisibility}" Foreground="#FFB8B8B8" FontSize="12" Margin="0,6,0,10" TextWrapping="Wrap"/>
+                <StackPanel Grid.Row="1" Margin="0,6,0,10">
+                    <TextBlock Text="{Binding RefreshStatus}" Visibility="{Binding RefreshStatusVisibility}" Foreground="#FFB8B8B8" FontSize="12" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding DeviceListMessage}" Visibility="{Binding DeviceListMessageVisibility}" Foreground="#FFB8B8B8" FontSize="12" TextWrapping="Wrap"/>
+                </StackPanel>
                 <StackPanel Grid.Row="2">
                     <ItemsControl ItemsSource="{Binding ConnectedDevices}" ItemTemplate="{StaticResource BluetoothDeviceTemplate}"/>
                     <Expander IsExpanded="{Binding IsDisconnectedDevicesExpanded, Mode=TwoWay}"
@@ -102,7 +105,14 @@
                     <TextBlock Text="Loading app, please wait..." Foreground="#FFF2F2F2" FontSize="12" Margin="0,12,0,0" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>
-            <TextBlock Grid.Row="2" Text="Development in Beta" HorizontalAlignment="Right" Foreground="#FF8A8A8A" FontSize="10" Margin="0,10,0,0"/>
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <TextBlock Text="Development in Beta" HorizontalAlignment="Left" Foreground="#FF8A8A8A" FontSize="10"/>
+                <Button Content="Refresh now"
+                        HorizontalAlignment="Right"
+                        Padding="10,3"
+                        MinWidth="90"
+                        Click="RefreshNow_Click"/>
+            </Grid>
         </Grid>
     </Border>
 </Window>
