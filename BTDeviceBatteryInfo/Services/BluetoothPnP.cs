@@ -5,20 +5,25 @@ namespace BTDeviceBatteryInfo.Services;
 /// <summary>Reads the battery property Windows publishes on Classic Bluetooth HFP nodes.</summary>
 internal static class BluetoothPnP
 {
-    private const uint CmGetIdListFilterPresent = 0x00000100;
     private const uint CrSuccess = 0;
     private const uint DevpropTypeByte = 3;
-    private const uint DevpropTypeGuid = 15;
-    private static readonly Guid DeviceContainerIdFormat = new("8C7ED206-3F8A-4A7C-9A37-0F7A7E7F0F8D");
+    // DEVPROP_TYPE_GUID is 0x0000000D. The value returned by
+    // CM_Get_DevNode_PropertyW must match before a ContainerId can link the
+    // generic HFP devnode to its Bluetooth association endpoint.
+    private const uint DevpropTypeGuid = 13;
+    private static readonly Guid DeviceContainerIdFormat = new("8C7ED206-3F8A-4827-B3AB-AE9E1FAEFC6C");
     private static readonly Guid BluetoothBatteryFormat = new("104EA319-6EE2-4701-BD47-8DDBF425BBE5");
 
     public static int? TryGetBatteryForContainer(string containerId)
     {
         if (!Guid.TryParse(containerId, out var expectedContainer)) return null;
-        if (CM_Get_Device_ID_List_SizeW(out var length, null, CmGetIdListFilterPresent) != CrSuccess || length == 0) return null;
+        // Enumerate registered Bluetooth devnodes, not only nodes currently marked
+        // present. Windows can keep the connected HFP service node outside the
+        // present-only list while it still belongs to the active ContainerId.
+        if (CM_Get_Device_ID_List_SizeW(out var length, null, 0) != CrSuccess || length == 0) return null;
 
         var buffer = new char[length];
-        if (CM_Get_Device_ID_ListW(null, buffer, length, CmGetIdListFilterPresent) != CrSuccess) return null;
+        if (CM_Get_Device_ID_ListW(null, buffer, length, 0) != CrSuccess) return null;
         var ids = new string(buffer).Split('\0', StringSplitOptions.RemoveEmptyEntries);
         foreach (var id in ids.Where(id => id.StartsWith("BTHENUM\\", StringComparison.OrdinalIgnoreCase)
                                            || id.StartsWith("BTHLE\\", StringComparison.OrdinalIgnoreCase)))

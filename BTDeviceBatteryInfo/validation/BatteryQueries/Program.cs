@@ -71,4 +71,15 @@ using (var secondCancellation = new CancellationTokenSource())
     await first.WaitAsync(TimeSpan.FromSeconds(2));
 }
 
-Console.WriteLine("Correcto: 5 escenarios de coordinación de batería; sin hardware Bluetooth.");
+// The diagnostic source follows the first valid value without changing coordination semantics.
+using (var cancellation = new CancellationTokenSource())
+{
+    BatteryQueryValue? result = null;
+    await BatteryQueryRunner.RunWithSourceAsync(
+        [token => Task.FromResult(new BatteryQueryValue(null, "PnP")),
+         token => Task.FromResult(new BatteryQueryValue(70, "PnP HFP native"))],
+        value => result = value, cancellation);
+    Check(result is { Value: 70, Source: "PnP HFP native" }, "No se conservó la fuente del resultado válido.");
+}
+
+Console.WriteLine("Correcto: 6 escenarios de coordinación de batería; sin hardware Bluetooth.");

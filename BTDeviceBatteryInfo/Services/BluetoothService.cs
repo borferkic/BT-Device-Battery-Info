@@ -89,11 +89,6 @@ public sealed class BluetoothService : IDisposable
     public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindConnectedDevicesAsync() =>
         (await FindDevicesAsync()).Where(device => device.IsConnected).ToArray();
 
-    public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindBoseDevicesAsync() =>
-        (await FindDevicesAsync())
-            .Where(device => device.Name.Contains("Bose", StringComparison.OrdinalIgnoreCase) || device.Name.Contains("QuietComfort", StringComparison.OrdinalIgnoreCase))
-            .ToArray();
-
     public async Task<BluetoothDeviceInfo?> SelectAsync(string id)
     {
         _selectedId = id;
@@ -190,7 +185,10 @@ public sealed class BluetoothService : IDisposable
                     endpoint.Update(update);
                     becameConnected = !wasConnected && GetBoolean(endpoint, "System.Devices.Aep.IsConnected");
                     if (wasConnected != GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
+                    {
                         InvalidateBatteryGeneration(endpoint);
+                        ClearBatteryIfNoConnectedEndpointsLocked(GetString(endpoint, "System.Devices.Aep.ContainerId"));
+                    }
                 }
             }
             if (endpoint is not null && GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
@@ -217,9 +215,7 @@ public sealed class BluetoothService : IDisposable
                 _endpoints.Remove(update.Id);
                 if (endpoint is not null) InvalidateBatteryGeneration(endpoint);
                 _removedEndpointIds.Add(update.Id);
-                if (!string.IsNullOrWhiteSpace(containerId)
-                    && !_endpoints.Values.Any(current => string.Equals(GetString(current, "System.Devices.Aep.ContainerId"), containerId, StringComparison.OrdinalIgnoreCase)))
-                    _containerBatteries.Remove(containerId);
+                ClearBatteryIfNoConnectedEndpointsLocked(containerId);
             }
             PublishChanges();
         }
@@ -455,6 +451,20 @@ public sealed class BluetoothService : IDisposable
         }
     }
 
+    // Caller holds _endpointsLock. A paired endpoint may remain after its audio
+    // profiles disconnect; its old percentage must never describe a disconnected device.
+    private void ClearBatteryIfNoConnectedEndpointsLocked(string? containerId)
+    {
+        if (string.IsNullOrWhiteSpace(containerId)) return;
+        var hasConnectedEndpoint = _endpoints.Values.Any(current =>
+            string.Equals(GetString(current, "System.Devices.Aep.ContainerId"), containerId, StringComparison.OrdinalIgnoreCase)
+            && GetBoolean(current, "System.Devices.Aep.IsConnected"));
+        if (hasConnectedEndpoint) return;
+
+        _containerBatteries.Remove(containerId);
+        _batteryFailures.Remove(containerId);
+    }
+
     private TimeSpan GetBatteryRetryDelay(string containerId) => _batteryFailures.GetValueOrDefault(containerId) switch
     {
         <= 1 => TimeSpan.FromSeconds(3),
@@ -492,24 +502,24 @@ public sealed class BluetoothService : IDisposable
         try
         {
             using var queryCts = CancellationTokenSource.CreateLinkedTokenSource(_batteryLifetime.Token);
-            await BatteryQueryRunner.RunAsync(
-                new Func<CancellationToken, Task<int?>>[]
+            await BatteryQueryRunner.RunWithSourceAsync(
+                new Func<CancellationToken, Task<BatteryQueryValue>>[]
                 {
-                    async token => (await ReadPnpContainerBatteryAsync(candidate)).Value
+                    async token => ToBatteryQueryValue(await ReadPnpContainerBatteryAsync(candidate))
                 }.Concat(candidate.Endpoints.Select(endpoint =>
-                    (Func<CancellationToken, Task<int?>>)(async token => (await ReadGattLimitedAsync(endpoint, token)).Value))),
-                battery =>
+                    (Func<CancellationToken, Task<BatteryQueryValue>>)(async token => ToBatteryQueryValue(await ReadGattLimitedAsync(endpoint, token))))),
+                result =>
                 {
                     lock (_endpointsLock)
                     {
                         if (!IsBatteryCandidateCurrent(candidate)) return;
                         var now = DateTimeOffset.UtcNow;
-                        _containerBatteries[candidate.ContainerId] = new BatteryCacheEntry(battery, now, now, "PnP/GATT");
+                        _containerBatteries[candidate.ContainerId] = new BatteryCacheEntry(result.Value, now, now, result.Source);
                         _batteryFailures.Remove(candidate.ContainerId);
                         found = true;
                     }
                     PublishChanges();
-                    _ = LogSafeAsync($"Batería disponible en {stopwatch.ElapsedMilliseconds} ms (PnP/GATT).");
+                    _ = LogSafeAsync($"Battery available in {stopwatch.ElapsedMilliseconds} ms ({result.Source}).");
                 }, queryCts);
             if (!found)
             {
@@ -543,7 +553,7 @@ public sealed class BluetoothService : IDisposable
             if (retryEndpoints.Length > 0) QueueBatteryHydration(retryEndpoints, force: true);
             else if (retryDelay is TimeSpan delay) _ = RetryBatteryAsync(candidate, delay);
             if (!found && stopwatch.Elapsed >= BatteryQueryTimeout)
-                await LogSafeAsync($"Consulta de batería finalizada sin dato vigente en {stopwatch.ElapsedMilliseconds} ms.");
+                await LogSafeAsync($"Battery query completed without a current value in {stopwatch.ElapsedMilliseconds} ms.");
         }
     }
 
@@ -553,6 +563,8 @@ public sealed class BluetoothService : IDisposable
         try { return await ReadGattBatteryAsync(candidate, token); }
         finally { _gattGate.Release(); }
     }
+
+    private static BatteryQueryValue ToBatteryQueryValue(BatteryReadResult result) => new(result.Value, result.Source);
 
     private IReadOnlyList<BluetoothDeviceInfo> BuildDeviceSnapshot() =>
         _endpoints.Values
@@ -656,6 +668,10 @@ public sealed class BluetoothService : IDisposable
 
     private BluetoothDeviceInfo ToBluetoothDevice(DeviceInformation endpoint)
     {
+        var isConnected = GetBoolean(endpoint, "System.Devices.Aep.IsConnected");
+        if (!isConnected)
+            return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name, GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), false, null);
+
         var containerId = GetString(endpoint, "System.Devices.Aep.ContainerId");
         var battery = GetBatteryPercent(endpoint);
         if (battery is null
@@ -666,7 +682,7 @@ public sealed class BluetoothService : IDisposable
             && DateTimeOffset.UtcNow - lastSuccess <= BatteryValueExpiration)
             battery = cachedBattery;
 
-        return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name, GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), GetBoolean(endpoint, "System.Devices.Aep.IsConnected"), battery);
+        return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name, GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), true, battery);
     }
 
     private static async Task<BatteryReadResult> ReadGattBatteryAsync(BatteryEndpointCandidate candidate, CancellationToken token)
@@ -732,7 +748,7 @@ public sealed class BluetoothService : IDisposable
     private static async Task<BatteryReadResult> ReadPnpContainerBatteryAsync(BatteryCandidate candidate)
     {
         // Query the native PnP property first. This is where Windows stores the
-        // HFP Battery Level for Classic headsets such as Bose QC Ultra 2 HP.
+        // HFP Battery Level for Classic Bluetooth headsets.
         var nativeBattery = BluetoothPnP.TryGetBatteryForContainer(candidate.ContainerId);
         if (nativeBattery is int nativeLevel) return new BatteryReadResult(nativeLevel, "PnP HFP native");
 
@@ -835,13 +851,26 @@ public sealed class BluetoothService : IDisposable
 
     private static int? GetBatteryPercent(DeviceInformation endpoint)
     {
-        if (!endpoint.Properties.TryGetValue("System.Devices.BatteryLife", out var value) || value is null)
-            endpoint.Properties.TryGetValue(BluetoothBatteryLevelProperty, out value);
-        if (value is null) return null;
-        if (value is byte byteBattery) return byteBattery <= 100 ? byteBattery : null;
-        return int.TryParse(Convert.ToString(value, CultureInfo.InvariantCulture), NumberStyles.Integer, CultureInfo.InvariantCulture, out var battery) && battery is >= 0 and <= 100
-            ? battery
-            : null;
+        if (endpoint.Properties.TryGetValue("System.Devices.BatteryLife", out var systemBattery)
+            && TryParseBatteryPercent(systemBattery, out var battery)) return battery;
+        if (endpoint.Properties.TryGetValue(BluetoothBatteryLevelProperty, out var rawBattery)
+            && TryParseBatteryPercent(rawBattery, out battery)) return battery;
+        return null;
+    }
+
+    private static bool TryParseBatteryPercent(object? value, out int battery)
+    {
+        if (value is byte byteBattery)
+        {
+            battery = byteBattery;
+            return battery <= 100;
+        }
+
+        if (int.TryParse(Convert.ToString(value, CultureInfo.InvariantCulture), NumberStyles.Integer, CultureInfo.InvariantCulture, out battery)
+            && battery is >= 0 and <= 100) return true;
+
+        battery = 0;
+        return false;
     }
 
     public void Dispose()

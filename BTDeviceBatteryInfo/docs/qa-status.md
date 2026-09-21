@@ -1,5 +1,11 @@
 # Estado del QA
 
+## Release 0.15 — 2026-09-21
+
+- Cambios incluidos: se corrige el tipo PnP de `ContainerId` usado para unir devnodes, se enumeran nodos PnP Bluetooth registrados (incluidos los HFP que Windows no marca como `present`), se conserva la fuente real de la batería en el log y se elimina el porcentaje de caché al quedar el contenedor desconectado.
+- Diagnóstico local: Windows expone `DEVPKEY_Bluetooth_BatteryLevel` en los nodos genéricos `BTHENUM` con servicio `BthHFEnum`; se confirmó una lectura disponible para Bose QC Ultra 2 y Galaxy Buds3 Pro. No se registraron direcciones ni identificadores Bluetooth en esta evidencia.
+- Validación: el responsable confirmó el porcentaje HFP y la eliminación del valor anterior al desconectar. La publicación `win-x64`, self-contained y single-file queda preparada para la release.
+
 ## Prebuild 0.14 — 2026-09-06
 
 - Cambios incluidos: `Refresh now` en la bandeja, reconciliación manual de endpoints y consulta PnP/GATT de batería forzada.

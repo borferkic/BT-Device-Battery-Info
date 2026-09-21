@@ -4,7 +4,26 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
-### Performance — build 0.13
+## [0.15] — Recuperación de batería HFP/PnP
+
+### Corregido
+
+- Se restableció la lectura de batería para auriculares Bluetooth Classic mediante el nodo Windows HFP/PnP, sin rutas, nombres ni direcciones específicas de fabricante.
+- Al desconectar un dispositivo se descarta su porcentaje anterior y se muestra `Battery unavailable`.
+- Los registros locales, siempre en inglés, indican si el valor llegó por `PnP HFP native`, PnP o GATT, sin exponer identificadores Bluetooth.
+
+## [0.14] — Refresco manual y recuperación de batería
+
+### Añadido
+
+- Botón `Refresh now` en la esquina inferior derecha del widget y en el menú de bandeja.
+- Refresco manual mediante reconciliación inmediata de endpoints.
+- Nueva consulta PnP/GATT de batería al solicitar el refresco manual.
+- Estado visual durante la actualización de dispositivos y batería.
+
+## [0.13] — Batería y rendimiento
+
+### Rendimiento
 
 - Battery queries start as soon as a device is detected, and each percentage is published independently.
 - Reduced duplicate GATT queries, unnecessary UI updates, and window-position writes.

@@ -10,7 +10,7 @@ Esta carpeta contiene la documentación de mantenimiento, arquitectura, validaci
 4. [Estándar de documentación](documentation-standard.md): formato, jerarquía y reglas de mantenimiento.
 5. [Pendientes](pending.md): backlog canónico priorizado por impacto.
 6. [Cambios no publicados](changelog/unreleased.md): registro detallado para la próxima versión.
-7. [Versión 0.12](changelog/0.12.md): notas detalladas de la versión pública actual.
+7. [Versión 0.15](changelog/0.15.md): notas detalladas de la versión pública actual.
 8. [Roadmap](roadmap.md): dirección general y decisiones de producto.
 9. [Historial de changelog](changelog/): notas de versiones publicadas.
 
@@ -27,4 +27,4 @@ Esta carpeta contiene la documentación de mantenimiento, arquitectura, validaci
 
 ## Estado documental
 
-La línea base pública es la versión `0.12 — Confiabilidad y experiencia`. Los cambios posteriores se mantienen bajo `Unreleased` hasta que se defina la próxima versión.
+La línea base pública es la versión `0.15 — Recuperación de batería HFP/PnP`. Los cambios posteriores se mantienen bajo `Unreleased` hasta que se defina la próxima versión.

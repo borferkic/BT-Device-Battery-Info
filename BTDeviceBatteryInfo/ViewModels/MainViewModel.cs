@@ -289,9 +289,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         else
         {
-            selected = devices.FirstOrDefault(device =>
-                device.Name.Contains("Bose", StringComparison.OrdinalIgnoreCase)
-                || device.Name.Contains("QuietComfort", StringComparison.OrdinalIgnoreCase));
+            selected = devices.FirstOrDefault(device => device.IsConnected);
             if (selected is null && !discoveryCompleted) return;
         }
 

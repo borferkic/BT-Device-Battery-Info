@@ -4,7 +4,7 @@
 
 Information in: [English](#english) | [Español](#espanol)
 
-Release `0.14` — **Refresco manual y recuperación de batería**.
+Release `0.15` — **HFP/PnP battery recovery**.
 
 BT Device Battery Info is an open-source Windows desktop widget that displays paired or connected Bluetooth devices and their battery level when Windows makes that information available.
 
@@ -31,9 +31,9 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 
 ## Download
 
-Download [version 0.14](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.14) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
+Download [version 0.15](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.15) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
 
-The release requires the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) for Windows. Developers building from source need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
+The release is self-contained and does not require the .NET Desktop Runtime. Developers building from source need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
 
 ## Support the project
 
@@ -59,6 +59,7 @@ dotnet publish ".\BTDeviceBatteryInfo\BTDeviceBatteryInfo.csproj" `
   --runtime win-x64 `
   --self-contained true `
   -p:PublishSingleFile=true `
+  -p:IncludeNativeLibrariesForSelfExtract=true `
   --output ".\publish\win-x64"
 ```
 
@@ -101,7 +102,7 @@ The project documentation is organized in [BTDeviceBatteryInfo/docs/README.md](B
 
 ## Español
 
-Release `0.14` — **Refresco manual y recuperación de batería**.
+Versión `0.15` — **Recuperación de batería HFP/PnP**.
 
 BT Device Battery Info es un widget de escritorio open source para Windows que muestra los dispositivos Bluetooth emparejados o conectados y su nivel de batería cuando Windows proporciona esa información.
 
@@ -128,9 +129,9 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 
 ### Descargar
 
-Descarga la [versión 0.14](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.14) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
+Descarga la [versión 0.15](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.15) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
 
-La versión publicada requiere el [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) para Windows. Para compilar desde el código fuente se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
+La versión publicada es autocontenida y no requiere el .NET Desktop Runtime. Para compilar desde el código fuente se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
 
 ### Apoya el proyecto
 
@@ -154,6 +155,7 @@ dotnet publish ".\BTDeviceBatteryInfo\BTDeviceBatteryInfo.csproj" `
   --runtime win-x64 `
   --self-contained true `
   -p:PublishSingleFile=true `
+  -p:IncludeNativeLibrariesForSelfExtract=true `
   --output ".\publish\win-x64"
 ```
 

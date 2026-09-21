@@ -36,7 +36,7 @@ La prueba debe registrar resultado, versión de Windows, arquitectura, adaptador
 | T-04 | Batería disponible | Se muestra un porcentaje entre 0 y 100 cuando Windows lo proporciona. |
 | T-05 | Batería no disponible | Se muestra `Battery unavailable` sin bloquear la interfaz. |
 | T-06 | Varios dispositivos | Con uno o dos dispositivos se conserva la altura base; cada dispositivo adicional agrega una fila de 56 px sin barra de desplazamiento. |
-| T-07 | Desconexión | El estado cambia, la lista se actualiza y la altura vuelve a la base cuando quedan dos o menos dispositivos. |
+| T-07 | Desconexión | El estado cambia, la lista se actualiza, cualquier porcentaje anterior se sustituye por `Battery unavailable` y la altura vuelve a la base cuando quedan dos o menos dispositivos. |
 | T-08 | Dispositivos similares | Dos dispositivos con identidades diferentes permanecen separados; los endpoints del mismo contenedor se agrupan según la decisión actual. |
 | T-09 | Cambios del watcher | Conectar, desconectar, quitar y volver a emparejar dispositivos no deja entradas obsoletas ni duplica filas. |
 | T-10 | Bandeja | El menú contiene `Show widget`/`Hide widget`, `Start with Windows` y `Exit`; mostrar, ocultar y salir funcionan. |
@@ -46,7 +46,7 @@ La prueba debe registrar resultado, versión de Windows, arquitectura, adaptador
 | T-14 | Reconexión automática | Tras desconectar el dispositivo seleccionado, la aplicación espera la política configurada y solo muestra el estado confirmado por Windows. No debe eliminar emparejamientos ni simular una conexión. |
 | T-15 | Registros | Se generan logs locales en `%LocalAppData%\BTDeviceBatteryInfo\Logs` sin compartir identificadores sensibles. |
 | T-16 | Grupo desconectados | El grupo se puede expandir y contraer; al expandirlo la ventana muestra las filas desconectadas y al contraerlo vuelve a ocultarlas. |
-| T-17 | Reintento de batería | Un resultado vacío no bloquea futuros intentos; al reconectar o vencer el intervalo de reintento se vuelven a consultar PnP/GATT sin duplicar consultas simultáneas. |
+| T-17 | Reintento de batería | Un resultado vacío no bloquea futuros intentos; al reconectar o vencer el intervalo de reintento se vuelven a consultar PnP/GATT sin duplicar consultas simultáneas. El log redactado identifica solo la fuente ganadora (`PnP HFP native`, `PnP container`, `PnP device` o `GATT`). |
 | T-18 | About | El engranaje abre la ventana `About` con avatar, descripción en inglés, `© 2026 Boris SdK`, y enlaces individuales clicables para Instagram, Twitch y LinkedIn. |
 
 ## Rendimiento de inicio

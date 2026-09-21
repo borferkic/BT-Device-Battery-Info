@@ -18,7 +18,7 @@ Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto
 
 Implementación para `0.13` (`2026-09-05`): consulta desde la detección, publicación independiente, retención de operaciones nativas pendientes, deduplicación por dirección, límite de dos consultas GATT y reintentos progresivos. Las pruebas del coordinador y la compilación no sustituyen la aceptación con hardware; el criterio de latencia permanece pendiente.
 
-- [x] Evitar que el caché conserve indefinidamente un porcentaje antiguo o `Battery unavailable` (`2026-09-01`).
+- [x] Descartar el porcentaje de caché al no quedar ningún endpoint conectado, para mostrar `Battery unavailable` en dispositivos desconectados (`0.15`, validación manual confirmada).
 - [x] Reintentar PnP/GATT cuando el dispositivo se conecte, cambie de estado o venza una actualización periódica (`2026-09-01`).
 - [x] Evitar consultas duplicadas simultáneas para el mismo contenedor (`2026-09-01`).
 - [x] Consultar directamente el `DeviceContainer` y probar los endpoints BLE candidatos del mismo dispositivo antes de declarar la batería no disponible (`2026-09-01`).
@@ -73,7 +73,7 @@ Criterios de aceptación: la ventana mantiene el estilo del widget, los textos s
 - [x] Incorporar `Refresh now` al menú de bandeja (`2026-09-05`).
 - [x] Mostrar un estado temporal y conservar la coalescencia de eventos Bluetooth (`2026-09-05`).
 - [x] Forzar la reconciliación de endpoints y una nueva consulta PnP/GATT de batería (`2026-09-05`).
-- [ ] Registrar el tiempo de la consulta sin exponer identificadores sensibles.
+- [x] Registrar localmente el tiempo y la fuente ganadora de la consulta en inglés sin exponer identificadores sensibles (`0.15`, validación manual confirmada).
 
 La consulta de batería continúa en segundo plano; el estado visual se mantiene durante una ventana de espera de diez segundos para cubrir consultas GATT lentas sin bloquear el widget.
 
