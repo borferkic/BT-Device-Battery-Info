@@ -41,6 +41,7 @@ App.OnStartup
 - `Services/ReconnectPolicy.cs`: calcula los intervalos de los intentos internos de reconexión.
 - `ViewModels/MainViewModel.cs`: coordina el refresco, la selección persistida, el estado de la interfaz y la reconexión automática.
 - `MainWindow.xaml`: presenta el widget, la lista, el indicador de carga, el acceso `About` y los controles de bandeja definidos en `MainWindow.xaml.cs`.
+- `TaskbarWidgetController.cs`: presenta pastillas de los dispositivos conectados compatibles usando la colección ya publicada por `MainViewModel`; no inicia otro watcher ni consultas de batería. La clasificación usa las categorías, clase Bluetooth o apariencia LE publicadas por Windows. Su ventana auxiliar se acopla a `Shell_TrayWnd` si UI Automation indica una zona libre a la izquierda y se vuelve a evaluar periódicamente; los cambios de visibilidad y los motivos de ocultamiento se anotan en el log local. Los pictogramas usan la fuente Material Symbols Rounded de Google, empaquetada como recurso WPF desde `Resources/MaterialSymbolsRounded.ttf`; la licencia Apache 2.0 se incluye junto al ejecutable.
 - `AboutWindow.xaml`: muestra información del proyecto, avatar, copyright y enlaces externos del creador; se abre desde el engranaje del widget.
 - `Resources/Styles.xaml`: estilos compartidos de WPF.
 
@@ -60,7 +61,11 @@ La primera optimización del arranque eliminó la consulta completa `DeviceInfor
 
 La consulta usa los protocolos Bluetooth Classic y BLE sin filtrar inicialmente por conexión. Los dispositivos conectados permanecen visibles en la lista principal; los emparejados desconectados se agrupan en el `Expander` `Disconected Devices`, contraído por defecto y con su contador. Al expandirlo, la ventana crece únicamente con las filas desconectadas visibles.
 
-Los endpoints que pertenecen al mismo `ContainerId` se agrupan para representar un dispositivo físico. Cuando Windows actualiza un endpoint desconocido, el servicio realiza una reconciliación retrasada. Un evento `Removed` se considera autoritativo para evitar reinsertar inmediatamente información obsoleta.
+Los endpoints que pertenecen al mismo `ContainerId` se agrupan para representar un dispositivo físico. La selección persistida usa esa identidad física, de modo que pueda sobrevivir al cambio o retirada del endpoint usado para mostrar el dispositivo; los IDs de endpoint guardados por versiones anteriores aún se resuelven durante la migración.
+
+El estado de conexión se calcula sobre todos los endpoints del contenedor. `System.Devices.Aep.ProtocolId` distingue endpoints descubiertos mediante Bluetooth Classic y BLE. Si el grupo contiene Classic, sus endpoints determinan el estado de conexión de la interfaz; si no, se usa BLE. Durante la sesión, el servicio conserva si un contenedor tuvo un endpoint Classic aunque Windows lo elimine antes que sus endpoints hermanos. Es una regla conservadora para que un canal BLE auxiliar no mantenga conectado un dispositivo Classic. `ProtocolId` identifica el protocolo de descubrimiento y no confirma por sí mismo un perfil de audio como A2DP o HFP; la regla requiere validación con hardware real ([propiedades de DeviceInformation](https://learn.microsoft.com/en-us/windows/uwp/devices-sensors/device-information-properties)).
+
+Cuando Windows actualiza un endpoint desconocido, el servicio realiza una reconciliación retrasada. Un evento `Removed` se considera autoritativo para evitar reinsertar inmediatamente información obsoleta. Los logs locales de transiciones incluyen solo cantidades de endpoints conectados por protocolo y no guardan nombres, direcciones ni ContainerId.
 
 La reconciliación completa se ejecuta fuera del arranque inicial. Si el watcher no puede iniciarse, el servicio cierra el estado de carga con error controlado y programa una reconciliación como recuperación.
 

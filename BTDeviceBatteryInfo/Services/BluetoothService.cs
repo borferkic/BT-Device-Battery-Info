@@ -26,6 +26,11 @@ public sealed class BluetoothService : IDisposable
         "System.Devices.Aep.IsPresent",
         "System.Devices.Aep.ContainerId",
         "System.Devices.Aep.DeviceAddress",
+        "System.Devices.Aep.ProtocolId",
+        "System.Devices.Aep.Category",
+        "System.Devices.Aep.Bluetooth.Cod.Major",
+        "System.Devices.Aep.Bluetooth.Cod.Minor",
+        "System.Devices.Aep.Bluetooth.Le.Appearance",
         "System.Devices.BatteryLife",
         BluetoothBatteryLevelProperty
     ];
@@ -49,7 +54,8 @@ public sealed class BluetoothService : IDisposable
     private System.Threading.Timer? _reconciliationTimer;
     private CancellationTokenSource? _initialDiscoveryCts;
     private Stopwatch? _initialDiscoveryStopwatch;
-    private string? _selectedId;
+    private string? _selectedEndpointId;
+    private string? _selectedDeviceId;
     private string? _selectedName;
     private bool _initialized;
     private bool _initialDiscoveryCompleted;
@@ -60,6 +66,7 @@ public sealed class BluetoothService : IDisposable
     private readonly Dictionary<string, int> _batteryFailures = new(StringComparer.OrdinalIgnoreCase);
     private IReadOnlyList<BluetoothDeviceInfo>? _lastPublishedDevices;
     private bool? _lastConnected;
+    private readonly HashSet<string> _classicProtocolDeviceIds = new(StringComparer.OrdinalIgnoreCase);
 
     public event EventHandler<BluetoothDeviceInfo>? StateChanged;
     public event EventHandler? DevicesChanged;
@@ -91,18 +98,31 @@ public sealed class BluetoothService : IDisposable
 
     public async Task<BluetoothDeviceInfo?> SelectAsync(string id)
     {
-        _selectedId = id;
-        var current = (await FindDevicesAsync()).FirstOrDefault(device => device.Id == id);
-        _selectedName = current?.Name ?? _selectedName;
-        _lastConnected = current?.IsConnected;
+        await EnsureInitializedAsync();
+        BluetoothDeviceInfo? current;
+        lock (_endpointsLock)
+        {
+            var endpoint = _endpoints.Values.FirstOrDefault(candidate =>
+                string.Equals(candidate.Id, id, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(GetPhysicalDeviceId(candidate), id, StringComparison.OrdinalIgnoreCase));
+            if (endpoint is null) return null;
+
+            _selectedEndpointId = endpoint.Id;
+            _selectedDeviceId = GetPhysicalDeviceId(endpoint);
+            current = BuildDeviceSnapshot().FirstOrDefault(device =>
+                string.Equals(device.PhysicalDeviceId, _selectedDeviceId, StringComparison.OrdinalIgnoreCase));
+            _selectedName = current?.Name ?? _selectedName;
+            _lastConnected = current?.IsConnected;
+        }
         if (current is not null) await LogSafeAsync("Device selected: " + current.Name);
         return current;
     }
 
     public async Task<BluetoothDeviceInfo?> CurrentAsync() =>
-        string.IsNullOrWhiteSpace(_selectedId)
+        string.IsNullOrWhiteSpace(_selectedDeviceId)
             ? null
-            : (await FindDevicesAsync()).FirstOrDefault(device => device.Id == _selectedId);
+            : (await FindDevicesAsync()).FirstOrDefault(device =>
+                string.Equals(device.PhysicalDeviceId, _selectedDeviceId, StringComparison.OrdinalIgnoreCase));
 
     public async Task<bool> RequestConnectionAsync(CancellationToken token)
     {
@@ -159,6 +179,7 @@ public sealed class BluetoothService : IDisposable
             {
                 _removedEndpointIds.Remove(endpoint.Id);
                 _endpoints[endpoint.Id] = endpoint;
+                RememberClassicProtocol(endpoint);
                 InvalidateBatteryGeneration(endpoint);
             }
             if (GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
@@ -183,6 +204,7 @@ public sealed class BluetoothService : IDisposable
                 {
                     var wasConnected = GetBoolean(endpoint, "System.Devices.Aep.IsConnected");
                     endpoint.Update(update);
+                    RememberClassicProtocol(endpoint);
                     becameConnected = !wasConnected && GetBoolean(endpoint, "System.Devices.Aep.IsConnected");
                     if (wasConnected != GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
                     {
@@ -212,6 +234,7 @@ public sealed class BluetoothService : IDisposable
                 var containerId = _endpoints.TryGetValue(update.Id, out var endpoint)
                     ? GetString(endpoint, "System.Devices.Aep.ContainerId")
                     : null;
+                if (endpoint is not null) RememberClassicProtocol(endpoint);
                 _endpoints.Remove(update.Id);
                 if (endpoint is not null) InvalidateBatteryGeneration(endpoint);
                 _removedEndpointIds.Add(update.Id);
@@ -317,6 +340,7 @@ public sealed class BluetoothService : IDisposable
                         InvalidateBatteryGeneration(endpoint);
                     _endpoints[endpoint.Id] = endpoint;
                 }
+                foreach (var endpoint in _endpoints.Values) RememberClassicProtocol(endpoint);
             }
             QueueBatteryHydration(endpoints, force: forceBattery);
             PublishChanges();
@@ -342,12 +366,14 @@ public sealed class BluetoothService : IDisposable
             _lastPublishedDevices = devices;
         }
 
-        var selected = string.IsNullOrWhiteSpace(_selectedId) ? null : devices.FirstOrDefault(device => device.Id == _selectedId);
+        var selected = string.IsNullOrWhiteSpace(_selectedDeviceId) ? null : devices.FirstOrDefault(device =>
+            string.Equals(device.PhysicalDeviceId, _selectedDeviceId, StringComparison.OrdinalIgnoreCase));
         var selectedStateChanged = false;
-        if (selected is null && !string.IsNullOrWhiteSpace(_selectedId) && _lastConnected != false)
+        if (selected is null && !string.IsNullOrWhiteSpace(_selectedDeviceId) && _lastConnected != false)
         {
             _lastConnected = false;
-            selected = new BluetoothDeviceInfo(_selectedId, _selectedName ?? "Selected Bluetooth device", false, false, null);
+            selected = new BluetoothDeviceInfo(_selectedEndpointId ?? _selectedDeviceId,
+                _selectedName ?? "Selected Bluetooth device", false, false, null, _selectedDeviceId);
             selectedStateChanged = true;
         }
         else if (selected is not null && _lastConnected != selected.IsConnected)
@@ -358,7 +384,7 @@ public sealed class BluetoothService : IDisposable
 
         if (selected is not null && selectedStateChanged)
         {
-            _ = LogSafeAsync(selected.IsConnected ? "Connected" : "Disconnected");
+            _ = LogSafeAsync($"{(selected.IsConnected ? "Connected" : "Disconnected")} ({GetConnectionEvidence(selected.PhysicalDeviceId)}).");
             try
             {
                 StateChanged?.Invoke(this, selected);
@@ -568,25 +594,90 @@ public sealed class BluetoothService : IDisposable
 
     private IReadOnlyList<BluetoothDeviceInfo> BuildDeviceSnapshot() =>
         _endpoints.Values
-            .Select(endpoint => new
-            {
-                Device = ToBluetoothDevice(endpoint),
-                PhysicalDeviceKey = GetString(endpoint, "System.Devices.Aep.ContainerId")
-                    ?? GetString(endpoint, "System.Devices.Aep.DeviceAddress")
-                    ?? endpoint.Id
-            })
-            .Where(item => (item.Device.IsPaired || item.Device.IsConnected) && !string.IsNullOrWhiteSpace(item.Device.Name))
-            .GroupBy(item => item.PhysicalDeviceKey, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group
-                .OrderByDescending(item => string.Equals(item.Device.Id, _selectedId, StringComparison.OrdinalIgnoreCase))
-                .ThenByDescending(item => item.Device.IsConnected)
-                .ThenByDescending(item => item.Device.BatteryPercent.HasValue)
-                .ThenByDescending(item => item.Device.Name.Length)
-                .First()
-                .Device)
+            .GroupBy(GetPhysicalDeviceId, StringComparer.OrdinalIgnoreCase)
+            .Select(group => BuildPhysicalDeviceSnapshot(group.Key, group.ToArray()))
+            .Where(device => (device.IsPaired || device.IsConnected) && !string.IsNullOrWhiteSpace(device.Name))
             .OrderByDescending(device => device.IsConnected)
             .ThenBy(device => device.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToArray();
+
+    private BluetoothDeviceInfo BuildPhysicalDeviceSnapshot(string physicalDeviceId, DeviceInformation[] endpoints)
+    {
+        var endpointSnapshots = endpoints
+            .Select(endpoint => new DeviceEndpointSnapshot(endpoint, ToBluetoothDevice(endpoint)))
+            .ToArray();
+        var representative = endpointSnapshots
+            .OrderByDescending(item => string.Equals(item.Endpoint.Id, _selectedEndpointId, StringComparison.OrdinalIgnoreCase))
+            .ThenByDescending(item => item.Device.BatteryPercent.HasValue)
+            .ThenByDescending(item => item.Device.Name.Length)
+            .First();
+        var isConnected = ResolvePhysicalConnection(physicalDeviceId, endpoints);
+        var battery = isConnected
+            ? endpointSnapshots.Select(item => item.Device.BatteryPercent).FirstOrDefault(value => value.HasValue)
+            : null;
+
+        return new BluetoothDeviceInfo(
+            representative.Device.Id,
+            representative.Device.Name,
+            endpointSnapshots.Any(item => item.Device.IsPaired),
+            isConnected,
+            battery,
+            physicalDeviceId,
+            endpointSnapshots.Select(item => item.Device.Category).FirstOrDefault(category => category != BluetoothDeviceCategory.Unknown));
+    }
+
+    private bool ResolvePhysicalConnection(string physicalDeviceId, DeviceInformation[] endpoints)
+    {
+        // AEP ProtocolId identifies the discovery transport, not an audio profile.
+        // Prefer Classic when the physical container exposes both transports so an
+        // auxiliary BLE endpoint cannot keep a disconnected Classic device connected.
+        // Remember Classic while sibling endpoints remain, even if its endpoint is removed.
+        var classicEndpoints = endpoints.Where(endpoint => IsEndpointUsingProtocol(endpoint, BluetoothClassicProtocolId)).ToArray();
+        if (classicEndpoints.Length > 0 || _classicProtocolDeviceIds.Contains(physicalDeviceId))
+            return classicEndpoints.Any(endpoint => GetBoolean(endpoint, "System.Devices.Aep.IsConnected"));
+
+        var leEndpoints = endpoints.Where(endpoint => IsEndpointUsingProtocol(endpoint, BluetoothLeProtocolId)).ToArray();
+        if (leEndpoints.Length > 0)
+            return leEndpoints.Any(endpoint => GetBoolean(endpoint, "System.Devices.Aep.IsConnected"));
+
+        return endpoints.Any(endpoint => GetBoolean(endpoint, "System.Devices.Aep.IsConnected"));
+    }
+
+    private string GetConnectionEvidence(string physicalDeviceId)
+    {
+        DeviceInformation[] endpoints;
+        lock (_endpointsLock)
+        {
+            endpoints = _endpoints.Values
+                .Where(endpoint => string.Equals(GetPhysicalDeviceId(endpoint), physicalDeviceId, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+        }
+
+        static string CountConnected(IEnumerable<DeviceInformation> protocolEndpoints)
+        {
+            var matching = protocolEndpoints.ToArray();
+            return $"{matching.Count(endpoint => GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))}/{matching.Length}";
+        }
+
+        return $"Classic endpoints connected: {CountConnected(endpoints.Where(endpoint => IsEndpointUsingProtocol(endpoint, BluetoothClassicProtocolId)))}; "
+            + $"BLE endpoints connected: {CountConnected(endpoints.Where(endpoint => IsEndpointUsingProtocol(endpoint, BluetoothLeProtocolId)))}";
+    }
+
+    private static bool IsEndpointUsingProtocol(DeviceInformation endpoint, string protocolId) =>
+        Guid.TryParse(GetString(endpoint, "System.Devices.Aep.ProtocolId"), out var actualProtocol)
+        && Guid.TryParse(protocolId, out var expectedProtocol)
+        && actualProtocol == expectedProtocol;
+
+    private static string GetPhysicalDeviceId(DeviceInformation endpoint) =>
+        GetString(endpoint, "System.Devices.Aep.ContainerId")
+        ?? GetString(endpoint, "System.Devices.Aep.DeviceAddress")
+        ?? endpoint.Id;
+
+    private void RememberClassicProtocol(DeviceInformation endpoint)
+    {
+        if (IsEndpointUsingProtocol(endpoint, BluetoothClassicProtocolId))
+            _classicProtocolDeviceIds.Add(GetPhysicalDeviceId(endpoint));
+    }
 
     private void StartWatcher()
     {
@@ -669,8 +760,10 @@ public sealed class BluetoothService : IDisposable
     private BluetoothDeviceInfo ToBluetoothDevice(DeviceInformation endpoint)
     {
         var isConnected = GetBoolean(endpoint, "System.Devices.Aep.IsConnected");
+        var category = GetDeviceCategory(endpoint);
         if (!isConnected)
-            return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name, GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), false, null);
+            return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name,
+                GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), false, null, GetPhysicalDeviceId(endpoint), category);
 
         var containerId = GetString(endpoint, "System.Devices.Aep.ContainerId");
         var battery = GetBatteryPercent(endpoint);
@@ -682,8 +775,61 @@ public sealed class BluetoothService : IDisposable
             && DateTimeOffset.UtcNow - lastSuccess <= BatteryValueExpiration)
             battery = cachedBattery;
 
-        return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name, GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), true, battery);
+        return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name,
+            GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), true, battery, GetPhysicalDeviceId(endpoint), category);
     }
+
+    private static BluetoothDeviceCategory GetDeviceCategory(DeviceInformation endpoint)
+    {
+        if (endpoint.Properties.TryGetValue("System.Devices.Aep.Category", out var rawCategories)
+            && rawCategories is IEnumerable<string> categories)
+        {
+            foreach (var category in categories)
+            {
+                if (category.Contains("Headphone", StringComparison.OrdinalIgnoreCase)
+                    || category.Contains("Headset", StringComparison.OrdinalIgnoreCase)
+                    || category.Contains("Earbud", StringComparison.OrdinalIgnoreCase)) return BluetoothDeviceCategory.Headphones;
+                if (category.Contains("Keyboard", StringComparison.OrdinalIgnoreCase)) return BluetoothDeviceCategory.Keyboard;
+                if (category.Contains("Mouse", StringComparison.OrdinalIgnoreCase)
+                    || category.Contains("Pointing", StringComparison.OrdinalIgnoreCase)) return BluetoothDeviceCategory.Mouse;
+                if (category.Contains("Gaming", StringComparison.OrdinalIgnoreCase)
+                    || category.Contains("Gamepad", StringComparison.OrdinalIgnoreCase)
+                    || category.Contains("Joystick", StringComparison.OrdinalIgnoreCase)) return BluetoothDeviceCategory.GameController;
+            }
+        }
+
+        var appearance = GetUnsignedProperty(endpoint, "System.Devices.Aep.Bluetooth.Le.Appearance");
+        if (appearance is uint leAppearance)
+        {
+            switch (leAppearance)
+            {
+                case 0x03C1: return BluetoothDeviceCategory.Keyboard;
+                case 0x03C2: return BluetoothDeviceCategory.Mouse;
+                case 0x03C3:
+                case 0x03C4: return BluetoothDeviceCategory.GameController;
+                case 0x0941:
+                case 0x0942:
+                case 0x0943: return BluetoothDeviceCategory.Headphones;
+            }
+        }
+
+        var major = GetUnsignedProperty(endpoint, "System.Devices.Aep.Bluetooth.Cod.Major");
+        var minor = GetUnsignedProperty(endpoint, "System.Devices.Aep.Bluetooth.Cod.Minor");
+        if (major == 4 && minor is 1 or 2 or 6)
+            return BluetoothDeviceCategory.Headphones;
+        if (major == 5 && minor is uint peripheral)
+        {
+            if ((peripheral & 0x30) == 0x10) return BluetoothDeviceCategory.Keyboard;
+            if ((peripheral & 0x30) == 0x20) return BluetoothDeviceCategory.Mouse;
+            if ((peripheral & 0x0F) is 1 or 2) return BluetoothDeviceCategory.GameController;
+        }
+        return BluetoothDeviceCategory.Unknown;
+    }
+
+    private static uint? GetUnsignedProperty(DeviceInformation endpoint, string name) =>
+        endpoint.Properties.TryGetValue(name, out var value)
+        && uint.TryParse(Convert.ToString(value, CultureInfo.InvariantCulture), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            ? parsed : null;
 
     private static async Task<BatteryReadResult> ReadGattBatteryAsync(BatteryEndpointCandidate candidate, CancellationToken token)
     {
@@ -836,6 +982,8 @@ public sealed class BluetoothService : IDisposable
 
     private static bool GetBoolean(DeviceInformation endpoint, string propertyName) =>
         endpoint.Properties.TryGetValue(propertyName, out var value) && value is bool flag && flag;
+
+    private sealed record DeviceEndpointSnapshot(DeviceInformation Endpoint, BluetoothDeviceInfo Device);
 
     private static string? GetString(DeviceInformation endpoint, string propertyName) =>
         endpoint.Properties.TryGetValue(propertyName, out var value) && value is not null ? Convert.ToString(value, CultureInfo.InvariantCulture) : null;

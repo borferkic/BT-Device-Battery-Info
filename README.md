@@ -4,7 +4,7 @@
 
 Information in: [English](#english) | [Español](#espanol)
 
-Release `0.15` — **HFP/PnP battery recovery**.
+Release `0.16` — **Compact taskbar widget**.
 
 BT Device Battery Info is an open-source Windows desktop widget that displays paired or connected Bluetooth devices and their battery level when Windows makes that information available.
 
@@ -20,9 +20,12 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 - Grows or shrinks the complete widget automatically as devices appear or disappear, without a scrollbar.
 - Provides tray actions to show or hide the widget, enable or disable Start with Windows, and exit the application.
 - Provides `Refresh now` in the widget and system tray to refresh devices and trigger a new battery query.
+- Lets you place compact battery pills for connected headphones, keyboards, mice, and controllers in the left side of the Windows taskbar.
 - Prevents multiple instances from running at the same time and informs the user when the application is already open.
 - Includes an About window with project information and creator links.
 - Stores application data and diagnostic logs in `%LocalAppData%\BTDeviceBatteryInfo`.
+
+![Compact taskbar widget showing connected devices and battery levels](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
 
 ## Requirements
 
@@ -31,7 +34,7 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 
 ## Download
 
-Download [version 0.15](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.15) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
+Download [version 0.16](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.16) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
 
 The release is self-contained and does not require the .NET Desktop Runtime. Developers building from source need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
 
@@ -102,7 +105,7 @@ The project documentation is organized in [BTDeviceBatteryInfo/docs/README.md](B
 
 ## Español
 
-Versión `0.15` — **Recuperación de batería HFP/PnP**.
+Versión `0.16` — **Widget compacto en la barra de tareas**.
 
 BT Device Battery Info es un widget de escritorio open source para Windows que muestra los dispositivos Bluetooth emparejados o conectados y su nivel de batería cuando Windows proporciona esa información.
 
@@ -118,9 +121,12 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 - Aumenta o reduce automáticamente el tamaño completo del widget según aparezcan o desaparezcan dispositivos, sin barra de desplazamiento.
 - Incluye opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows y salir de la aplicación.
 - Incluye `Refresh now` en el widget y el área de notificaciones para actualizar los dispositivos y volver a consultar la batería.
+- Permite mostrar pastillas compactas de batería para auriculares, teclados, mouse y controles conectados en el lado izquierdo de la barra de tareas de Windows.
 - Evita que se ejecuten varias instancias al mismo tiempo y avisa si la aplicación ya está abierta.
 - Incluye una ventana About con información del proyecto y enlaces del creador.
 - Guarda la configuración y los registros en `%LocalAppData%\BTDeviceBatteryInfo`.
+
+![Widget compacto en la barra de tareas con dispositivos conectados y sus niveles de batería](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
 
 ### Requisitos
 
@@ -129,7 +135,7 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 
 ### Descargar
 
-Descarga la [versión 0.15](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.15) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
+Descarga la [versión 0.16](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.16) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
 
 La versión publicada es autocontenida y no requiere el .NET Desktop Runtime. Para compilar desde el código fuente se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
 

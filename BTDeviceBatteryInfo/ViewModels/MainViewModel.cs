@@ -269,7 +269,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         var index = 0;
         foreach (var device in devices)
         {
-            var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent);
+            var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent, device.Category);
             if (index == target.Count) target.Add(item);
             else if (target[index] != item) target[index] = item;
             index++;
@@ -281,26 +281,28 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         if (_selectionResolved || devices.Count == 0) return;
 
-        BluetoothDeviceInfo? selected;
+        BluetoothDeviceInfo? current = null;
         if (!string.IsNullOrWhiteSpace(_settings.DeviceId))
         {
-            selected = devices.FirstOrDefault(device => device.Id == _settings.DeviceId);
-            if (selected is null && !discoveryCompleted) return;
+            current = await _bluetooth.SelectAsync(_settings.DeviceId);
+            if (current is null && !discoveryCompleted) return;
         }
-        else
+
+        if (current is null)
         {
-            selected = devices.FirstOrDefault(device => device.IsConnected);
+            var selected = string.IsNullOrWhiteSpace(_settings.DeviceId)
+                ? devices.FirstOrDefault(device => device.IsConnected)
+                : null;
             if (selected is null && !discoveryCompleted) return;
+            selected ??= devices.FirstOrDefault();
+            if (selected is null) return;
+            current = await _bluetooth.SelectAsync(selected.Id);
         }
 
-        selected ??= devices.FirstOrDefault();
-        if (selected is null) return;
-
-        var current = await _bluetooth.SelectAsync(selected.Id);
         if (current is null) return;
 
         _selectionResolved = true;
-        _settings.DeviceId = current.Id;
+        _settings.DeviceId = current.PhysicalDeviceId;
         _settings.DeviceName = current.Name;
         await SettingsService.SaveAsync(_settings);
         await InvokeOnUiAsync(() =>
@@ -376,7 +378,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 }
 
-public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent)
+public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category)
 {
     public string ConnectionText => IsConnected ? "Connected" : "Disconnected";
     public System.Windows.Media.Brush ConnectionBrush => IsConnected ? System.Windows.Media.Brushes.MediumSeaGreen : System.Windows.Media.Brushes.DarkGray;

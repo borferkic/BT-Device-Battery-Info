@@ -22,6 +22,8 @@ public partial class MainWindow : Window, IDisposable
     private Forms.ToolStripMenuItem? _toggleWidgetMenuItem;
     private Forms.ToolStripMenuItem? _refreshMenuItem;
     private Forms.ToolStripMenuItem? _startWithWindowsMenuItem;
+    private Forms.ToolStripMenuItem? _taskbarWidgetMenuItem;
+    private readonly TaskbarWidgetController _taskbarWidget;
     private bool _isExiting;
 
     public MainViewModel ViewModel { get; }
@@ -38,6 +40,7 @@ public partial class MainWindow : Window, IDisposable
         Opacity = settings.Opacity;
 
         ViewModel = new MainViewModel(settings, bluetooth, logger);
+        _taskbarWidget = new TaskbarWidgetController(ViewModel, ShowWidget, logger);
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         DataContext = ViewModel;
 
@@ -48,6 +51,7 @@ public partial class MainWindow : Window, IDisposable
                 UpdateWindowHeight();
                 await ViewModel.InitializeAsync();
                 CreateTrayIcon();
+                _taskbarWidget.SetEnabled(_settings.TaskbarWidgetEnabled);
             }
             catch (Exception ex)
             {
@@ -70,6 +74,12 @@ public partial class MainWindow : Window, IDisposable
         _toggleWidgetMenuItem = new Forms.ToolStripMenuItem();
         _toggleWidgetMenuItem.Click += (_, _) => ToggleWidgetFromTray();
         menu.Items.Add(_toggleWidgetMenuItem);
+        _taskbarWidgetMenuItem = new Forms.ToolStripMenuItem("Show compact taskbar widget")
+        {
+            Checked = _settings.TaskbarWidgetEnabled
+        };
+        _taskbarWidgetMenuItem.Click += async (_, _) => await ToggleTaskbarWidgetAsync(hideMainWindow: false);
+        menu.Items.Add(_taskbarWidgetMenuItem);
         _refreshMenuItem = new Forms.ToolStripMenuItem("Refresh now");
         _refreshMenuItem.Click += async (_, _) => await ViewModel.RefreshNowAsync();
         menu.Items.Add(_refreshMenuItem);
@@ -136,6 +146,23 @@ public partial class MainWindow : Window, IDisposable
     {
         Hide();
         UpdateWidgetMenuItem();
+    }
+    private async void Taskbar_Click(object sender, RoutedEventArgs e) =>
+        await ToggleTaskbarWidgetAsync(hideMainWindow: !_settings.TaskbarWidgetEnabled);
+
+    private async Task ToggleTaskbarWidgetAsync(bool hideMainWindow)
+    {
+        _settings.TaskbarWidgetEnabled = !_settings.TaskbarWidgetEnabled;
+        _taskbarWidget.SetEnabled(_settings.TaskbarWidgetEnabled);
+        if (_taskbarWidgetMenuItem is not null)
+            _taskbarWidgetMenuItem.Checked = _settings.TaskbarWidgetEnabled;
+        if (hideMainWindow && _settings.TaskbarWidgetEnabled)
+        {
+            Hide();
+            UpdateWidgetMenuItem();
+        }
+        try { await SettingsService.SaveAsync(_settings); }
+        catch (Exception ex) { await HandleBackgroundErrorAsync("Taskbar mode settings save", ex); }
     }
     private void Exit_Click(object sender, RoutedEventArgs e) => ExitApplication();
 
@@ -244,6 +271,7 @@ public partial class MainWindow : Window, IDisposable
 
     public void Dispose()
     {
+        _taskbarWidget.Dispose();
         _tray?.Dispose();
         _trayIcon?.Dispose();
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;

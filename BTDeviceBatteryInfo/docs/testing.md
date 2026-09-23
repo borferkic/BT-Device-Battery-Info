@@ -48,6 +48,9 @@ La prueba debe registrar resultado, versión de Windows, arquitectura, adaptador
 | T-16 | Grupo desconectados | El grupo se puede expandir y contraer; al expandirlo la ventana muestra las filas desconectadas y al contraerlo vuelve a ocultarlas. |
 | T-17 | Reintento de batería | Un resultado vacío no bloquea futuros intentos; al reconectar o vencer el intervalo de reintento se vuelven a consultar PnP/GATT sin duplicar consultas simultáneas. El log redactado identifica solo la fuente ganadora (`PnP HFP native`, `PnP container`, `PnP device` o `GATT`). |
 | T-18 | About | El engranaje abre la ventana `About` con avatar, descripción en inglés, `© 2026 Boris SdK`, y enlaces individuales clicables para Instagram, Twitch y LinkedIn. |
+| T-19 | Estado multiprotocolo y selección física | Para un dispositivo con endpoints Classic y BLE en el mismo `ContainerId`, desconectar o retirar Classic mientras BLE continúa conectado muestra `Disconnected`; retirar el endpoint seleccionado conserva el dispositivo si queda otro endpoint del contenedor; al reconectar, el estado y la batería se recuperan sin alternancias periódicas. Para un dispositivo solo BLE, se usa su estado BLE. |
+| T-20 | Pastillas en barra de tareas (P-017) | Activar el botón junto a Minimizar oculta la ventana grande y muestra solo auriculares, teclado, mouse y control conectados; el menú de bandeja permite desactivar el modo. Cada pastilla muestra icono, anillo de batería o valor no disponible y abre la ventana al pulsarla. |
+| T-21 | Espacio y recuperación de Explorer (P-017) | Con barra centrada y alineada a la izquierda, búsqueda/clima visibles, varias aplicaciones abiertas, DPI variable y tras reiniciar Explorer, el control permanece en zona libre sin cubrir botones; si no hay espacio, se oculta y la bandeja sigue disponible. Repetir con cero y varios dispositivos y con la ventana principal oculta. |
 
 ## Rendimiento de inicio
 

@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-La versión pública `0.12` contiene la base funcional de descubrimiento Bluetooth Classic/BLE, lectura PnP/GATT, priorización Bose/QuietComfort, widget WPF, bandeja del sistema, preferencias internas, registro local, arranque incremental y agrupación de dispositivos desconectados.
+La versión pública `0.12` contiene la base funcional de descubrimiento Bluetooth Classic/BLE, lectura PnP/GATT, widget WPF, bandeja del sistema, preferencias internas, registro local, arranque incremental y agrupación de dispositivos desconectados. Bose/QuietComfort fue hardware usado para diagnóstico; las consultas actuales deben ser generales, basadas en las fuentes que Windows expone y sin filtros ni búsquedas redundantes por marca/modelo.
 
 Los cambios locales posteriores a `0.12` están en preparación para la siguiente versión y se documentan en `changelog/unreleased.md`.
 

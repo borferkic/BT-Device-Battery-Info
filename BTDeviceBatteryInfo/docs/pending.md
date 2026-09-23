@@ -2,7 +2,7 @@
 
 Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto observable y se mantienen aquí hasta que exista implementación y evidencia de validación.
 
-Última revisión documental: `2026-09-01`.
+Última revisión documental: `2026-09-22`.
 
 ## Cómo usar este documento
 
@@ -14,38 +14,16 @@ Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto
 
 ## Prioridad alta
 
-### P-002 — Actualizar la batería durante la sesión
-
-Implementación para `0.13` (`2026-09-05`): consulta desde la detección, publicación independiente, retención de operaciones nativas pendientes, deduplicación por dirección, límite de dos consultas GATT y reintentos progresivos. Las pruebas del coordinador y la compilación no sustituyen la aceptación con hardware; el criterio de latencia permanece pendiente.
-
-- [x] Descartar el porcentaje de caché al no quedar ningún endpoint conectado, para mostrar `Battery unavailable` en dispositivos desconectados (`0.15`, validación manual confirmada).
-- [x] Reintentar PnP/GATT cuando el dispositivo se conecte, cambie de estado o venza una actualización periódica (`2026-09-01`).
-- [x] Evitar consultas duplicadas simultáneas para el mismo contenedor (`2026-09-01`).
-- [x] Consultar directamente el `DeviceContainer` y probar los endpoints BLE candidatos del mismo dispositivo antes de declarar la batería no disponible (`2026-09-01`).
-- [ ] Reducir el tiempo desde que el dispositivo aparece en la lista hasta que se muestra su batería, sin retrasar la ventana ni el inventario inicial.
-
-Criterios de aceptación: un dispositivo BLE/GATT que cambia de nivel refleja el nuevo porcentaje sin reiniciar la aplicación; los fallos transitorios se pueden recuperar y el indicador aparece en un tiempo perceptiblemente ágil después de detectar el dispositivo. La implementación está aplicada, pero falta confirmar este criterio con un Bose que vuelva a exponer batería después de desconectar y reconectar.
-
-Hallazgo histórico de QA del `2026-09-01`: algunos auriculares Bose conectados mostraban `Battery unavailable` de forma intermitente. La implementación anterior conservaba resultados vacíos sin reintentar. Ese comportamiento ya había sido modificado en 0.12; en 0.13 se corrigen además la espera del descubrimiento y la publicación conjunta que retrasaban resultados disponibles.
-
-### P-003 — Definir el alcance de la lista de dispositivos
-
-- [x] Decidir que la interfaz muestra dispositivos conectados en la lista principal y dispositivos emparejados desconectados en un grupo contraído (`2026-09-01`).
-- [x] Alinear la decisión en `README.md`, `docs/architecture.md`, `docs/testing.md` y los mensajes de la interfaz (`2026-09-01`).
-- [x] Mantener conectados, desconectados y seleccionados en estados visualmente distinguibles (`2026-09-01`).
-
-Criterios de aceptación: el comportamiento esperado está escrito, probado con dispositivos similares y no hay documentación contradictoria. La expansión y contracción fueron comprobadas mediante UI Automation.
-
 ### P-014 — Corregir estados de conexión falsos
 
-- [ ] Determinar la conexión del dispositivo físico usando el conjunto de endpoints del `ContainerId`, sin conservar como seleccionado un endpoint obsoleto.
-- [ ] Diferenciar un canal BLE de control todavía presente de una conexión activa del perfil principal cuando Windows exponga información suficiente.
-- [ ] Invalidar el inventario y el estado seleccionado después de eventos `Removed`, desconexiones confirmadas y reconciliaciones.
-- [ ] Evitar oscilaciones `Disconnected`/`Connected` causadas por distintos endpoints del mismo dispositivo.
+- [ ] Confirmar en hardware la regla de estado por grupo físico: endpoints Classic como señal principal en contenedores multiprotocolo y BLE para dispositivos exclusivamente BLE. Implementación candidata incluida en `0.16-dev`.
+- [ ] Confirmar que la selección por identidad física (`ContainerId`, con fallback disponible) sobrevive al cambio o retirada del endpoint; se mantienen compatibles los IDs guardados por versiones anteriores. Implementación candidata incluida en `0.16-dev`.
+- [ ] Confirmar que los cambios de estado salen de la instantánea agrupada y que los conteos redactados Classic/BLE ayudan al diagnóstico. Implementación candidata incluida en `0.16-dev`.
+- [ ] Validar con hardware una desconexión Classic mientras queda un endpoint BLE, la desaparición del endpoint seleccionado, la reconexión y la estabilidad durante las reconciliaciones periódicas.
 
-Hallazgo de QA del `2026-09-01`: después de desconectar algunos dispositivos, la interfaz puede seguir indicando `Connected`. En una sesión se observaron alternancias repetidas cada 30 segundos; Windows no reportaba endpoints Classic presentes, mientras la aplicación conservaba una instancia activa. `BuildDeviceSnapshot()` selecciona un único endpoint y prioriza cualquiera que tenga `IsConnected`, lo que puede confundir un endpoint BLE auxiliar con la conexión principal o mantener una identidad seleccionada que ya no representa al dispositivo agrupado.
+Hallazgo de QA del `2026-09-01`: después de desconectar algunos dispositivos, la interfaz podía seguir indicando `Connected`. En una sesión se observaron alternancias repetidas cada 30 segundos; Windows no reportaba endpoints Classic presentes, mientras la aplicación conservaba una instancia activa. `BuildDeviceSnapshot()` seleccionaba un único endpoint y priorizaba cualquiera que tuviera `IsConnected`, lo que podía confundir un endpoint BLE auxiliar con la conexión principal o mantener una identidad seleccionada que ya no representaba al dispositivo agrupado. `0.16-dev` retiene en memoria durante la sesión de la aplicación si un contenedor tuvo endpoint Classic, aunque Windows lo elimine antes que el BLE.
 
-Criterios de aceptación: al desconectar físicamente un dispositivo, la interfaz cambia a `Disconnected` sin volver a `Connected` por un endpoint auxiliar; al reconectarlo, recupera el estado y la batería sin reiniciar la aplicación.
+Criterios de aceptación: la selección y el estado sobreviven al cambio del endpoint representante; en dispositivos multiprotocolo un endpoint BLE auxiliar no mantiene `Connected` si los endpoints Classic reportan desconexión o desaparecen; los dispositivos exclusivamente BLE usan su estado BLE. La prueba física de desconexión/reconexión y estabilidad sigue pendiente antes de cerrar P-014.
 
 ### P-016 — Detectar y activar Bluetooth desactivado
 
@@ -58,24 +36,7 @@ Objetivo observable: cuando el usuario apaga Bluetooth desde Windows, el widget 
 
 Criterios de aceptación: el estado se actualiza al apagar o encender Bluetooth, el botón comunica claramente éxito o motivo de imposibilidad y no modifica otros adaptadores ni emparejamientos.
 
-### P-015 — Añadir pantalla About
-
-- [x] Reutilizar el engranaje para abrir una ventana `About` (`2026-09-01`).
-- [x] Mostrar avatar, descripción, copyright y enlaces del creador (`2026-09-01`).
-- [x] Validar que Instagram, Twitch y LinkedIn están presentes como enlaces separados (`2026-09-01`).
-
-Criterios de aceptación: la ventana mantiene el estilo del widget, los textos son legibles y cada enlace apunta a la red correspondiente. Validación visual y UI Automation completadas.
-
 ## Prioridad media
-
-### P-004 — Añadir actualización manual
-
-- [x] Incorporar `Refresh now` al menú de bandeja (`2026-09-05`).
-- [x] Mostrar un estado temporal y conservar la coalescencia de eventos Bluetooth (`2026-09-05`).
-- [x] Forzar la reconciliación de endpoints y una nueva consulta PnP/GATT de batería (`2026-09-05`).
-- [x] Registrar localmente el tiempo y la fuente ganadora de la consulta en inglés sin exponer identificadores sensibles (`0.15`, validación manual confirmada).
-
-La consulta de batería continúa en segundo plano; el estado visual se mantiene durante una ventana de espera de diez segundos para cubrir consultas GATT lentas sin bloquear el widget.
 
 ### P-005 — Alinear la reconexión con la interfaz
 
@@ -135,19 +96,74 @@ Criterios de aceptación: cerrar la aplicación durante una consulta no produce 
 
 - [ ] Evaluar una preferencia para mostrar por separado o agrupar endpoints que compartan `ContainerId`.
 
-### P-017 — Gadget individual en la barra de inicio
+### P-017 — Widget compacto de dispositivos conectados en la barra de tareas
 
-- [ ] Permitir fijar un gadget individual para uno de los dispositivos seleccionados.
-- [ ] Mostrar en ese gadget el nombre, estado de conexión y batería del dispositivo indicado.
-- [ ] Investigar el mecanismo oficial de Windows para integrarlo en la barra de inicio y definir sus limitaciones.
-- [ ] Mantener la selección y la actualización del dispositivo aunque la ventana principal esté cerrada o minimizada.
+- [x] Mostrar dispositivos conectados en pastillas compactas en la barra de tareas; validado visualmente por el usuario en `0.16-dev9` y publicado en `0.16`.
+- [ ] Confirmar los cambios de DPI y la recuperación tras reiniciar Explorer; el hospedaje en Explorer sigue siendo experimental.
 
-Objetivo observable: el usuario puede elegir un dispositivo y consultar sus datos desde un gadget independiente en la barra de inicio, sin abrir toda la lista.
+### P-018 — Registrar conexiones y desconexiones para QA
 
-Criterios de aceptación: el gadget muestra únicamente el dispositivo elegido, actualiza sus datos sin duplicar consultas y ofrece un comportamiento claro cuando el dispositivo está desconectado o no expone batería.
+- [ ] Registrar fecha y hora, dispositivo con identificadores redactados, transición de conexión y fuente/evidencia disponible (por ejemplo, eventos del watcher y estado Classic/BLE).
+- [ ] Diferenciar una causa confirmada por Windows de una inferencia; no atribuir un motivo físico que el sistema no haya reportado.
+- [ ] Evitar entradas repetidas cuando el estado no cambie y definir límites de tamaño o retención para el registro local.
+- [ ] Facilitar el uso del registro local para diagnosticar errores sin exponer direcciones ni identificadores sensibles.
+
+Objetivo observable: ante una conexión o desconexión, QA puede reconstruir cuándo se detectó el cambio y qué evidencia disponible lo acompañó.
+
+Criterios de aceptación: el registro local contiene transiciones fechadas y redactadas con su fuente/evidencia, no duplica estados inalterados, distingue causas conocidas de inferencias y respeta la política de retención definida.
+
+### P-019 — Añadir una vista compacta tipo pastilla
+
+- [ ] Ofrecer un modo compacto horizontal tipo pastilla, alternable con la ventana actual, que ocupe menos espacio en pantalla.
+- [ ] Mostrar un icono según el tipo de dispositivo y un indicador circular de batería.
+- [ ] Contemplar auriculares, teclados, mouse y joysticks; mostrar cada uno solo mientras Windows lo reporte conectado.
+- [ ] Representar con claridad los estados desconectado y batería no disponible.
+- [ ] Mantener la información actualizada y hacer que el indicador circular refleje el nivel de batería reportado.
+
+Objetivo observable: el usuario puede consultar de un vistazo el dispositivo y su batería en una pastilla horizontal que ahorra espacio, tanto como vista compacta del widget como para la integración en la barra de tareas de P-017.
+
+Criterios de aceptación: el usuario puede cambiar entre la vista actual y la compacta; la pastilla presenta icono, nivel de batería y estado correctos para los tipos de dispositivo admitidos, e indica claramente cuándo no hay conexión o no existe un nivel de batería disponible. El modo compacto y el de barra de tareas comparten esta presentación y evitan tener que mantener abierta la ventana grande.
+
+### P-020 — Añadir selección de idioma inglés/español
+
+- [ ] Añadir en `Options` una preferencia para elegir inglés o español.
+- [ ] Traducir todos los textos de interfaz, botones, tooltips, menús y estados visibles; conservar los mensajes de diagnóstico y logs de la aplicación en inglés.
+- [ ] Guardar la preferencia y aplicarla al iniciar; usar inglés como idioma predeterminado y como fallback si falta una traducción.
+- [ ] Verificar cambio de idioma en la ventana principal, bandeja, vista compacta y ventanas secundarias.
+
+Objetivo observable: cada usuario puede elegir inglés o español desde `Options` y la selección se conserva entre ejecuciones.
+
+Criterios de aceptación: todos los textos visibles cambian al idioma elegido sin reiniciar la aplicación, la selección persiste y los logs siguen en inglés.
+
+### P-021 — Unificar los iconos con la fuente Material Design
+
+Avance parcial: los pictogramas de auriculares, teclado, mouse y control del widget de la barra de tareas ya usan Material Symbols Rounded. P-021 sigue abierto para el resto de controles y su validación visual.
+
+- [x] Incorporar Material Symbols Rounded al proyecto; documentar su fuente y licencia Apache 2.0.
+- [ ] Sustituir los iconos actuales de la ventana principal, bandeja, controles y widget compacto por glifos Material Design equivalentes.
+- [ ] Verificar tamaño, alineación, contraste y disponibilidad de la fuente en el ejecutable publicado.
+
+Objetivo observable: la interfaz usa una familia coherente de iconos Material Design en todas sus vistas.
+
+Criterios de aceptación: no quedan iconos mezclados de fuentes distintas en los controles cubiertos y todos se ven correctamente en una instalación limpia.
+
+### P-022 — Evaluar shadcn/create para la interfaz
+
+- [ ] Definir el alcance visual de la nueva interfaz y qué pantallas del programa se renovarán.
+- [ ] Evaluar cómo aplicar el preset generado por shadcn/create a la aplicación WPF existente, incluyendo la opción de una capa web integrada y su comunicación con Bluetooth.
+- [ ] Probar una pantalla representativa y medir su impacto en instalación, rendimiento, accesibilidad y mantenimiento antes de migrar otras vistas.
+- [ ] Mantener consistentes el idioma inglés/español de P-020 y los iconos Material Design de P-021.
+
+Objetivo observable: el usuario puede evaluar una propuesta visual basada en shadcn/create dentro del programa antes de decidir una migración más amplia.
+
+Criterios de aceptación: queda demostrado qué partes de shadcn/create se pueden usar en WPF, se presenta una pantalla de prueba funcional y se documentan el costo de empaquetado y el mecanismo de comunicación con el servicio Bluetooth.
 
 ## Completado recientemente
 
+- [x] P-002 — Actualizar la batería durante la sesión con consultas generales, sin filtros por marca/modelo; aceptación confirmada por el responsable (`2026-09-22`).
+- [x] P-003 — Definir el alcance de la lista de dispositivos; cierre confirmado por el responsable del proyecto (`2026-09-22`).
+- [x] P-004 — Añadir actualización manual; cierre confirmado por el responsable del proyecto (`2026-09-22`).
+- [x] P-015 — Añadir pantalla `About`; validación visual y UI Automation completadas (`2026-09-01`).
 - [x] Reducir el tiempo de inicio: la ventana y el inventario inicial se publican sin esperar consultas secundarias; validado funcionalmente por el responsable del proyecto (`2026-09-01`).
 - [x] Eliminar la opción de inicio minimizado y mostrar siempre la ventana al iniciar (`2026-09-01`).
 - [x] Crear una skill de proyecto para documentación, QA y changelog (`2026-09-01`).

@@ -4,6 +4,16 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.16] — Widget compacto en la barra de tareas (2026-09-23)
+
+### Añadido
+
+- Opción para mostrar en la zona izquierda de la barra de tareas pastillas compactas con el tipo de dispositivo conectado y su nivel de batería.
+
+### Corregido
+
+- La selección del dispositivo y su estado de conexión se conservan al cambiar el endpoint que Windows usa para representarlo.
+
 ## [0.15] — Recuperación de batería HFP/PnP
 
 ### Corregido

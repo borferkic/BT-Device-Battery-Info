@@ -47,11 +47,13 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="BT Device Battery Info" Style="{StaticResource TitleText}" VerticalAlignment="Center"/>
                 <Button Grid.Column="1" Content="&#xE921;" ToolTip="Minimize to tray" Style="{StaticResource IconButton}" Click="Minimize_Click"/>
-                <Button Grid.Column="2" Content="&#xE713;" ToolTip="About" Style="{StaticResource IconButton}" Click="About_Click"/>
-                <Button Grid.Column="3" Content="&#xE8BB;" ToolTip="Exit" Style="{StaticResource CloseIconButton}" Click="Exit_Click"/>
+                <Button Grid.Column="2" Content="&#xE718;" ToolTip="Show compact taskbar widget" Style="{StaticResource IconButton}" Click="Taskbar_Click"/>
+                <Button Grid.Column="3" Content="&#xE713;" ToolTip="About" Style="{StaticResource IconButton}" Click="About_Click"/>
+                <Button Grid.Column="4" Content="&#xE8BB;" ToolTip="Exit" Style="{StaticResource CloseIconButton}" Click="Exit_Click"/>
             </Grid>
             <Grid Grid.Row="1" Margin="0,16,0,0">
                 <Grid.RowDefinitions>

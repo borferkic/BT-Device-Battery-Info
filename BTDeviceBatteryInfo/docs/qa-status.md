@@ -1,5 +1,27 @@
 # Estado del QA
 
+## Release 0.16 — P-017
+
+- El usuario confirmó que `0.16-dev9` aparece correctamente y sin recorte inferior; el screenshot incluido en el README muestra cuatro pastillas.
+- La publicación Release `0.16` para `win-x64` autocontenida en archivo único se compila después de la revisión manual.
+- Quedan por confirmar cambios de DPI, ciclos de activación y recuperación tras reiniciar Explorer; P-017 permanece abierto.
+
+## Confirmaciones de cierre — 2026-09-22
+
+- `P-002`: el responsable confirmó su cierre, incluida la aceptación que dependía de hardware. El caso Bose fue una pista de diagnóstico; la solución no requiere búsquedas ni filtros por marca/modelo. No se aporta una medición numérica de latencia en esta actualización.
+- `P-003`: cierre confirmado por el responsable; validar modelos adicionales no es requisito para esta tarea.
+- `P-004`: cierre confirmado por el responsable, incluida la validación visual del menú de bandeja. Esta confirmación sustituye la nota de pendiente del prebuild `0.14`.
+- `P-015`: cierre confirmado; la revisión visual y UI Automation ya constaban como correctas.
+
+## Prebuild 0.16-dev — P-014
+
+- Alcance: agregado del estado por `ContainerId`, selección persistida por identidad física, precedencia Classic/BLE y logs redactados por protocolo.
+- Validación de compilación: `dotnet restore .\BTDeviceBatteryInfo\BTDeviceBatteryInfo.csproj --runtime win-x64` y publicación Release `win-x64`, self-contained y single-file completadas correctamente; archivo `BTDeviceBatteryInfo.exe`, versión de archivo `0.16.0.0`, versión visible `0.16-dev` y metadato `ProductVersion` `0.16-dev+001117ebdf73c01d5737199914d4b91be1c123f5`.
+- Artefacto local: `BTDeviceBatteryInfo/Builds/0.16-dev/BTDeviceBatteryInfo.exe` (188003360 bytes); se generó junto al `.pdb` para depuración.
+- Build de revisión recompilada: `BTDeviceBatteryInfo/Builds/0.16-dev-current-review/BTDeviceBatteryInfo.exe` (win-x64, self-contained y single-file; `2026-09-22`). Contiene el estado actual de P-014 y todavía no incluye la implementación de P-017.
+- No se ejecutó una suite automatizada; la compilación se entrega para la prueba manual solicitada.
+- Validación de hardware pendiente: desconectar el perfil Classic conservando BLE, retirar el endpoint seleccionado, reconectar y observar varios ciclos de reconciliación.
+
 ## Release 0.15 — 2026-09-21
 
 - Cambios incluidos: se corrige el tipo PnP de `ContainerId` usado para unir devnodes, se enumeran nodos PnP Bluetooth registrados (incluidos los HFP que Windows no marca como `present`), se conserva la fuente real de la batería en el log y se elimina el porcentaje de caché al quedar el contenedor desconectado.
@@ -10,9 +32,11 @@
 
 - Cambios incluidos: `Refresh now` en la bandeja, reconciliación manual de endpoints y consulta PnP/GATT de batería forzada.
 - Validación: publicación `win-x64`, self-contained y single-file completada correctamente; versión del ejecutable `0.14.0.0`.
-- Pendiente: prueba visual del menú de bandeja y validación física con los auriculares; el tiempo de batería continúa dependiendo de Windows y del dispositivo.
+- Nota histórica: en ese prebuild quedaban pendientes la prueba visual del menú y una validación física. El cierre de `P-004` fue confirmado posteriormente por el responsable (`2026-09-22`); la disponibilidad de batería sigue dependiendo de Windows y del dispositivo.
 
 ## Build 0.13 — 2026-09-05
+
+Nota retrospectiva: los siguientes apuntes describen el diagnóstico de ese build, antes del cierre de `P-002` (`2026-09-22`). Las referencias al Bose son a hardware usado para reproducir el problema, no a una búsqueda ni filtro por marca requerido por la aplicación.
 
 - Cambios: batería temprana e independiente, control de operaciones pendientes, reintentos progresivos, menos actualizaciones visuales y guardado de posición al finalizar el arrastre.
 - Validación: compilación Release con cero errores y advertencias; cinco escenarios del ejecutable de validación del coordinador aprobados.
@@ -22,7 +46,7 @@
 - El selector por dirección fue ampliado para localizar el nodo `Hands-Free AG` junto al endpoint base. Falta repetir la prueba con la aplicación ejecutándose.
 - La consulta HFP `0000111E` se realiza explícitamente y filtra por `ContainerId`; falta confirmar el porcentaje en la interfaz con el Bose.
 - La ruta HFP nativa consulta `DEVPKEY_Bluetooth_BatteryLevel` mediante `CfgMgr32` y agrupa todos los devnodes por `ContainerId`; falta confirmar el porcentaje en la interfaz con el Bose.
-- `P-002` conserva la aceptación de hardware pendiente y `P-014` sigue abierto. No se declara corregida la interpretación de los perfiles de conexión.
+- `P-002` queda cerrada por confirmación del responsable (`2026-09-22`). `P-014` sigue abierto hasta completar su validación de hardware y el build final.
 
 ## Revisión actual
 
@@ -49,8 +73,6 @@
 
 ## Hallazgos abiertos
 
-- `P-002`: confirmar con hardware Bose que los reintentos recuperan el nivel de batería después de reconectar y reducir el tiempo de presentación del indicador.
-- `P-003`: validar en más modelos el grupo de dispositivos desconectados.
 - `P-014`: corregir estados `Connected` falsos y oscilaciones causadas por múltiples endpoints del mismo dispositivo.
 - `P-005`: alinear la reconexión interna con la interfaz y la documentación.
 - `P-006`: incorporar pruebas automatizadas.
@@ -66,10 +88,10 @@
 
 ## Incidencias de batería y conexión en análisis
 
-- Algunos auriculares Bose conectados no entregan batería de forma consistente. Los registros muestran timeouts y resultados sin datos; ahora el resultado vacío caduca y vuelve a intentarse, pero el Bose probado siguió sin exponer un porcentaje.
+- El caso Bose sirvió para localizar fallos de consulta/reintento; no se necesita tratar la marca de forma especial. Algunos dispositivos pueden no exponer batería en Windows y el comportamiento depende del dispositivo/perfil.
 - Algunos dispositivos permanecen visualmente en `Connected` después de desconectarlos. El inventario agrupa varios endpoints físicos, pero la selección actual puede priorizar un endpoint BLE auxiliar todavía marcado como conectado.
-- Ambos hallazgos requieren una prueba controlada de desconexión/reconexión con hardware antes de considerarse corregidos.
+- `P-002` está cerrada por confirmación del responsable; `P-014` requiere validar con hardware el estado de conexión y permanece abierta hasta el build final.
 
 ## Criterio para continuar
 
-Continuar con `P-014`: reproducir una desconexión física y corregir los estados `Connected` falsos sin confundir endpoints auxiliares BLE con una conexión principal.
+Continuar con `P-014`: completar el build final y validar la desconexión física sin confundir endpoints auxiliares BLE con una conexión principal. Mantener el pendiente abierto hasta entonces.
