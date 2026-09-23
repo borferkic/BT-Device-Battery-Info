@@ -4,33 +4,33 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
-## [0.17] — Opciones y tema Elegant Black (2026-09-23)
+## [0.17] — Options and Elegant Black theme (2026-09-23)
 
-### Añadido
+### Added
 
-- Ventana `Options` para configurar el inicio con Windows, el widget de la barra de tareas y los temas `System` y `Elegant Black`; incluye acceso a `About`.
-- Enlaces de apoyo a PayPal y Patreon en la ventana `About`.
+- Added an `Options` window for Windows startup, the taskbar widget, and the `System` / `Elegant Black` themes, with access to `About`.
+- Added PayPal and Patreon support links to `About`.
 
-### Cambiado
+### Changed
 
-- `Elegant Black` incorpora el estilo visual inspirado en shadcn/ui, fuente Geist Sans y botones tipo pastilla; `System` conserva el tema previo.
-- Iconos vectoriales Lucide para dispositivos y controles principales; la opción del widget de barra de tareas queda en `Options`.
+- Updated `Elegant Black` with a shadcn/ui-inspired style, Geist Sans, and pill-shaped buttons; `System` retains the previous theme.
+- Replaced device and primary toolbar icons with Lucide vectors and moved the taskbar widget option into `Options`.
+- Moved the `About` action lower in the `Options` window.
 
-### Corregido
+### Fixed
 
-- Se corrigió el cierre inesperado al aplicar el tema y se ajustó la posición de `About` en la ventana `Options`.
+- Fixed a startup crash while applying a theme.
 
-Detalles: [Versión 0.17 — Opciones y tema Elegant Black](BTDeviceBatteryInfo/docs/changelog/0.17.md).
+## [0.16] — Compact taskbar widget (2026-09-23)
 
-## [0.16] — Widget compacto en la barra de tareas (2026-09-23)
+### Added
 
-### Añadido
+- Added an option to show compact pills for connected Bluetooth devices and their battery levels in the left side of the taskbar.
+- Added support for headphones, keyboards, mice, and compatible game controllers.
 
-- Opción para mostrar en la zona izquierda de la barra de tareas pastillas compactas con el tipo de dispositivo conectado y su nivel de batería.
+### Fixed
 
-### Corregido
-
-- La selección del dispositivo y su estado de conexión se conservan al cambiar el endpoint que Windows usa para representarlo.
+- Preserved device selection and connection state when Windows changes the endpoint representing a physical device.
 
 ## [0.15] — Recuperación de batería HFP/PnP
 

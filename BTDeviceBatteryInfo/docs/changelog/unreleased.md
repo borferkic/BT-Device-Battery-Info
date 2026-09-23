@@ -1,23 +1,23 @@
 # Unreleased Changes
 
-## 0.16 — Widget compacto en la barra de tareas
+## 0.16 — Compact taskbar widget
 
-### Añadido
+### Added
 
-- Opción junto a Minimizar y en el menú de bandeja para mostrar dispositivos Bluetooth conectados en pastillas compactas dentro de la zona izquierda libre de la barra de tareas.
-- Cada pastilla presenta el icono del dispositivo y el nivel de batería; al seleccionarla se abre la ventana principal.
-- La función usa el inventario Bluetooth actual, guarda la preferencia del usuario y muestra auriculares, teclados, mouse y controles compatibles.
-- Los iconos de estas categorías usan Material Symbols Rounded, incluida con su licencia Apache 2.0.
+- Added an option beside Minimize and in the tray menu to show connected Bluetooth devices as compact pills in the available left side of the taskbar.
+- Each pill shows the device icon and battery level; selecting a pill opens the main window.
+- The feature uses the current Bluetooth inventory, saves the user's preference, and supports headphones, keyboards, mice, and compatible controllers.
+- Device category icons use Material Symbols Rounded, distributed under Apache License 2.0.
 
-### Corregido
+### Fixed
 
-- El widget conserva el acople y el ancho dinámico según los dispositivos mostrados; la altura ajustada evita el recorte inferior.
-- La selección y el estado de conexión se conservan al cambiar el endpoint que Windows usa para representar el dispositivo.
+- Kept the widget docked with a dynamic width; adjusted its height to prevent bottom clipping.
+- Preserved device selection and connection state when Windows changes the endpoint representing a physical device.
 
-### Validación
+### Validation and limitations
 
-- El usuario confirmó que `0.16-dev9` aparece correctamente; el screenshot de cuatro pastillas se incluye en el README.
-- La técnica de hospedaje en Explorer es experimental y depende del espacio libre en la barra de tareas; quedan pendientes comprobaciones de DPI y recuperación tras reiniciar Explorer.
+- The user confirmed `0.16-dev9` displays correctly; the README includes a screenshot of four pills.
+- Explorer hosting is experimental and depends on available taskbar space. DPI behavior and recovery after restarting Explorer remain unverified.
 
 ## Fixed
 
