@@ -10,8 +10,8 @@ namespace BTDeviceBatteryInfo;
 
 public partial class MainWindow : Window, IDisposable
 {
-    private const double DefaultWindowHeight = 250;
-    private const double AdditionalDeviceHeight = 56;
+    private const double DefaultWindowHeight = 320;
+    private const double AdditionalDeviceHeight = 72;
     private const int VisibleDeviceSlots = 2;
 
     private readonly AppSettings _settings;
@@ -33,6 +33,7 @@ public partial class MainWindow : Window, IDisposable
         InitializeComponent();
 
         _settings = settings;
+        ThemeManager.Apply(System.Windows.Application.Current.Resources, _settings.ThemeName);
         _bluetooth = bluetooth;
         _logger = logger;
         RestorePlacement();
@@ -147,12 +148,14 @@ public partial class MainWindow : Window, IDisposable
         Hide();
         UpdateWidgetMenuItem();
     }
-    private async void Taskbar_Click(object sender, RoutedEventArgs e) =>
-        await ToggleTaskbarWidgetAsync(hideMainWindow: !_settings.TaskbarWidgetEnabled);
-
     private async Task ToggleTaskbarWidgetAsync(bool hideMainWindow)
     {
-        _settings.TaskbarWidgetEnabled = !_settings.TaskbarWidgetEnabled;
+        await SetTaskbarWidgetEnabledAsync(!_settings.TaskbarWidgetEnabled, hideMainWindow);
+    }
+
+    private async Task SetTaskbarWidgetEnabledAsync(bool enabled, bool hideMainWindow = false)
+    {
+        _settings.TaskbarWidgetEnabled = enabled;
         _taskbarWidget.SetEnabled(_settings.TaskbarWidgetEnabled);
         if (_taskbarWidgetMenuItem is not null)
             _taskbarWidgetMenuItem.Checked = _settings.TaskbarWidgetEnabled;
@@ -168,10 +171,11 @@ public partial class MainWindow : Window, IDisposable
 
     private async void RefreshNow_Click(object sender, RoutedEventArgs e) => await ViewModel.RefreshNowAsync();
 
-    private void About_Click(object sender, RoutedEventArgs e)
+    private async void Options_Click(object sender, RoutedEventArgs e)
     {
-        var aboutWindow = new AboutWindow { Owner = this };
-        aboutWindow.ShowDialog();
+        var optionsWindow = new OptionsWindow(_settings, enabled => SetTaskbarWidgetEnabledAsync(enabled)) { Owner = this };
+        optionsWindow.ShowDialog();
+        await SettingsService.SaveAsync(_settings);
     }
 
     private async void ExitApplication()

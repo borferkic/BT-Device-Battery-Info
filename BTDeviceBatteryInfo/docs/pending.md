@@ -135,28 +135,26 @@ Objetivo observable: cada usuario puede elegir inglés o español desde `Options
 
 Criterios de aceptación: todos los textos visibles cambian al idioma elegido sin reiniciar la aplicación, la selección persiste y los logs siguen en inglés.
 
-### P-021 — Unificar los iconos con la fuente Material Design
+### P-021 — Unificar los iconos vectoriales estilo Lucide
 
-Avance parcial: los pictogramas de auriculares, teclado, mouse y control del widget de la barra de tareas ya usan Material Symbols Rounded. P-021 sigue abierto para el resto de controles y su validación visual.
+Avance parcial: los dispositivos de la ventana principal y la barra de tareas usan geometrías vectoriales estilo Lucide en `0.17-dev4`; queda pendiente la revisión visual del usuario.
 
-- [x] Incorporar Material Symbols Rounded al proyecto; documentar su fuente y licencia Apache 2.0.
-- [ ] Sustituir los iconos actuales de la ventana principal, bandeja, controles y widget compacto por glifos Material Design equivalentes.
-- [ ] Verificar tamaño, alineación, contraste y disponibilidad de la fuente en el ejecutable publicado.
+- [x] Reemplazar los pictogramas de dispositivos en la ventana principal y barra de tareas por geometrías vectoriales estilo Lucide.
+- [ ] Revisar tamaño, alineación y contraste de los iconos en la build `0.17-dev4` antes de cerrar el pendiente.
 
 Objetivo observable: la interfaz usa una familia coherente de iconos Material Design en todas sus vistas.
 
 Criterios de aceptación: no quedan iconos mezclados de fuentes distintas en los controles cubiertos y todos se ven correctamente en una instalación limpia.
 
-### P-022 — Evaluar shadcn/create para la interfaz
+### P-022 — Integrar temas para la ventana principal en 0.17
 
-- [ ] Definir el alcance visual de la nueva interfaz y qué pantallas del programa se renovarán.
-- [ ] Evaluar cómo aplicar el preset generado por shadcn/create a la aplicación WPF existente, incluyendo la opción de una capa web integrada y su comunicación con Bluetooth.
-- [ ] Probar una pantalla representativa y medir su impacto en instalación, rendimiento, accesibilidad y mantenimiento antes de migrar otras vistas.
-- [ ] Mantener consistentes el idioma inglés/español de P-020 y los iconos Material Design de P-021.
+- [ ] Ofrecer `System` (tema actual de 0.16) y `Elegant Black`, usando los tokens y radios de shadcn/ui para el nuevo tema.
+- [ ] Aplicar ambos temas a la ventana grande y guardar la selección del usuario.
 
-Objetivo observable: el usuario puede evaluar una propuesta visual basada en shadcn/create dentro del programa antes de decidir una migración más amplia.
+### P-023 — Añadir una pantalla Options y actualizar About
 
-Criterios de aceptación: queda demostrado qué partes de shadcn/create se pueden usar en WPF, se presenta una pantalla de prueba funcional y se documentan el costo de empaquetado y el mecanismo de comunicación con el servicio Bluetooth.
+- [ ] Cambiar el botón de configuración para abrir `Options` con inicio de Windows, widget de barra de tareas, selector de tema y botón `About`.
+- [ ] Mantener el resto de About; tras las redes añadir “You can support my work through PayPal or Patreon.” y enlaces a `https://paypal.me/borissdk` y `https://patreon.com/borissdk`.
 
 ## Completado recientemente
 

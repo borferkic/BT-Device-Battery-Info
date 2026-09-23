@@ -42,4 +42,176 @@
         <Setter Property="BorderBrush" Value="#FF454545" />
         <Setter Property="BorderThickness" Value="1" />
     </Style>
+
+    <!-- Semantic neutral dark tokens, adapted from shadcn/ui for native WPF controls. -->
+    <SolidColorBrush x:Key="ShadcnBackgroundBrush" Color="#FF09090B" />
+    <SolidColorBrush x:Key="ShadcnSurfaceBrush" Color="#FF111113" />
+    <SolidColorBrush x:Key="ShadcnElevatedBrush" Color="#FF18181B" />
+    <SolidColorBrush x:Key="ShadcnAccentBrush" Color="#FF27272A" />
+    <SolidColorBrush x:Key="ShadcnBorderBrush" Color="#FF27272A" />
+    <SolidColorBrush x:Key="ShadcnForegroundBrush" Color="#FFFAFAFA" />
+    <SolidColorBrush x:Key="ShadcnMutedBrush" Color="#FFA1A1AA" />
+    <SolidColorBrush x:Key="ShadcnPrimaryBrush" Color="#FFFAFAFA" />
+    <SolidColorBrush x:Key="ShadcnPrimaryForegroundBrush" Color="#FF18181B" />
+    <SolidColorBrush x:Key="ShadcnRingBrush" Color="#FFD4D4D8" />
+    <SolidColorBrush x:Key="ShadcnSuccessBrush" Color="#FF22C55E" />
+    <SolidColorBrush x:Key="ShadcnWarningBrush" Color="#FFEAB308" />
+    <CornerRadius x:Key="ShadcnButtonCornerRadius">8</CornerRadius>
+    <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+
+    <Style x:Key="ShadcnMainWindowBorder" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ShadcnBackgroundBrush}" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShadcnBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style x:Key="ShadcnMainTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
+    </Style>
+
+    <Style x:Key="ShadcnSectionTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
+    </Style>
+
+    <Style x:Key="ShadcnMutedText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnMutedBrush}" />
+    </Style>
+
+    <Style x:Key="ShadcnButtonBase" TargetType="Button">
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Background" Value="{DynamicResource ShadcnElevatedBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShadcnBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="ButtonBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource ShadcnButtonCornerRadius}">
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{DynamicResource ShadcnRingBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource ShadcnAccentBrush}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#FF3F3F46" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ShadcnIconButton" TargetType="Button" BasedOn="{StaticResource ShadcnButtonBase}">
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="1" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnMutedBrush}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+    </Style>
+
+    <Style x:Key="LucideToolbarIcon" TargetType="Path">
+        <Setter Property="Width" Value="16" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Stretch" Value="Uniform" />
+        <Setter Property="Fill" Value="Transparent" />
+        <Setter Property="Stroke" Value="{DynamicResource ShadcnMutedBrush}" />
+        <Setter Property="StrokeThickness" Value="1.8" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+        <Setter Property="StrokeLineJoin" Value="Round" />
+    </Style>
+
+    <Style x:Key="ShadcnPrimaryButton" TargetType="Button" BasedOn="{StaticResource ShadcnButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource ShadcnPrimaryBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnPrimaryForegroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShadcnPrimaryBrush}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#FFE4E4E7" />
+                <Setter Property="BorderBrush" Value="#FFE4E4E7" />
+                <Setter Property="Foreground" Value="{DynamicResource ShadcnPrimaryForegroundBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ShadcnExpander" TargetType="Expander">
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnMutedBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <StackPanel>
+                        <ToggleButton x:Name="HeaderSite"
+                                      Content="{TemplateBinding Header}"
+                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                      Background="Transparent"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      BorderThickness="0"
+                                      HorizontalContentAlignment="Stretch"
+                                      Cursor="Hand">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="HeaderBorder" Background="{TemplateBinding Background}" CornerRadius="8" Padding="8,7">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock x:Name="Chevron" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="10" VerticalAlignment="Center" Margin="0,0,9,0" />
+                                            <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="HeaderBorder" Property="Background" Value="{DynamicResource ShadcnAccentBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="Chevron" Property="RenderTransform">
+                                                <Setter.Value><RotateTransform Angle="90" CenterX="5" CenterY="5" /></Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="ExpandSite" ContentSource="Content" Visibility="Collapsed" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

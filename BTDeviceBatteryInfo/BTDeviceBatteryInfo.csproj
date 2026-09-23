@@ -8,7 +8,7 @@
     <Product>BT Device Battery Info</Product>
     <Description>Widget para consultar el estado y la batería de dispositivos Bluetooth en Windows.</Description>
     <Copyright>Boris SdK</Copyright>
-    <Version>0.16</Version>
+    <Version>0.17-dev6</Version>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -21,7 +21,10 @@
     <Resource Include="Icon.ico" />
     <Resource Include="avatarapp.png" />
     <Resource Include="Resources/MaterialSymbolsRounded.ttf" />
+    <Resource Include="Resources/GeistSans.ttf" />
     <Content Include="Resources/MaterialSymbols-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Resources/Lucide-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Resources/Geist-OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

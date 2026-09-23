@@ -15,7 +15,6 @@ using Brushes = System.Windows.Media.Brushes;
 using Button = System.Windows.Controls.Button;
 using Color = System.Windows.Media.Color;
 using Cursors = System.Windows.Input.Cursors;
-using FontFamily = System.Windows.Media.FontFamily;
 using Orientation = System.Windows.Controls.Orientation;
 using Point = System.Windows.Point;
 using Size = System.Windows.Size;
@@ -147,8 +146,6 @@ internal sealed class TaskbarDockWindow : Window
     private const uint SwpFrameChanged = 0x0020;
     private readonly StackPanel _panel = new() { Orientation = Orientation.Horizontal };
     private readonly Action _showMainWindow;
-    private static readonly FontFamily MaterialSymbolsFont = new(
-        new Uri("pack://application:,,,/"), "./Resources/#Material Symbols Rounded");
     private IntPtr _attachedTaskbar;
     private IntPtr Handle => new WindowInteropHelper(this).Handle;
     public bool HasValidHandle => Handle != IntPtr.Zero && IsWindow(Handle);
@@ -173,25 +170,22 @@ internal sealed class TaskbarDockWindow : Window
         _panel.Children.Clear();
         foreach (var device in devices)
         {
-            var iconCodePoint = device.Category switch
-            {
-                BluetoothDeviceCategory.Headphones => 0xF01F,
-                BluetoothDeviceCategory.Keyboard => 0xE312,
-                BluetoothDeviceCategory.Mouse => 0xE323,
-                BluetoothDeviceCategory.GameController => 0xE30F,
-                _ => 0xE8B8
-            };
             var content = new Grid { Width = 50, VerticalAlignment = VerticalAlignment.Center };
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) });
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(23) });
-            var icon = new TextBlock
+            var icon = new Path
             {
-                Text = char.ConvertFromUtf32(iconCodePoint),
-                FontFamily = MaterialSymbolsFont,
-                FontSize = 22,
-                Foreground = Brushes.White,
-                TextAlignment = TextAlignment.Center,
+                Data = LucideIcons.ForCategory(device.Category),
+                Width = 21,
+                Height = 21,
+                Stretch = Stretch.Uniform,
+                Fill = Brushes.Transparent,
+                StrokeThickness = 1.7,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round,
+                StrokeLineJoin = PenLineJoin.Round,
+                Stroke = Brushes.White,
                 VerticalAlignment = VerticalAlignment.Center
             };
             Grid.SetColumn(icon, 0);
