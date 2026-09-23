@@ -4,6 +4,24 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.17] — Opciones y tema Elegant Black (2026-09-23)
+
+### Añadido
+
+- Ventana `Options` para configurar el inicio con Windows, el widget de la barra de tareas y los temas `System` y `Elegant Black`; incluye acceso a `About`.
+- Enlaces de apoyo a PayPal y Patreon en la ventana `About`.
+
+### Cambiado
+
+- `Elegant Black` incorpora el estilo visual inspirado en shadcn/ui, fuente Geist Sans y botones tipo pastilla; `System` conserva el tema previo.
+- Iconos vectoriales Lucide para dispositivos y controles principales; la opción del widget de barra de tareas queda en `Options`.
+
+### Corregido
+
+- Se corrigió el cierre inesperado al aplicar el tema y se ajustó la posición de `About` en la ventana `Options`.
+
+Detalles: [Versión 0.17 — Opciones y tema Elegant Black](BTDeviceBatteryInfo/docs/changelog/0.17.md).
+
 ## [0.16] — Widget compacto en la barra de tareas (2026-09-23)
 
 ### Añadido
