@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -25,17 +26,20 @@ namespace BTDeviceBatteryInfo;
 internal sealed class TaskbarWidgetController : IDisposable
 {
     private readonly MainViewModel _viewModel;
-    private readonly Action _showMainWindow;
+    private readonly AppSettings _settings;
+    private readonly Func<BluetoothDeviceCategory, BluetoothDeviceItem, Task> _selectDevice;
     private readonly FileLogger _logger;
     private readonly DispatcherTimer _timer;
     private TaskbarDockWindow? _window;
     private string? _lastStatus;
     private bool _enabled;
 
-    public TaskbarWidgetController(MainViewModel viewModel, Action showMainWindow, FileLogger logger)
+    public TaskbarWidgetController(MainViewModel viewModel, AppSettings settings,
+        Func<BluetoothDeviceCategory, BluetoothDeviceItem, Task> selectDevice, FileLogger logger)
     {
         _viewModel = viewModel;
-        _showMainWindow = showMainWindow;
+        _settings = settings;
+        _selectDevice = selectDevice;
         _logger = logger;
         ((INotifyCollectionChanged)_viewModel.ConnectedDevices).CollectionChanged += OnDevicesChanged;
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
@@ -60,6 +64,7 @@ internal sealed class TaskbarWidgetController : IDisposable
     }
 
     private void OnDevicesChanged(object? sender, NotifyCollectionChangedEventArgs e) => Refresh();
+    public void RefreshNow() => Refresh();
 
     private async void Refresh()
     {
@@ -88,15 +93,15 @@ internal sealed class TaskbarWidgetController : IDisposable
         if (_window is null || !_window.HasValidHandle)
         {
             CloseWindow();
-            _window = new TaskbarDockWindow(_showMainWindow);
+            _window = new TaskbarDockWindow();
             _window.Show();
         }
 
-        _window.UpdateDevices(devices);
+        _window.UpdateDevices(devices, _settings, _selectDevice);
         if (_window.TryDock(out var reason))
         {
             _window.Show();
-            SetStatus($"Taskbar widget visible (device pills: {devices.Length}).");
+            SetStatus($"Taskbar widget visible (device categories: {devices.Select(device => device.Category).Distinct().Count()}).");
         }
         else
         {
@@ -145,14 +150,12 @@ internal sealed class TaskbarDockWindow : Window
     private const uint SwpShowWindow = 0x0040;
     private const uint SwpFrameChanged = 0x0020;
     private readonly StackPanel _panel = new() { Orientation = Orientation.Horizontal };
-    private readonly Action _showMainWindow;
     private IntPtr _attachedTaskbar;
     private IntPtr Handle => new WindowInteropHelper(this).Handle;
     public bool HasValidHandle => Handle != IntPtr.Zero && IsWindow(Handle);
 
-    public TaskbarDockWindow(Action showMainWindow)
+    public TaskbarDockWindow()
     {
-        _showMainWindow = showMainWindow;
         Width = 1;
         Height = TaskbarWidgetHeight;
         ShowInTaskbar = false;
@@ -165,10 +168,16 @@ internal sealed class TaskbarDockWindow : Window
         Content = _panel;
     }
 
-    public void UpdateDevices(IReadOnlyList<BluetoothDeviceItem> devices)
+    public void UpdateDevices(IReadOnlyList<BluetoothDeviceItem> devices, AppSettings settings,
+        Func<BluetoothDeviceCategory, BluetoothDeviceItem, Task> selectDevice)
     {
+        if (_panel.Children.OfType<Button>().Any(button => button.ContextMenu?.IsOpen == true)) return;
         _panel.Children.Clear();
-        foreach (var device in devices)
+        var selectedDevices = devices.GroupBy(device => device.Category)
+            .Select(group => group.FirstOrDefault(device => string.Equals(
+                device.PhysicalDeviceId, GetSelectedDeviceId(settings, group.Key), StringComparison.OrdinalIgnoreCase)) ?? group.First())
+            .ToArray();
+        foreach (var device in selectedDevices)
         {
             var content = new Grid { Width = 50, VerticalAlignment = VerticalAlignment.Center };
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) });
@@ -204,7 +213,7 @@ internal sealed class TaskbarDockWindow : Window
                 Foreground = Brushes.White,
                 BorderBrush = new SolidColorBrush(Color.FromRgb(75, 78, 84)),
                 BorderThickness = new Thickness(1),
-                ToolTip = $"{device.Name} — {device.BatteryText}",
+                ToolTip = $"{device.Name} — {device.BatteryText}. Click to choose another {CategoryLabel(device.Category)}.",
                 Cursor = Cursors.Hand
             };
             var border = new FrameworkElementFactory(typeof(Border));
@@ -226,11 +235,47 @@ internal sealed class TaskbarDockWindow : Window
                 new TemplateBindingExtension(System.Windows.Controls.Control.PaddingProperty));
             border.AppendChild(contentPresenter);
             button.Template = new ControlTemplate(typeof(Button)) { VisualTree = border };
-            button.Click += (_, _) => _showMainWindow();
+            var deviceMenu = new ContextMenu { Placement = PlacementMode.Bottom, PlacementTarget = button };
+            foreach (var option in devices.Where(option => option.Category == device.Category))
+            {
+                var menuItem = new MenuItem
+                {
+                    Header = $"{option.Name} — {option.BatteryText}",
+                    IsCheckable = true,
+                    IsChecked = string.Equals(option.PhysicalDeviceId, device.PhysicalDeviceId, StringComparison.OrdinalIgnoreCase),
+                    ToolTip = option.Name
+                };
+                menuItem.Click += async (_, _) =>
+                {
+                    deviceMenu.IsOpen = false;
+                    await selectDevice(device.Category, option);
+                };
+                deviceMenu.Items.Add(menuItem);
+            }
+            button.ContextMenu = deviceMenu;
+            button.Click += (_, _) => deviceMenu.IsOpen = true;
             _panel.Children.Add(button);
         }
-        Width = devices.Count * 66 + 2;
+        Width = selectedDevices.Length * 66 + 2;
     }
+
+    private static string? GetSelectedDeviceId(AppSettings settings, BluetoothDeviceCategory category) => category switch
+    {
+        BluetoothDeviceCategory.Headphones => settings.TaskbarHeadphonesDeviceId,
+        BluetoothDeviceCategory.Keyboard => settings.TaskbarKeyboardDeviceId,
+        BluetoothDeviceCategory.Mouse => settings.TaskbarMouseDeviceId,
+        BluetoothDeviceCategory.GameController => settings.TaskbarGameControllerDeviceId,
+        _ => null
+    };
+
+    private static string CategoryLabel(BluetoothDeviceCategory category) => category switch
+    {
+        BluetoothDeviceCategory.Headphones => "headphones",
+        BluetoothDeviceCategory.Keyboard => "keyboard",
+        BluetoothDeviceCategory.Mouse => "mouse",
+        BluetoothDeviceCategory.GameController => "controller",
+        _ => "device"
+    };
 
     public bool TryDock(out string reason)
     {

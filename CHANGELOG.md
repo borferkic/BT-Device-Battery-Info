@@ -4,6 +4,19 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.18] — Selección de dispositivos en la barra de tareas
+
+### Añadido
+
+- Selección del dispositivo que se muestra en la barra de tareas para cada categoría: auriculares, teclado, mouse y control.
+- Al hacer clic en una pastilla se abre la lista de dispositivos conectados de esa categoría para cambiar la selección.
+
+### Cambiado
+
+- La ventana `Options` muestra los selectores en dos columnas: auriculares/control a la izquierda y teclado/mouse a la derecha.
+- Se compactó `Options` y se añadieron iconos de categoría; los selectores usan el tema activo y muestran solo el nombre del dispositivo, con el texto centrado.
+- La selección se conserva por identidad física del dispositivo.
+
 ## [0.17] — Options and Elegant Black theme (2026-09-23)
 
 ### Added

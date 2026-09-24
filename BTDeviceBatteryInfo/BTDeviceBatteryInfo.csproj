@@ -8,7 +8,7 @@
     <Product>BT Device Battery Info</Product>
     <Description>Widget para consultar el estado y la batería de dispositivos Bluetooth en Windows.</Description>
     <Copyright>Boris SdK</Copyright>
-    <Version>0.17</Version>
+    <Version>0.18</Version>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

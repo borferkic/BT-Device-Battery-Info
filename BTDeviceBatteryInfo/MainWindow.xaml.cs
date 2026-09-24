@@ -41,7 +41,7 @@ public partial class MainWindow : Window, IDisposable
         Opacity = settings.Opacity;
 
         ViewModel = new MainViewModel(settings, bluetooth, logger);
-        _taskbarWidget = new TaskbarWidgetController(ViewModel, ShowWidget, logger);
+        _taskbarWidget = new TaskbarWidgetController(ViewModel, _settings, SelectTaskbarDeviceAsync, logger);
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         DataContext = ViewModel;
 
@@ -173,9 +173,27 @@ public partial class MainWindow : Window, IDisposable
 
     private async void Options_Click(object sender, RoutedEventArgs e)
     {
-        var optionsWindow = new OptionsWindow(_settings, enabled => SetTaskbarWidgetEnabledAsync(enabled)) { Owner = this };
-        optionsWindow.ShowDialog();
+        var optionsWindow = new OptionsWindow(_settings, ViewModel.ConnectedDevices, enabled => SetTaskbarWidgetEnabledAsync(enabled)) { Owner = this };
+        if (optionsWindow.ShowDialog() == true)
+            _taskbarWidget.RefreshNow();
         await SettingsService.SaveAsync(_settings);
+    }
+
+    private async Task SelectTaskbarDeviceAsync(BluetoothDeviceCategory category, BluetoothDeviceItem device)
+    {
+        switch (category)
+        {
+            case BluetoothDeviceCategory.Headphones: _settings.TaskbarHeadphonesDeviceId = device.PhysicalDeviceId; break;
+            case BluetoothDeviceCategory.Keyboard: _settings.TaskbarKeyboardDeviceId = device.PhysicalDeviceId; break;
+            case BluetoothDeviceCategory.Mouse: _settings.TaskbarMouseDeviceId = device.PhysicalDeviceId; break;
+            case BluetoothDeviceCategory.GameController: _settings.TaskbarGameControllerDeviceId = device.PhysicalDeviceId; break;
+        }
+        try
+        {
+            await SettingsService.SaveAsync(_settings);
+            _taskbarWidget.RefreshNow();
+        }
+        catch (Exception ex) { await HandleBackgroundErrorAsync("Taskbar device selection save", ex); }
     }
 
     private async void ExitApplication()

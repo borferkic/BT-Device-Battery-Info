@@ -156,6 +156,16 @@ Criterios de aceptación: no quedan iconos mezclados de fuentes distintas en los
 - [ ] Cambiar el botón de configuración para abrir `Options` con inicio de Windows, widget de barra de tareas, selector de tema y botón `About`.
 - [ ] Mantener el resto de About; tras las redes añadir “You can support my work through PayPal or Patreon.” y enlaces a `https://paypal.me/borissdk` y `https://patreon.com/borissdk`.
 
+### P-024 — Ajustar espacios y selector de tema en Options
+
+- [ ] Eliminar los espacios verticales sobrantes señalados en `Fix.jpg` y hacer que el selector de tema de `fix2.jpg` ajuste su altura al texto, con el padding habitual.
+- [ ] Verificar que `Options` quede compacto y que el selector conserve legibilidad y uso normal.
+
+### P-025 — Elegir el dispositivo visible por categoría
+
+- [ ] Permitir elegir auriculares, teclado, mouse y control desde `Options` y desde el menú que abre su pastilla en la barra de tareas.
+- [ ] Conservar cada elección por identidad física y mostrar un dispositivo conectado por categoría.
+
 ## Completado recientemente
 
 - [x] P-002 — Actualizar la batería durante la sesión con consultas generales, sin filtros por marca/modelo; aceptación confirmada por el responsable (`2026-09-22`).

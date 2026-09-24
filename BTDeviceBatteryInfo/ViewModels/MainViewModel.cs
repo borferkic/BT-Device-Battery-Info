@@ -164,10 +164,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             await _logger.LogAsync(force ? "Force reconnect started" : "Reconnect started");
 
             var attempts = force ? _settings.MaximumAttempts : 1;
-            foreach (var (delay, attempt) in ReconnectPolicy.Delays(attempts, _settings.RetryDelaySeconds).Select((delay, index) => (delay, index + 1)))
+            foreach (var delay in ReconnectPolicy.Delays(attempts, _settings.RetryDelaySeconds))
             {
                 token.ThrowIfCancellationRequested();
-                await InvokeOnUiAsync(() => DeviceListMessage = $"Reconnect attempt {attempt}/{attempts}");
                 if (await _bluetooth.RequestConnectionAsync(token))
                 {
                     await InvokeOnUiAsync(() =>
@@ -269,7 +268,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         var index = 0;
         foreach (var device in devices)
         {
-            var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent, device.Category);
+            var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent, device.Category, device.PhysicalDeviceId);
             if (index == target.Count) target.Add(item);
             else if (target[index] != item) target[index] = item;
             index++;
@@ -378,7 +377,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 }
 
-public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category)
+public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category, string PhysicalDeviceId)
 {
     public string ConnectionText => IsConnected ? "Connected" : "Disconnected";
     public System.Windows.Media.Brush ConnectionBrush => IsConnected ? System.Windows.Media.Brushes.MediumSeaGreen : System.Windows.Media.Brushes.DarkGray;

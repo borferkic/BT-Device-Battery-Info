@@ -10,6 +10,10 @@ public sealed class AppSettings
     public bool AlwaysOnTop { get; set; } = true;
     public bool StartWithWindows { get; set; }
     public bool TaskbarWidgetEnabled { get; set; }
+    public string? TaskbarHeadphonesDeviceId { get; set; }
+    public string? TaskbarKeyboardDeviceId { get; set; }
+    public string? TaskbarMouseDeviceId { get; set; }
+    public string? TaskbarGameControllerDeviceId { get; set; }
     public string ThemeName { get; set; } = "System";
     public double Opacity { get; set; } = .95;
     public double Left { get; set; } = 80;
