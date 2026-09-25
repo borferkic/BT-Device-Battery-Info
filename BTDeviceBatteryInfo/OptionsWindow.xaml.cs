@@ -62,7 +62,7 @@ public partial class OptionsWindow : Window
 
     private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (ThemeComboBox.SelectedItem is ComboBoxItem item && item.Content is string theme)
+        if (ThemeComboBox.SelectedItem is ComboBoxItem item && item.Tag is string theme)
             ThemeManager.Apply(System.Windows.Application.Current.Resources, theme);
     }
 
@@ -73,7 +73,7 @@ public partial class OptionsWindow : Window
             var startWithWindows = StartWithWindowsCheckBox.IsChecked == true;
             StartupService.SetEnabled(startWithWindows);
             _settings.StartWithWindows = startWithWindows;
-            _settings.ThemeName = (ThemeComboBox.SelectedItem as ComboBoxItem)?.Content as string ?? ThemeManager.SystemTheme;
+            _settings.ThemeName = (ThemeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? ThemeManager.SystemTheme;
             SaveDeviceSelection(HeadphonesComboBox, BluetoothDeviceCategory.Headphones);
             SaveDeviceSelection(KeyboardComboBox, BluetoothDeviceCategory.Keyboard);
             SaveDeviceSelection(MouseComboBox, BluetoothDeviceCategory.Mouse);

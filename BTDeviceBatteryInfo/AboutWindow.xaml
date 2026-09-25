@@ -1,18 +1,21 @@
 <Window x:Class="BTDeviceBatteryInfo.AboutWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:icons="clr-namespace:BTDeviceBatteryInfo.Services"
         Title="About BT Device Battery Info"
-        Icon="Icon.ico"
-        Width="400" Height="530"
-        MinWidth="400" MaxWidth="400"
-        MinHeight="530" MaxHeight="530"
+        Icon="{DynamicResource ShadcnAppWindowIcon}"
+        Width="424" Height="554"
+        MinWidth="424" MaxWidth="424"
+        MinHeight="554" MaxHeight="554"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize"
         Background="Transparent"
         FontFamily="{DynamicResource AppFontFamily}">
-    <Border Style="{StaticResource WidgetBorder}" Padding="24,20">
+    <Grid Margin="12">
+    <Border Style="{StaticResource ShadcnWindowShadow}"/>
+    <Border Style="{StaticResource ShadcnMainWindowBorder}" Padding="24,20">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -26,64 +29,67 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="About" Style="{StaticResource TitleText}" VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Content="&#xE8BB;" ToolTip="Close" Style="{StaticResource CloseIconButton}" Click="Close_Click"/>
+                <TextBlock Text="About" Style="{StaticResource ShadcnMainTitle}" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" ToolTip="Close" Style="{StaticResource ShadcnIconButton}" Click="Close_Click">
+                    <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
+                </Button>
             </Grid>
 
             <StackPanel Grid.Row="1" Margin="0,24,0,0">
-                <Ellipse Width="76" Height="76" Stroke="#FF46D9D3" StrokeThickness="2" HorizontalAlignment="Center" Margin="0,0,0,12">
+                <Ellipse Width="76" Height="76" Stroke="{DynamicResource ShadcnBorderBrush}" StrokeThickness="2" HorizontalAlignment="Center" Margin="0,0,0,12">
                     <Ellipse.Fill>
                         <ImageBrush ImageSource="avatarapp.png" Stretch="UniformToFill"/>
                     </Ellipse.Fill>
                 </Ellipse>
-                <TextBlock Text="BT Device Battery Info" Foreground="#FFFFFFFF" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                <TextBlock Text="Version 0.18" Foreground="#FFB8B8B8" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                <TextBlock Text="BT Device Battery Info" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Text="Version 0.19" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Row="2" Margin="0,24,0,0">
                 <TextBlock Text="Quickly check your Bluetooth devices and review their connection status and battery level from a simple, unobtrusive widget."
-                           Foreground="#FFE0E0E0" FontSize="13" TextWrapping="Wrap" TextAlignment="Center"/>
+                           Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="#FF602C4F" CornerRadius="14" HorizontalAlignment="Center">
-                            <TextBlock Text="IG" Foreground="#FFFFFFFF" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                            <TextBlock Text="IG" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
-                            <Hyperlink NavigateUri="https://www.instagram.com/borissdk/" RequestNavigate="OpenLink_Click" Foreground="#FFE0A0C0">Instagram</Hyperlink>
+                            <Hyperlink NavigateUri="https://www.instagram.com/borissdk/" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">Instagram</Hyperlink>
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="#FF4B3476" CornerRadius="14" HorizontalAlignment="Center">
-                            <TextBlock Text="TW" Foreground="#FFFFFFFF" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                            <TextBlock Text="TW" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
-                            <Hyperlink NavigateUri="https://www.twitch.tv/borizillaTV" RequestNavigate="OpenLink_Click" Foreground="#FFB9A0FF">Twitch</Hyperlink>
+                            <Hyperlink NavigateUri="https://www.twitch.tv/borizillaTV" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">Twitch</Hyperlink>
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="#FF1C5F88" CornerRadius="14" HorizontalAlignment="Center">
-                            <TextBlock Text="in" Foreground="#FFFFFFFF" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                            <TextBlock Text="in" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
-                            <Hyperlink NavigateUri="https://www.linkedin.com/in/borissdk/" RequestNavigate="OpenLink_Click" Foreground="#FF8CC8FF">LinkedIn</Hyperlink>
+                            <Hyperlink NavigateUri="https://www.linkedin.com/in/borissdk/" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">LinkedIn</Hyperlink>
                         </TextBlock>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Text="You can support my work through PayPal or Patreon." Foreground="#FFE0E0E0" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Margin="0,22,0,0"/>
+                <TextBlock Text="You can support my work through PayPal or Patreon." Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Margin="0,22,0,0"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                     <TextBlock FontSize="12" Margin="0,0,18,0">
-                        <Hyperlink NavigateUri="https://paypal.me/borissdk" RequestNavigate="OpenLink_Click" Foreground="#FF8CC8FF">PayPal</Hyperlink>
+                        <Hyperlink NavigateUri="https://paypal.me/borissdk" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">PayPal</Hyperlink>
                     </TextBlock>
                     <TextBlock FontSize="12">
-                        <Hyperlink NavigateUri="https://patreon.com/borissdk" RequestNavigate="OpenLink_Click" Foreground="#FFFF8A80">Patreon</Hyperlink>
+                        <Hyperlink NavigateUri="https://patreon.com/borissdk" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">Patreon</Hyperlink>
                     </TextBlock>
                 </StackPanel>
             </StackPanel>
 
             <StackPanel Grid.Row="3">
-                <TextBlock Text="© 2026 Boris SdK" Foreground="#FF8A8A8A" FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                <Button Content="Close" Style="{StaticResource ActionButton}" Width="100" HorizontalAlignment="Center" Click="Close_Click"/>
+                <TextBlock Text="© 2026 Boris SdK" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                <Button Content="Close" Style="{StaticResource ShadcnButtonBase}" HorizontalAlignment="Center" Click="Close_Click"/>
             </StackPanel>
         </Grid>
     </Border>
+    </Grid>
 </Window>

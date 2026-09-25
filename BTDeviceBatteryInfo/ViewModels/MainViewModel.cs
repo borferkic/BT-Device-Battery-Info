@@ -93,7 +93,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public Visibility RefreshStatusVisibility => string.IsNullOrWhiteSpace(RefreshStatus) ? Visibility.Collapsed : Visibility.Visible;
     public Visibility LoadingVisibility => _isLoading ? Visibility.Visible : Visibility.Collapsed;
     public string ActionText => _status == "CONNECTED" ? "RECONNECT" : "CONNECT";
-    public System.Windows.Media.Brush StatusBrush => _status == "ERROR" ? System.Windows.Media.Brushes.IndianRed : ConnectedDeviceCount <= 0 ? System.Windows.Media.Brushes.Goldenrod : System.Windows.Media.Brushes.MediumSeaGreen;
+    public System.Windows.Media.Brush StatusBrush => _status == "ERROR" ? ThemeManager.Brush("ShadcnDestructiveBrush") : ConnectedDeviceCount <= 0 ? ThemeManager.Brush("ShadcnWarningBrush") : ThemeManager.Brush("ShadcnSuccessBrush");
     public bool AutoReconnect { get => _settings.AutoReconnect; set { _settings.AutoReconnect = value; OnPropertyChanged(); } }
 
     private async Task InvokeOnUiAsync(Action action)
@@ -380,8 +380,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category, string PhysicalDeviceId)
 {
     public string ConnectionText => IsConnected ? "Connected" : "Disconnected";
-    public System.Windows.Media.Brush ConnectionBrush => IsConnected ? System.Windows.Media.Brushes.MediumSeaGreen : System.Windows.Media.Brushes.DarkGray;
+    public bool HasBattery => BatteryPercent is not null;
     public string BatteryText => BatteryPercent is int battery ? $"Battery: {battery}%" : "Battery unavailable";
-    public System.Windows.Media.Brush BatteryBrush => BatteryPercent switch { <= 15 => System.Windows.Media.Brushes.IndianRed, null => System.Windows.Media.Brushes.DarkGray, _ => System.Windows.Media.Brushes.White };
+    public bool IsBatteryLow => BatteryPercent <= 15;
     public double BatteryFillWidth => BatteryPercent switch { null => 0, <= 15 => 3, <= 50 => 7, <= 75 => 11, _ => 15 };
 }

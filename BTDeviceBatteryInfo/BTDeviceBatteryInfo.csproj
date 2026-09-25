@@ -8,8 +8,8 @@
     <Product>BT Device Battery Info</Product>
     <Description>Widget para consultar el estado y la batería de dispositivos Bluetooth en Windows.</Description>
     <Copyright>Boris SdK</Copyright>
-    <Version>0.18</Version>
-    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <Version>0.19</Version>
+    <ApplicationIcon>Icon/Icon-dark.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -19,6 +19,10 @@
   <ItemGroup>
     <Compile Remove="validation/**/*.cs" />
     <Resource Include="Icon.ico" />
+    <Resource Include="Icon/Icon-dark.ico" />
+    <Resource Include="Icon/icon-dark-128.png" />
+    <Resource Include="Icon/Icon-light.ico" />
+    <Resource Include="Icon/icon-light-128.png" />
     <Resource Include="avatarapp.png" />
     <Resource Include="Resources/MaterialSymbolsRounded.ttf" />
     <Resource Include="Resources/GeistSans.ttf" />

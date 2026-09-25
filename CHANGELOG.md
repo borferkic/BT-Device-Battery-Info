@@ -4,6 +4,30 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.19] — Refined themes and Windows light mode
+
+### Added
+
+- `System` now follows the Windows light or dark app mode and switches live when it changes.
+- New app icon with light and dark variants, used in the windows, header, and tray.
+- Switches replace the checkboxes in `Options`.
+- Loading placeholders and an empty-state message in the device list.
+- Keyboard focus ring on buttons, selectors, switches, and the disconnected-devices section.
+
+### Changed
+
+- `Elegant Black` follows shadcn/ui more closely: softer near-black and near-white colors, a subtle gradient on the main window, slimmer buttons, and standard corner radii.
+- The taskbar widget, tooltips, and menus now follow the active theme.
+- Theme selectors show a check mark on the selected item.
+- Window, card, and menu shadows.
+- Battery and connection colors update immediately when the theme changes.
+
+### Fixed
+
+- Primary button hover no longer turns gray in `System`.
+- The focus ring no longer appears after a mouse click.
+- The `About` window now follows the active theme.
+
 ## [0.18] — Taskbar device selection
 
 ### Added

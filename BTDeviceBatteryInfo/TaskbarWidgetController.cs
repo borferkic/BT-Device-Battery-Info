@@ -194,9 +194,9 @@ internal sealed class TaskbarDockWindow : Window
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round,
                 StrokeLineJoin = PenLineJoin.Round,
-                Stroke = Brushes.White,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            icon.SetResourceReference(Shape.StrokeProperty, "ShadcnWidgetForegroundBrush");
             Grid.SetColumn(icon, 0);
             content.Children.Add(icon);
             var batteryRing = new BatteryRing(device.BatteryPercent);
@@ -209,15 +209,17 @@ internal sealed class TaskbarDockWindow : Window
                 Height = 36,
                 Padding = new Thickness(8, 0, 4, 0),
                 Margin = new Thickness(2, 2, 0, 2),
-                Background = new SolidColorBrush(Color.FromRgb(45, 48, 55)),
-                Foreground = Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(75, 78, 84)),
                 BorderThickness = new Thickness(1),
                 ToolTip = $"{device.Name} — {device.BatteryText}. Click to choose another {CategoryLabel(device.Category)}.",
                 Cursor = Cursors.Hand
             };
+            button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "ShadcnWidgetBrush");
+            button.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "ShadcnWidgetForegroundBrush");
+            button.SetResourceReference(System.Windows.Controls.Control.BorderBrushProperty, "ShadcnWidgetBorderBrush");
+            button.MouseEnter += (_, _) => button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "ShadcnWidgetHoverBrush");
+            button.MouseLeave += (_, _) => button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "ShadcnWidgetBrush");
             var border = new FrameworkElementFactory(typeof(Border));
-            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(16));
+            border.SetResourceReference(Border.CornerRadiusProperty, "ShadcnWidgetCornerRadius");
             border.SetBinding(Border.BackgroundProperty, new System.Windows.Data.Binding(nameof(Button.Background))
             {
                 RelativeSource = new System.Windows.Data.RelativeSource(System.Windows.Data.RelativeSourceMode.TemplatedParent)
@@ -362,20 +364,20 @@ internal sealed class TaskbarDockWindow : Window
         public BatteryRing(int? percent)
         {
             Width = Height = 23;
-            Children.Add(new Ellipse
+            var track = new Ellipse
             {
                 Width = 21,
                 Height = 21,
-                Stroke = new SolidColorBrush(Color.FromRgb(110, 113, 119)),
                 StrokeThickness = 2
-            });
+            };
+            track.SetResourceReference(Shape.StrokeProperty, "ShadcnWidgetTrackBrush");
+            Children.Add(track);
             if (percent is int value && value > 0)
             {
                 var angle = 2 * Math.PI * Math.Min(value, 99.9) / 100;
                 var end = new Point(11.5 + 9.5 * Math.Sin(angle), 11.5 - 9.5 * Math.Cos(angle));
                 var path = new Path
                 {
-                    Stroke = value <= 15 ? Brushes.IndianRed : Brushes.MediumSeaGreen,
                     StrokeThickness = 2.5,
                     StrokeStartLineCap = PenLineCap.Round,
                     StrokeEndLineCap = PenLineCap.Round,
@@ -388,17 +390,20 @@ internal sealed class TaskbarDockWindow : Window
                         }, false)
                     })
                 };
+                path.SetResourceReference(Shape.StrokeProperty, value <= 15 ? "ShadcnDestructiveBrush" : "ShadcnWidgetRingBrush");
                 Children.Add(path);
             }
-            Children.Add(new TextBlock
+            var label = new TextBlock
             {
                 Text = percent is int battery ? battery.ToString() : "–",
                 FontSize = 10,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = Brushes.White,
+                FontWeight = FontWeights.Medium,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
-            });
+            };
+            label.SetResourceReference(TextBlock.ForegroundProperty, "ShadcnWidgetForegroundBrush");
+            label.SetResourceReference(TextBlock.FontFamilyProperty, "AppFontFamily");
+            Children.Add(label);
         }
     }
 

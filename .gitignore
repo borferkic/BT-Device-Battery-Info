@@ -20,3 +20,6 @@ BTDeviceBatteryInfo/docs/improvement-plan.md
 .DS_Store
 Thumbs.db
 *.swp
+
+# Claude Code local configuration and skills
+.claude/

@@ -32,6 +32,16 @@ public static class LucideIcons
 
     public static Geometry Close { get; } = Geometry.Parse("M18,6 L6,18 M6,6 L18,18");
 
+    public static Geometry ChevronRight { get; } = Geometry.Parse("M9,18 L15,12 L9,6");
+
+    public static Geometry ChevronDown { get; } = Geometry.Parse("M6,9 L12,15 L18,9");
+
+    public static Geometry Check { get; } = Geometry.Parse("M20,6 L9,17 L4,12");
+
+    public static Geometry LoaderCircle { get; } = Geometry.Parse("M21,12 A9,9 0 1 1 14.781,3.44");
+
+    public static Geometry Bluetooth { get; } = Geometry.Parse("M7,7 L17,17 L12,22 V2 L17,7 L7,17");
+
     public static Geometry ForCategory(BluetoothDeviceCategory category) => category switch
     {
         BluetoothDeviceCategory.Headphones => Headphones,

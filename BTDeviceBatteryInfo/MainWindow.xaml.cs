@@ -34,6 +34,7 @@ public partial class MainWindow : Window, IDisposable
 
         _settings = settings;
         ThemeManager.Apply(System.Windows.Application.Current.Resources, _settings.ThemeName);
+        ThemeManager.ThemeChanged += OnThemeChanged;
         _bluetooth = bluetooth;
         _logger = logger;
         RestorePlacement();
@@ -243,9 +244,19 @@ public partial class MainWindow : Window, IDisposable
             _toggleWidgetMenuItem.Text = IsVisible ? "Hide widget" : "Show widget";
     }
 
+    private void OnThemeChanged(object? sender, EventArgs e)
+    {
+        if (_tray is null) return;
+        var previous = _trayIcon;
+        _trayIcon = LoadTrayIcon();
+        _tray.Icon = _trayIcon;
+        previous?.Dispose();
+    }
+
     private static Drawing.Icon LoadTrayIcon()
     {
-        var resource = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Icon.ico", UriKind.Absolute));
+        var variant = ThemeManager.IsLight ? "light" : "dark";
+        var resource = System.Windows.Application.GetResourceStream(new Uri($"pack://application:,,,/Icon/Icon-{variant}.ico", UriKind.Absolute));
         if (resource is null) return (Drawing.Icon)Drawing.SystemIcons.Information.Clone();
 
         using (resource.Stream)
@@ -293,6 +304,8 @@ public partial class MainWindow : Window, IDisposable
 
     public void Dispose()
     {
+        ThemeManager.ThemeChanged -= OnThemeChanged;
+        ThemeManager.StopListening();
         _taskbarWidget.Dispose();
         _tray?.Dispose();
         _trayIcon?.Dispose();

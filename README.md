@@ -25,7 +25,23 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 - Includes an About window with project information and creator links.
 - Stores application data and diagnostic logs in `%LocalAppData%\BTDeviceBatteryInfo`.
 
-![Compact taskbar widget showing connected devices and battery levels](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
+## Screenshots
+
+**Elegant Black theme**
+
+| Main window | Options |
+|---|---|
+| ![Main window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png) | ![Options window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/options-window-elegant-black.png) |
+
+![Taskbar widget with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png)
+
+**System theme (Windows 11 dark)**
+
+| Main window | Options |
+|---|---|
+| ![Main window with the System theme](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Options window with the System theme](BTDeviceBatteryInfo/docs/images/options-window.png) |
+
+![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
 
 ## Requirements
 
@@ -126,7 +142,23 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 - Incluye una ventana About con información del proyecto y enlaces del creador.
 - Guarda la configuración y los registros en `%LocalAppData%\BTDeviceBatteryInfo`.
 
-![Widget compacto en la barra de tareas con dispositivos conectados y sus niveles de batería](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
+### Capturas
+
+**Tema Elegant Black**
+
+| Ventana principal | Opciones |
+|---|---|
+| ![Ventana principal con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png) | ![Ventana de opciones con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/options-window-elegant-black.png) |
+
+![Widget de la barra de tareas con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png)
+
+**Tema System (Windows 11 oscuro)**
+
+| Ventana principal | Opciones |
+|---|---|
+| ![Ventana principal con el tema System](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Ventana de opciones con el tema System](BTDeviceBatteryInfo/docs/images/options-window.png) |
+
+![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
 
 ### Requisitos
 
