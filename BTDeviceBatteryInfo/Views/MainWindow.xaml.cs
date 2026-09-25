@@ -18,6 +18,7 @@ public partial class MainWindow : Window, IDisposable
     private readonly BluetoothService _bluetooth;
     private readonly FileLogger _logger;
     private Forms.NotifyIcon? _tray;
+    private readonly LowBatteryNotifier _lowBatteryNotifier = new();
     private Drawing.Icon? _trayIcon;
     private Forms.ToolStripMenuItem? _toggleWidgetMenuItem;
     private Forms.ToolStripMenuItem? _refreshMenuItem;
@@ -45,6 +46,7 @@ public partial class MainWindow : Window, IDisposable
         ViewModel = new MainViewModel(settings, bluetooth, logger);
         _taskbarWidget = new TaskbarWidgetController(ViewModel, _settings, SelectTaskbarDeviceAsync, logger);
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+        ((System.Collections.Specialized.INotifyCollectionChanged)ViewModel.ConnectedDevices).CollectionChanged += OnConnectedDevicesChanged;
         DataContext = ViewModel;
 
         Loaded += async (_, _) =>
@@ -260,6 +262,20 @@ public partial class MainWindow : Window, IDisposable
             _toggleWidgetMenuItem.Text = AppLanguage.Get(IsVisible ? "Tray.HideWidget" : "Tray.ShowWidget");
     }
 
+    private void OnConnectedDevicesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        var readings = ViewModel.ConnectedDevices.Select(device =>
+            new LowBatteryReading(device.PhysicalDeviceId, device.Name, device.IsConnected, device.BatteryPercent));
+        var alerts = _lowBatteryNotifier.Evaluate(readings, _settings.LowBatteryNotificationsEnabled,
+            LowBatteryNotifier.NormalizeThreshold(_settings.LowBatteryThreshold));
+        foreach (var alert in alerts)
+        {
+            _tray?.ShowBalloonTip(5000, AppLanguage.Get("Notify.LowBatteryTitle"),
+                AppLanguage.Format("Notify.LowBatteryText", alert.Name, alert.BatteryPercent ?? 0), Forms.ToolTipIcon.Warning);
+            _ = _logger.LogAsync($"Low battery notification: {alert.Name} at {alert.BatteryPercent}%.");
+        }
+    }
+
     private void OnThemeChanged(object? sender, EventArgs e)
     {
         if (_tray is null) return;
@@ -326,6 +342,7 @@ public partial class MainWindow : Window, IDisposable
         _taskbarWidget.Dispose();
         _tray?.Dispose();
         _trayIcon?.Dispose();
+        ((System.Collections.Specialized.INotifyCollectionChanged)ViewModel.ConnectedDevices).CollectionChanged -= OnConnectedDevicesChanged;
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
         ViewModel.Dispose();
         _bluetooth.Dispose();

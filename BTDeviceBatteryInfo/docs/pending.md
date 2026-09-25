@@ -18,58 +18,30 @@ Sin pendientes de prioridad alta (P-014 y P-016 cerrados en `0.21`).
 
 ## Prioridad media
 
-### P-006 — Crear pruebas automatizadas
-
-- [x] Añadir un proyecto de pruebas independiente: `tests/BTDeviceBatteryInfo.Tests` (xUnit, 33 pruebas), que sustituye a `tests/BatteryQueries` (`2026-09-25`).
-- [x] Cubrir `ReconnectPolicy`, `AppLanguage.Normalize`, la lógica de batería de las tarjetas y el coordinador `BatteryQueryRunner`.
-- [x] Verificar que los tres temas y los dos idiomas definen las mismas claves.
-- [ ] Cubrir la persistencia de `AppSettings`.
-- [ ] Cubrir agrupación de endpoints, selección, coalescencia de refrescos y cancelación de reconexión.
-- [x] Ejecutar las pruebas en CI además de la compilación (`dotnet test` sobre la solución).
-
-### P-010 — Endurecer el ciclo de vida
-
-- [ ] Cancelar y liberar correctamente tareas de hidratación, reconciliación y recuperación del watcher durante el cierre.
-- [ ] Evitar que eventos asincrónicos publiquen cambios después de liberar sus consumidores.
-- [ ] Definir una política de reintento si la recuperación del `DeviceWatcher` falla varias veces.
-
-Criterios de aceptación: cerrar la aplicación durante una consulta no produce excepciones no observadas, bloqueos ni callbacks sobre objetos liberados.
+Sin pendientes de prioridad media.
 
 ## Prioridad baja
 
-### P-011 — Diagnóstico y soporte
-
-- [ ] Mostrar o exportar un resumen redactado con adaptador, última actualización y fuente de batería.
-- [ ] Añadir notificaciones de batería baja con umbral configurable y sin repeticiones excesivas.
-
-### P-012 — Distribución y mantenimiento
-
-- [ ] Preparar un paquete distribuible con versión visible, icono, actualización y desinstalación.
-- [ ] Definir un proceso de publicación que no dependa solo de artefactos manuales.
-
-### P-018 — Registrar conexiones y desconexiones para QA
-
-- [ ] Registrar fecha y hora, dispositivo con identificadores redactados, transición de conexión y fuente/evidencia disponible (por ejemplo, eventos del watcher y estado Classic/BLE).
-- [ ] Diferenciar una causa confirmada por Windows de una inferencia; no atribuir un motivo físico que el sistema no haya reportado.
-- [ ] Evitar entradas repetidas cuando el estado no cambie y definir límites de tamaño o retención para el registro local.
-- [ ] Facilitar el uso del registro local para diagnosticar errores sin exponer direcciones ni identificadores sensibles.
-
-Objetivo observable: ante una conexión o desconexión, QA puede reconstruir cuándo se detectó el cambio y qué evidencia disponible lo acompañó.
-
-Criterios de aceptación: el registro local contiene transiciones fechadas y redactadas con su fuente/evidencia, no duplica estados inalterados, distingue causas conocidas de inferencias y respeta la política de retención definida.
-
-### P-026 — Batería de mandos Bluetooth (8BitDo)
-
-- [x] Leer la batería de mandos en modo X-input con `Windows.Gaming.Input` como fuente de último recurso (0.20-dev2; confirmado con el Arcade Stick).
-- [ ] Validar el porcentaje frente al nivel real. El SN30 Pro para Xbox queda fuera: por Bluetooth solo tiene modo Android, sin batería.
+Sin pendientes de prioridad baja.
 
 ## Completado recientemente
+
+- [x] P-027 — Aviso de nuevas versiones al abrir la aplicación con enlace a la release; las builds `dev` se consideran inferiores a su versión. Validado por el usuario y publicado en `0.22` (`2026-09-25`).
+
+- [x] P-011 — Aviso de batería baja como notificación de Windows, una vez por descarga, con interruptor y umbral en `Options`; validado por el usuario (`2026-09-25`).
+- [x] P-006 — Proyecto de pruebas xUnit en CI: temas e idiomas, batería, coordinador, logger, ciclo de vida, `AppSettings` y avisos (55 pruebas, `2026-09-25`).
+
+- [x] P-026 — Batería de mandos Bluetooth en modo X-input mediante `Windows.Gaming.Input`; porcentaje validado por el usuario con el 8BitDo Arcade Stick (`2026-09-25`).
+- [x] P-018 — Registro de transiciones con evidencia Classic/BLE y origen del cambio, retención de 14 días y tope de 2 MB por día; validado por el usuario (`2026-09-25`).
+- [x] P-010 — Cierre ordenado del servicio Bluetooth, eventos ignorados tras el cierre y reintentos del `DeviceWatcher` con espera progresiva; validado por el usuario (`2026-09-25`).
 
 - [x] P-020 — Selección de idioma inglés/español en `Options` con vista previa en vivo, guardado al iniciar e inglés como predeterminado y respaldo; logs en inglés. Validado por el usuario en `0.21-dev8` y publicado en `0.21` (`2026-09-25`).
 
 - [x] P-017 — Widget compacto de dispositivos conectados en la barra de tareas; cerrado por el usuario (`2026-09-25`).
 
 ## Descartados
+
+- P-012 — Distribución y mantenimiento; retirado por el usuario (`2026-09-25`): la aplicación se distribuye como un único `.exe` autocontenido, sin instalador.
 
 - P-007 — Matriz de validación Bluetooth; retirado por el usuario (`2026-09-25`): las pruebas reales con hardware son suficientes.
 - P-013 — Agrupación configurable; retirado por el usuario (`2026-09-25`): se mantiene la agrupación por dispositivo físico.

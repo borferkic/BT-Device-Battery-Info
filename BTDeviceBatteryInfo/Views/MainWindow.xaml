@@ -269,9 +269,13 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Border Width="40" Height="22" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnBadgeCornerRadius}" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Border Width="40" Height="22" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnBadgeCornerRadius}" VerticalAlignment="Center">
                     <TextBlock Text="{DynamicResource Str.Main.Beta}" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
+                    <Button Content="{Binding UpdateAvailableText}" Command="{Binding OpenUpdateCommand}" Visibility="{Binding UpdateAvailableVisibility}"
+                            ToolTip="{DynamicResource Str.Update.Tooltip}" Style="{StaticResource ShadcnButtonBase}" Height="24" Padding="10,0" FontSize="11" Margin="8,0,0,0" />
+                </StackPanel>
                 <Button Grid.Column="1" Content="{Binding RefreshButtonText}" IsEnabled="{Binding CanRefresh}" Style="{StaticResource ShadcnPrimaryButton}" Click="RefreshNow_Click" />
             </Grid>
         </Grid>

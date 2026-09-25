@@ -81,4 +81,10 @@
     <sys:String x:Key="Str.App.StartError">The application could not start.</sys:String>
     <sys:String x:Key="Str.App.UnexpectedError">The application encountered an unexpected error and will close.</sys:String>
     <sys:String x:Key="Str.About.VersionWord">Version</sys:String>
+    <sys:String x:Key="Str.Options.LowBatteryNotifications">Notify me when battery is low</sys:String>
+    <sys:String x:Key="Str.Options.LowBatteryThreshold">Low battery threshold</sys:String>
+    <sys:String x:Key="Str.Notify.LowBatteryTitle">Low battery</sys:String>
+    <sys:String x:Key="Str.Notify.LowBatteryText">{0} is at {1}% battery.</sys:String>
+    <sys:String x:Key="Str.Update.Available">Update {0} available</sys:String>
+    <sys:String x:Key="Str.Update.Tooltip">Open the download page on GitHub</sys:String>
 </ResourceDictionary>

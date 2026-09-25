@@ -21,6 +21,10 @@ public partial class OptionsWindow : Window
         _originalTheme = settings.ThemeName;
         StartWithWindowsCheckBox.IsChecked = StartupService.IsEnabled();
         TaskbarWidgetCheckBox.IsChecked = settings.TaskbarWidgetEnabled;
+        LowBatteryCheckBox.IsChecked = settings.LowBatteryNotificationsEnabled;
+        foreach (var threshold in LowBatteryNotifier.ThresholdOptions)
+            LowBatteryThresholdComboBox.Items.Add(new ComboBoxItem { Content = $"{threshold} %", Tag = threshold, Style = (Style)FindResource("OptionsPickerItemStyle") });
+        LowBatteryThresholdComboBox.SelectedIndex = Array.IndexOf(LowBatteryNotifier.ThresholdOptions, LowBatteryNotifier.NormalizeThreshold(settings.LowBatteryThreshold));
         ThemeComboBox.SelectedIndex = settings.ThemeName == ThemeManager.ElegantBlackTheme ? 1 : 0;
         _originalLanguage = AppLanguage.Normalize(settings.Language);
         LanguageComboBox.SelectedIndex = _originalLanguage == AppLanguage.Spanish ? 1 : 0;
@@ -84,6 +88,8 @@ public partial class OptionsWindow : Window
             var startWithWindows = StartWithWindowsCheckBox.IsChecked == true;
             StartupService.SetEnabled(startWithWindows);
             _settings.StartWithWindows = startWithWindows;
+            _settings.LowBatteryNotificationsEnabled = LowBatteryCheckBox.IsChecked == true;
+            if (LowBatteryThresholdComboBox.SelectedItem is ComboBoxItem { Tag: int threshold }) _settings.LowBatteryThreshold = threshold;
             _settings.ThemeName = (ThemeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? ThemeManager.SystemTheme;
             _settings.Language = AppLanguage.Normalize((LanguageComboBox.SelectedItem as ComboBoxItem)?.Tag as string);
             SaveDeviceSelection(HeadphonesComboBox, BluetoothDeviceCategory.Headphones);

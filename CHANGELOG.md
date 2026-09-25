@@ -4,6 +4,24 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.22] — Low battery alerts and update notice
+
+### Added
+
+- Windows notification when a connected device drops to the low-battery threshold, sent once per discharge.
+- `Options` switch to turn low-battery notifications on or off, and a threshold selector (10–30 %, 15 % by default).
+- Update notice: at startup the app checks GitHub once and, if a newer version exists, shows a button that opens its release page.
+
+### Changed
+
+- Diagnostic logs are kept for 14 days and capped at 2 MB per day; a new file starts each day even if the app keeps running.
+- Connection transitions in the log state whether Windows reported them through a watcher event or a reconciliation query.
+
+### Fixed
+
+- If Windows stops the Bluetooth device watcher and restarting it fails, the app keeps retrying with increasing delays instead of stopping device updates.
+- Closing the app while Bluetooth queries are still running no longer lets them update the device list afterwards.
+
 ## [0.21] — Language selection and Bluetooth status
 
 ### Added

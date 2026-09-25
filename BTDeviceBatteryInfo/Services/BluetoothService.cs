@@ -63,7 +63,8 @@ public sealed class BluetoothService : IDisposable
     // Windows needs about 30 s for the first association-endpoint enumeration; queries issued before it
     // completes wait for it, so manual refreshes skip the query until then.
     private volatile bool _watcherEnumerationCompleted;
-    private bool _isDisposing;
+    private volatile bool _isDisposing;
+    private int _watcherRestartFailures;
     private readonly CancellationTokenSource _batteryLifetime = new();
     private readonly SemaphoreSlim _gattGate = new(2, 2);
     private readonly Dictionary<string, long> _batteryGenerations = new(StringComparer.OrdinalIgnoreCase);
@@ -191,6 +192,7 @@ public sealed class BluetoothService : IDisposable
 
     private void OnEndpointAdded(DeviceWatcher sender, DeviceInformation endpoint)
     {
+        if (_isDisposing) return;
         try
         {
             lock (_endpointsLock)
@@ -202,7 +204,7 @@ public sealed class BluetoothService : IDisposable
             }
             if (GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
                 QueueBatteryHydration([endpoint], force: true);
-            PublishChanges();
+            PublishChanges("watcher added event");
         }
         catch (Exception ex)
         {
@@ -212,6 +214,7 @@ public sealed class BluetoothService : IDisposable
 
     private void OnEndpointUpdated(DeviceWatcher sender, DeviceInformationUpdate update)
     {
+        if (_isDisposing) return;
         try
         {
             DeviceInformation? endpoint = null;
@@ -235,7 +238,7 @@ public sealed class BluetoothService : IDisposable
                 QueueBatteryHydration([endpoint], force: becameConnected);
             else if (IsInitialDiscoveryCompleted && endpoint is null)
                 ScheduleEndpointReconciliation(delay: true);
-            PublishChanges();
+            PublishChanges("watcher update event");
         }
         catch (Exception ex)
         {
@@ -245,6 +248,7 @@ public sealed class BluetoothService : IDisposable
 
     private void OnEndpointRemoved(DeviceWatcher sender, DeviceInformationUpdate update)
     {
+        if (_isDisposing) return;
         try
         {
             lock (_endpointsLock)
@@ -258,7 +262,7 @@ public sealed class BluetoothService : IDisposable
                 _removedEndpointIds.Add(update.Id);
                 ClearBatteryIfNoConnectedEndpointsLocked(containerId);
             }
-            PublishChanges();
+            PublishChanges("watcher removed event");
         }
         catch (Exception ex)
         {
@@ -266,7 +270,10 @@ public sealed class BluetoothService : IDisposable
         }
     }
 
-    private void ScheduleEndpointReconciliation(bool delay = false) => _ = ReconcileEndpointsAsync(delay, forceBattery: false);
+    private void ScheduleEndpointReconciliation(bool delay = false)
+    {
+        if (!_isDisposing) _ = ReconcileEndpointsAsync(delay, forceBattery: false);
+    }
 
     private async Task CompleteInitialDiscoveryAfterTimeoutAsync(CancellationToken token)
     {
@@ -336,6 +343,7 @@ public sealed class BluetoothService : IDisposable
             {
                 lock (_endpointsLock) confirmEmptyResult = _endpoints.Count > 0;
             }
+            if (_isDisposing) return;
             if (confirmEmptyResult)
             {
                 await LogSafeAsync("Empty Bluetooth endpoint query; confirming before clearing the inventory.");
@@ -375,7 +383,7 @@ public sealed class BluetoothService : IDisposable
             if (corrected > 0 || restored > 0)
                 await LogSafeAsync($"Endpoint reconciliation corrected {corrected} connection state(s) and restored {restored} removed endpoint(s) missed by the watcher.");
             QueueBatteryHydration(endpoints, force: forceBattery);
-            PublishChanges();
+            PublishChanges("reconciliation query");
         }
         catch (Exception ex)
         {
@@ -387,7 +395,7 @@ public sealed class BluetoothService : IDisposable
         }
     }
 
-    private void PublishChanges()
+    private void PublishChanges(string source = "state refresh")
     {
         if (_isDisposing) return;
         IReadOnlyList<BluetoothDeviceInfo> devices;
@@ -397,7 +405,7 @@ public sealed class BluetoothService : IDisposable
             if (_lastPublishedDevices is not null && devices.SequenceEqual(_lastPublishedDevices)) return;
             _lastPublishedDevices = devices;
         }
-        LogDeviceTransitions(devices);
+        LogDeviceTransitions(devices, source);
 
         var selected = string.IsNullOrWhiteSpace(_selectedDeviceId) ? null : devices.FirstOrDefault(device =>
             string.Equals(device.PhysicalDeviceId, _selectedDeviceId, StringComparison.OrdinalIgnoreCase));
@@ -683,7 +691,7 @@ public sealed class BluetoothService : IDisposable
     }
 
     /// <summary>Logs every physical device whose grouped connection state changed, with Classic/BLE evidence (P-014 QA).</summary>
-    private void LogDeviceTransitions(IReadOnlyList<BluetoothDeviceInfo> devices)
+    private void LogDeviceTransitions(IReadOnlyList<BluetoothDeviceInfo> devices, string source)
     {
         List<string> transitions = [];
         lock (_endpointsLock)
@@ -706,7 +714,7 @@ public sealed class BluetoothService : IDisposable
         foreach (var transition in transitions)
         {
             var separator = transition.LastIndexOf('|');
-            _ = LogSafeAsync($"Device transition — {transition[..separator]} ({GetConnectionEvidence(transition[(separator + 1)..])}).");
+            _ = LogSafeAsync($"Device transition — {transition[..separator]} (reported by Windows via {source}; {GetConnectionEvidence(transition[(separator + 1)..])}).");
         }
     }
 
@@ -786,24 +794,53 @@ public sealed class BluetoothService : IDisposable
         _ = RestartWatcherAsync();
     }
 
+    /// <summary>Delay before watcher restart attempt <paramref name="failures"/> + 1: 1 s, 5 s, 15 s, then every 60 s.</summary>
+    internal static TimeSpan GetWatcherRestartDelay(int failures) => failures switch
+    {
+        <= 0 => TimeSpan.FromSeconds(1),
+        1 => TimeSpan.FromSeconds(5),
+        2 => TimeSpan.FromSeconds(15),
+        _ => TimeSpan.FromSeconds(60)
+    };
+
     private async Task RestartWatcherAsync()
     {
         if (!await _watcherRecoveryGate.WaitAsync(0)) return;
 
         try
         {
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            if (_isDisposing) return;
+            // Keep retrying with backoff: a failed restart must not leave the service without a watcher.
+            while (!_isDisposing)
+            {
+                var delay = GetWatcherRestartDelay(_watcherRestartFailures);
+                try
+                {
+                    await Task.Delay(delay, _batteryLifetime.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                if (_isDisposing) return;
 
-            StopWatcher();
-            StartWatcher();
-            await LogSafeAsync("Bluetooth watcher restarted.");
-            if (IsInitialDiscoveryCompleted)
-                await ReconcileEndpointsAsync(delay: false, forceBattery: false);
-        }
-        catch (Exception ex)
-        {
-            await LogSafeAsync("Bluetooth watcher restart error: " + ex);
+                try
+                {
+                    StopWatcher();
+                    StartWatcher();
+                    await LogSafeAsync(_watcherRestartFailures == 0
+                        ? "Bluetooth watcher restarted."
+                        : $"Bluetooth watcher restarted after {_watcherRestartFailures + 1} attempts.");
+                    _watcherRestartFailures = 0;
+                    if (IsInitialDiscoveryCompleted)
+                        await ReconcileEndpointsAsync(delay: false, forceBattery: false);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _watcherRestartFailures++;
+                    await LogSafeAsync($"Bluetooth watcher restart attempt {_watcherRestartFailures} failed; retrying in {GetWatcherRestartDelay(_watcherRestartFailures).TotalSeconds:0} s: {ex.Message}");
+                }
+            }
         }
         finally
         {
@@ -1091,13 +1128,20 @@ public sealed class BluetoothService : IDisposable
 
     public void Dispose()
     {
+        if (_isDisposing) return;
         _isDisposing = true;
+        System.Threading.Timer? timer;
+        lock (_endpointsLock)
+        {
+            timer = _reconciliationTimer;
+            _reconciliationTimer = null;
+        }
+        timer?.Dispose();
+        StopWatcher();
         _batteryLifetime.Cancel();
         _initialDiscoveryCts?.Cancel();
-        _initialDiscoveryCts?.Dispose();
-        _reconciliationTimer?.Dispose();
-        StopWatcher();
-        _initializeGate.Dispose();
+        // Gates and cancellation sources are not disposed: background work may still be completing and
+        // would otherwise observe ObjectDisposedException; they hold no unmanaged resources.
     }
 
     private sealed record BatteryCacheEntry(int? Value, DateTimeOffset LastAttemptUtc, DateTimeOffset? LastSuccessUtc, string? Source);

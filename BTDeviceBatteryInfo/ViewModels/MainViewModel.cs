@@ -44,6 +44,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         ReconnectCommand = new AsyncCommand(() => ReconnectAsync(force: false));
         TurnOnBluetoothCommand = new AsyncCommand(TurnOnBluetoothAsync);
         OpenBluetoothSettingsCommand = new AsyncCommand(OpenBluetoothSettingsAsync);
+        OpenUpdateCommand = new AsyncCommand(OpenUpdateAsync);
         _radio = new BluetoothRadioService(logger);
         _radio.StatusChanged += OnRadioStatusChanged;
         AppLanguage.LanguageChanged += OnLanguageChanged;
@@ -56,6 +57,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ICommand ReconnectCommand { get; }
     public ICommand TurnOnBluetoothCommand { get; }
     public ICommand OpenBluetoothSettingsCommand { get; }
+    public ICommand OpenUpdateCommand { get; }
+
+    private AvailableUpdate? _availableUpdate;
+    public Visibility UpdateAvailableVisibility => _availableUpdate is null ? Visibility.Collapsed : Visibility.Visible;
+    public string UpdateAvailableText => _availableUpdate is null ? string.Empty : AppLanguage.Format("Update.Available", _availableUpdate.Version);
 
     /// <summary>True when Windows reports the Bluetooth radio as off, disabled, or missing.</summary>
     public bool IsBluetoothUnavailable => _radio.Status is BluetoothRadioStatus.Off or BluetoothRadioStatus.Disabled or BluetoothRadioStatus.NoAdapter;
@@ -154,6 +160,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public async Task InitializeAsync()
     {
         await _radio.InitializeAsync();
+        _ = CheckForUpdateAsync();
         NotifyRadioState();
         await RefreshDevicesAsync();
         if (_bluetooth.IsInitialDiscoveryCompleted)
@@ -434,6 +441,26 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
     }
 
+    /// <summary>Checks GitHub once at startup; never blocks startup and ignores failures.</summary>
+    private async Task CheckForUpdateAsync()
+    {
+        var update = await UpdateChecker.CheckAsync(_logger);
+        if (update is null) return;
+        await InvokeOnUiAsync(() =>
+        {
+            _availableUpdate = update;
+            OnPropertyChanged(nameof(UpdateAvailableVisibility));
+            OnPropertyChanged(nameof(UpdateAvailableText));
+        });
+    }
+
+    private Task OpenUpdateAsync()
+    {
+        if (_availableUpdate is not null)
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_availableUpdate.Url) { UseShellExecute = true });
+        return Task.CompletedTask;
+    }
+
     private static Task OpenBluetoothSettingsAsync()
     {
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:bluetooth") { UseShellExecute = true });
@@ -455,6 +482,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         OnPropertyChanged(nameof(DeviceListMessage));
         OnPropertyChanged(nameof(RefreshButtonText));
         OnPropertyChanged(nameof(DeviceCountText));
+        OnPropertyChanged(nameof(UpdateAvailableText));
         NotifyRadioState();
         // Device cards compute their texts on access; replace each item so the bindings re-read them.
         foreach (var collection in new[] { _connectedDevices, _disconnectedDevices })

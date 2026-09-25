@@ -16,6 +16,8 @@ public sealed class AppSettings
     public string? TaskbarGameControllerDeviceId { get; set; }
     public string ThemeName { get; set; } = "System";
     public string Language { get; set; } = "en";
+    public bool LowBatteryNotificationsEnabled { get; set; } = true;
+    public int LowBatteryThreshold { get; set; } = 15;
     public double Opacity { get; set; } = .95;
     public double Left { get; set; } = 80;
     public double Top { get; set; } = 80;

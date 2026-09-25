@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:icons="clr-namespace:BTDeviceBatteryInfo.Services"
-        Title="{DynamicResource Str.Options.Title}" Icon="{DynamicResource ShadcnAppWindowIcon}" Width="444" Height="584"
-        MinWidth="444" MaxWidth="444" MinHeight="584" MaxHeight="584"
+        Title="{DynamicResource Str.Options.Title}" Icon="{DynamicResource ShadcnAppWindowIcon}" Width="444" Height="628"
+        MinWidth="444" MaxWidth="444" MinHeight="628" MaxHeight="628"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
         WindowStyle="None" ResizeMode="NoResize"
         Background="Transparent" AllowsTransparency="True"
@@ -144,7 +144,13 @@
             <ScrollViewer Grid.Row="1" Margin="0,16,0,12" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <CheckBox x:Name="StartWithWindowsCheckBox" Content="{DynamicResource Str.Options.StartWithWindows}" Style="{StaticResource ShadcnSwitch}" Margin="4,4,0,12" HorizontalAlignment="Left"/>
-                <CheckBox x:Name="TaskbarWidgetCheckBox" Content="{DynamicResource Str.Options.TaskbarWidget}" Style="{StaticResource ShadcnSwitch}" Margin="4,0,0,16" HorizontalAlignment="Left"/>
+                <CheckBox x:Name="TaskbarWidgetCheckBox" Content="{DynamicResource Str.Options.TaskbarWidget}" Style="{StaticResource ShadcnSwitch}" Margin="4,0,0,12" HorizontalAlignment="Left"/>
+                <Grid Margin="4,0,0,16">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <CheckBox x:Name="LowBatteryCheckBox" Content="{DynamicResource Str.Options.LowBatteryNotifications}" Style="{StaticResource ShadcnSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="LowBatteryThresholdComboBox" Grid.Column="1" Width="84" Style="{StaticResource OptionsPickerStyle}"
+                              ToolTip="{DynamicResource Str.Options.LowBatteryThreshold}" IsEnabled="{Binding IsChecked, ElementName=LowBatteryCheckBox}"/>
+                </Grid>
                 <TextBlock Text="{DynamicResource Str.Options.Theme}" Style="{StaticResource ShadcnSectionTitle}" Margin="0,0,0,6"/>
                 <ComboBox x:Name="ThemeComboBox" Style="{StaticResource OptionsPickerStyle}"
                           SelectionChanged="ThemeComboBox_SelectionChanged">

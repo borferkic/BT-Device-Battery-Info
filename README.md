@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.21` — **Language selection and Bluetooth status**.
+Latest release: `0.22` — **Low battery alerts and update notice**.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
@@ -48,6 +48,8 @@ Latest release: `0.21` — **Language selection and Bluetooth status**.
 - **Application**
   - `Options` window with switches for Start with Windows and the taskbar widget, the theme and language selectors, and the device per category.
   - English and Spanish interface, switchable live from `Options`.
+  - Windows notification when a device drops to the low-battery threshold (configurable in `Options`, 15 % by default).
+  - Notice at startup when a newer version is available on GitHub, with a button that opens its release page.
   - Detects when Bluetooth is off or the adapter is disabled, with a `Turn on Bluetooth` button and a shortcut to Bluetooth settings.
   - Tray actions to show or hide the widget, enable or disable Start with Windows, refresh, and exit.
   - Single instance: the app informs you when it is already running.
@@ -68,6 +70,14 @@ Latest release: `0.21` — **Language selection and Bluetooth status**.
 | ![Main window with the System theme](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Options window with the System theme](BTDeviceBatteryInfo/docs/images/options-window.png) |
 
 ![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
+
+**Low battery notification**
+
+![Windows notification for a device with low battery](BTDeviceBatteryInfo/docs/images/low-battery-notification.png)
+
+**Update notice**
+
+![Update notice next to the BETA badge in the main window](BTDeviceBatteryInfo/docs/images/update-notice.png)
 
 ## Quick start
 
@@ -120,7 +130,7 @@ Connected devices are prioritized in the list. Some devices may appear without a
 ## Privacy and safety
 
 - **Read-only**: the app does not remove pairings, disable adapters, simulate connections, or modify device drivers.
-- **No telemetry**: no analytics and no network connections.
+- **No telemetry**: no analytics. The only network request is a single check of the latest release on GitHub at startup; no data about you or your devices is sent, and nothing is downloaded automatically.
 - **Local data only**: settings and diagnostic logs are stored in `%LocalAppData%\BTDeviceBatteryInfo`.
 
 ## Build and run
@@ -187,7 +197,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.21` — **Selección de idioma y estado de Bluetooth**.
+Última versión: `0.22` — **Avisos de batería baja y de nuevas versiones**.
 
 ### Funcionalidades
 
@@ -209,6 +219,8 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 - **Aplicación**
   - Ventana `Options` con interruptores para el inicio con Windows y el widget, los selectores de tema e idioma, y el dispositivo por categoría.
   - Interfaz en inglés y español, con cambio en vivo desde `Options`.
+  - Notificación de Windows cuando un dispositivo baja del umbral de batería (configurable en `Options`, 15 % por defecto).
+  - Aviso al abrir la aplicación cuando hay una versión nueva en GitHub, con un botón que abre su página de descarga.
   - Detecta cuando Bluetooth está apagado o el adaptador deshabilitado, con un botón `Turn on Bluetooth` y un acceso a la configuración de Bluetooth.
   - Opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows, actualizar y salir.
   - Instancia única: avisa si la aplicación ya está abierta.
@@ -231,6 +243,14 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 | ![Ventana principal con el tema System](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Ventana de opciones con el tema System](BTDeviceBatteryInfo/docs/images/options-window.png) |
 
 ![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
+
+**Aviso de batería baja**
+
+![Notificación de Windows de un dispositivo con batería baja](BTDeviceBatteryInfo/docs/images/low-battery-notification.png)
+
+**Aviso de nueva versión**
+
+![Aviso de nueva versión junto a la etiqueta BETA en la ventana principal](BTDeviceBatteryInfo/docs/images/update-notice.png)
 
 ### Inicio rápido
 
@@ -256,7 +276,7 @@ La versión publicada es autocontenida y no requiere el .NET Desktop Runtime.
 ### Privacidad y seguridad
 
 - **Solo lectura**: la aplicación no elimina emparejamientos, no desactiva adaptadores, no simula conexiones ni modifica controladores.
-- **Sin telemetría**: sin analíticas ni conexiones de red.
+- **Sin telemetría**: sin analíticas. La única conexión de red es una consulta de la última versión en GitHub al abrir la aplicación; no se envían datos tuyos ni de tus dispositivos y no se descarga nada automáticamente.
 - **Datos locales**: la configuración y los registros se guardan en `%LocalAppData%\BTDeviceBatteryInfo`.
 
 ### Compilar y ejecutar
