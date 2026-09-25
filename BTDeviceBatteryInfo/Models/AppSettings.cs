@@ -15,6 +15,7 @@ public sealed class AppSettings
     public string? TaskbarMouseDeviceId { get; set; }
     public string? TaskbarGameControllerDeviceId { get; set; }
     public string ThemeName { get; set; } = "System";
+    public string Language { get; set; } = "en";
     public double Opacity { get; set; } = .95;
     public double Left { get; set; } = 80;
     public double Top { get; set; } = 80;

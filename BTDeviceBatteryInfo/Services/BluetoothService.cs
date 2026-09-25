@@ -60,6 +60,9 @@ public sealed class BluetoothService : IDisposable
     private string? _selectedName;
     private bool _initialized;
     private bool _initialDiscoveryCompleted;
+    // Windows needs about 30 s for the first association-endpoint enumeration; queries issued before it
+    // completes wait for it, so manual refreshes skip the query until then.
+    private volatile bool _watcherEnumerationCompleted;
     private bool _isDisposing;
     private readonly CancellationTokenSource _batteryLifetime = new();
     private readonly SemaphoreSlim _gattGate = new(2, 2);
@@ -67,6 +70,7 @@ public sealed class BluetoothService : IDisposable
     private readonly Dictionary<string, int> _batteryFailures = new(StringComparer.OrdinalIgnoreCase);
     private IReadOnlyList<BluetoothDeviceInfo>? _lastPublishedDevices;
     private bool? _lastConnected;
+    private readonly Dictionary<string, bool> _lastDeviceConnections = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _classicProtocolDeviceIds = new(StringComparer.OrdinalIgnoreCase);
 
     public event EventHandler<BluetoothDeviceInfo>? StateChanged;
@@ -95,7 +99,16 @@ public sealed class BluetoothService : IDisposable
     public async Task RefreshNowAsync()
     {
         await EnsureInitializedAsync();
-        await ReconcileEndpointsAsync(delay: false, forceBattery: true);
+        if (_watcherEnumerationCompleted)
+        {
+            await ReconcileEndpointsAsync(delay: false, forceBattery: true);
+            return;
+        }
+
+        // The watcher is still enumerating and keeps delivering connection changes; refresh batteries only.
+        DeviceInformation[] endpoints;
+        lock (_endpointsLock) endpoints = _endpoints.Values.ToArray();
+        QueueBatteryHydration(endpoints, force: true);
     }
 
     public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindConnectedDevicesAsync() =>
@@ -330,6 +343,8 @@ public sealed class BluetoothService : IDisposable
                 endpoints = await DeviceInformation.FindAllAsync(BluetoothSelector, RequestedProperties, DeviceInformationKind.AssociationEndpoint);
             }
 
+            var corrected = 0;
+            var restored = 0;
             lock (_endpointsLock)
             {
                 var discovered = endpoints.ToDictionary(endpoint => endpoint.Id, StringComparer.OrdinalIgnoreCase);
@@ -338,15 +353,27 @@ public sealed class BluetoothService : IDisposable
                     InvalidateBatteryGeneration(_endpoints[id]);
                     _endpoints.Remove(id);
                 }
-                foreach (var endpoint in endpoints.Where(endpoint => !_removedEndpointIds.Contains(endpoint.Id)))
+                // An endpoint removed by the watcher that Windows reports again (for example after the radio
+                // is turned back on without an Added event) is present again; stop ignoring it.
+                foreach (var endpoint in endpoints.Where(endpoint => _removedEndpointIds.Contains(endpoint.Id)).ToArray())
+                {
+                    _removedEndpointIds.Remove(endpoint.Id);
+                    restored++;
+                }
+                foreach (var endpoint in endpoints)
                 {
                     if (!_endpoints.TryGetValue(endpoint.Id, out var previous)
                         || GetBoolean(previous, "System.Devices.Aep.IsConnected") != GetBoolean(endpoint, "System.Devices.Aep.IsConnected"))
+                    {
+                        if (previous is not null) corrected++;
                         InvalidateBatteryGeneration(endpoint);
+                    }
                     _endpoints[endpoint.Id] = endpoint;
                 }
                 foreach (var endpoint in _endpoints.Values) RememberClassicProtocol(endpoint);
             }
+            if (corrected > 0 || restored > 0)
+                await LogSafeAsync($"Endpoint reconciliation corrected {corrected} connection state(s) and restored {restored} removed endpoint(s) missed by the watcher.");
             QueueBatteryHydration(endpoints, force: forceBattery);
             PublishChanges();
         }
@@ -370,6 +397,7 @@ public sealed class BluetoothService : IDisposable
             if (_lastPublishedDevices is not null && devices.SequenceEqual(_lastPublishedDevices)) return;
             _lastPublishedDevices = devices;
         }
+        LogDeviceTransitions(devices);
 
         var selected = string.IsNullOrWhiteSpace(_selectedDeviceId) ? null : devices.FirstOrDefault(device =>
             string.Equals(device.PhysicalDeviceId, _selectedDeviceId, StringComparison.OrdinalIgnoreCase));
@@ -654,6 +682,34 @@ public sealed class BluetoothService : IDisposable
         return endpoints.Any(endpoint => GetBoolean(endpoint, "System.Devices.Aep.IsConnected"));
     }
 
+    /// <summary>Logs every physical device whose grouped connection state changed, with Classic/BLE evidence (P-014 QA).</summary>
+    private void LogDeviceTransitions(IReadOnlyList<BluetoothDeviceInfo> devices)
+    {
+        List<string> transitions = [];
+        lock (_endpointsLock)
+        {
+            foreach (var device in devices)
+            {
+                var known = _lastDeviceConnections.TryGetValue(device.PhysicalDeviceId, out var wasConnected);
+                _lastDeviceConnections[device.PhysicalDeviceId] = device.IsConnected;
+                // Devices discovered during the initial scan are not transitions; later appearances are.
+                if (known ? wasConnected != device.IsConnected : _initialDiscoveryCompleted && device.IsConnected)
+                    transitions.Add($"{device.Name}: {(device.IsConnected ? "connected" : "disconnected")}|{device.PhysicalDeviceId}");
+            }
+            var present = devices.Select(device => device.PhysicalDeviceId).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            foreach (var removed in _lastDeviceConnections.Keys.Where(id => !present.Contains(id)).ToArray())
+            {
+                if (_lastDeviceConnections[removed]) transitions.Add($"Device {removed[..Math.Min(8, removed.Length)]}…: removed while connected|{removed}");
+                _lastDeviceConnections.Remove(removed);
+            }
+        }
+        foreach (var transition in transitions)
+        {
+            var separator = transition.LastIndexOf('|');
+            _ = LogSafeAsync($"Device transition — {transition[..separator]} ({GetConnectionEvidence(transition[(separator + 1)..])}).");
+        }
+    }
+
     private string GetConnectionEvidence(string physicalDeviceId)
     {
         DeviceInformation[] endpoints;
@@ -714,6 +770,7 @@ public sealed class BluetoothService : IDisposable
             elapsedMilliseconds = _initialDiscoveryStopwatch?.ElapsedMilliseconds ?? 0;
         }
 
+        _watcherEnumerationCompleted = true;
         _ = LogSafeAsync($"Bluetooth watcher enumeration completed in {elapsedMilliseconds} ms ({endpointCount} endpoints cached).");
         StartReconciliationTimer();
         CompleteInitialDiscovery("watcher enumeration completed");

@@ -94,4 +94,4 @@ Limitaciones:
 - No hay hardware Bluetooth presente en todos los entornos de desarrollo.
 - La batería depende del perfil, dispositivo, controlador y versión de Windows.
 - No se debe afirmar que `dotnet test` valida el comportamiento Bluetooth mientras no exista una suite automatizada y una estrategia de dobles para WinRT.
-- Las acciones manuales `RECONNECT` y `FORCE RECONNECT` no forman parte de la interfaz actual; su documentación se mantiene como pendiente hasta decidir si se exponen o se eliminan.
+- La reconexión es lógica interna y automática (P-005, `2026-09-25`): no hay acciones manuales `RECONNECT` ni `FORCE RECONNECT` en la interfaz y no deben documentarse como controles. `Refresh now` solo vuelve a consultar el estado que Windows reporta.

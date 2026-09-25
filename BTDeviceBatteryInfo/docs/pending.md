@@ -2,7 +2,7 @@
 
 Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto observable y se mantienen aquí hasta que exista implementación y evidencia de validación.
 
-Última revisión documental: `2026-09-22`.
+Última revisión documental: `2026-09-25`.
 
 ## Cómo usar este documento
 
@@ -14,35 +14,9 @@ Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto
 
 ## Prioridad alta
 
-### P-014 — Corregir estados de conexión falsos
-
-- [ ] Confirmar en hardware la regla de estado por grupo físico: endpoints Classic como señal principal en contenedores multiprotocolo y BLE para dispositivos exclusivamente BLE. Implementación candidata incluida en `0.16-dev`.
-- [ ] Confirmar que la selección por identidad física (`ContainerId`, con fallback disponible) sobrevive al cambio o retirada del endpoint; se mantienen compatibles los IDs guardados por versiones anteriores. Implementación candidata incluida en `0.16-dev`.
-- [ ] Confirmar que los cambios de estado salen de la instantánea agrupada y que los conteos redactados Classic/BLE ayudan al diagnóstico. Implementación candidata incluida en `0.16-dev`.
-- [ ] Validar con hardware una desconexión Classic mientras queda un endpoint BLE, la desaparición del endpoint seleccionado, la reconexión y la estabilidad durante las reconciliaciones periódicas.
-
-Hallazgo de QA del `2026-09-01`: después de desconectar algunos dispositivos, la interfaz podía seguir indicando `Connected`. En una sesión se observaron alternancias repetidas cada 30 segundos; Windows no reportaba endpoints Classic presentes, mientras la aplicación conservaba una instancia activa. `BuildDeviceSnapshot()` seleccionaba un único endpoint y priorizaba cualquiera que tuviera `IsConnected`, lo que podía confundir un endpoint BLE auxiliar con la conexión principal o mantener una identidad seleccionada que ya no representaba al dispositivo agrupado. `0.16-dev` retiene en memoria durante la sesión de la aplicación si un contenedor tuvo endpoint Classic, aunque Windows lo elimine antes que el BLE.
-
-Criterios de aceptación: la selección y el estado sobreviven al cambio del endpoint representante; en dispositivos multiprotocolo un endpoint BLE auxiliar no mantiene `Connected` si los endpoints Classic reportan desconexión o desaparecen; los dispositivos exclusivamente BLE usan su estado BLE. La prueba física de desconexión/reconexión y estabilidad sigue pendiente antes de cerrar P-014.
-
-### P-016 — Detectar y activar Bluetooth desactivado
-
-- [ ] Detectar cuando el adaptador Bluetooth de Windows esté desactivado y mostrar el mensaje en inglés `Bluetooth is turned off.`.
-- [ ] Añadir un botón `Turn on Bluetooth` que intente activar Bluetooth directamente desde la aplicación.
-- [ ] Investigar y validar una API oficial de Windows compatible con la versión mínima soportada antes de implementar la activación.
-- [ ] No simular una activación: si Windows no permite activarlo por API o requiere intervención del usuario, informar el resultado real y ofrecer una alternativa segura.
-
-Objetivo observable: cuando el usuario apaga Bluetooth desde Windows, el widget deja de presentar la lista como un fallo genérico, explica que Bluetooth está desactivado y ofrece la acción directa solicitada.
-
-Criterios de aceptación: el estado se actualiza al apagar o encender Bluetooth, el botón comunica claramente éxito o motivo de imposibilidad y no modifica otros adaptadores ni emparejamientos.
+Sin pendientes de prioridad alta (P-014 y P-016 cerrados en `0.21`).
 
 ## Prioridad media
-
-### P-005 — Alinear la reconexión con la interfaz
-
-- [ ] Decidir si `ReconnectCommand` debe exponerse al usuario o permanecer como lógica interna.
-- [ ] Eliminar de `docs/testing.md` las instrucciones para comandos que no tienen control en XAML, o añadir una interfaz explícita y segura.
-- [ ] Mantener la regla de no simular una conexión Bluetooth Classic.
 
 ### P-006 — Crear pruebas automatizadas
 
@@ -56,21 +30,6 @@ Criterios de aceptación: el estado se actualiza al apagar o encender Bluetooth,
 - [ ] Registrar modelo, perfil, controlador, versión/arquitectura de Windows y resultado.
 - [ ] Probar Bluetooth Classic, BLE, dispositivos sin batería expuesta y varios endpoints del mismo contenedor.
 - [ ] Mantener identificadores reales redactados en evidencias compartidas.
-
-### P-008 — Mejorar preferencias y configuración
-
-- [ ] Exponer solo preferencias soportadas desde la bandeja, como `AlwaysOnTop` y opacidad.
-- [ ] Validar y acotar valores cargados desde `settings.json`.
-- [ ] Manejar errores de guardado en `LocationChanged` y en el arranque sin dejar excepciones asincrónicas sin observar.
-- [x] Mantener la ventana visible al iniciar; no reintroducir una opción de inicio minimizado (`2026-09-01`).
-
-La persistencia de posición y la inicialización de ventana ahora registran errores de forma controlada; todavía falta validar límites de valores, concurrencia y recuperación completa.
-
-### P-009 — Mejorar estados vacíos y accesibilidad
-
-- [ ] Diferenciar ausencia de dispositivos, Bluetooth desactivado y error de consulta cuando Windows lo permita.
-- [ ] Revisar navegación por teclado, foco, lector de pantalla, contraste y alto contraste.
-- [ ] Añadir una acción para abrir la configuración Bluetooth si resulta apropiado.
 
 ### P-010 — Endurecer el ciclo de vida
 
@@ -96,11 +55,6 @@ Criterios de aceptación: cerrar la aplicación durante una consulta no produce 
 
 - [ ] Evaluar una preferencia para mostrar por separado o agrupar endpoints que compartan `ContainerId`.
 
-### P-017 — Widget compacto de dispositivos conectados en la barra de tareas
-
-- [x] Mostrar dispositivos conectados en pastillas compactas en la barra de tareas; validado visualmente por el usuario en `0.16-dev9` y publicado en `0.16`.
-- [ ] Confirmar los cambios de DPI y la recuperación tras reiniciar Explorer; el hospedaje en Explorer sigue siendo experimental.
-
 ### P-018 — Registrar conexiones y desconexiones para QA
 
 - [ ] Registrar fecha y hora, dispositivo con identificadores redactados, transición de conexión y fuente/evidencia disponible (por ejemplo, eventos del watcher y estado Classic/BLE).
@@ -115,56 +69,14 @@ Criterios de aceptación: el registro local contiene transiciones fechadas y red
 ### P-019 — Añadir una vista compacta tipo pastilla
 
 - [ ] Ofrecer un modo compacto horizontal tipo pastilla, alternable con la ventana actual, que ocupe menos espacio en pantalla.
-- [ ] Mostrar un icono según el tipo de dispositivo y un indicador circular de batería.
-- [ ] Contemplar auriculares, teclados, mouse y joysticks; mostrar cada uno solo mientras Windows lo reporte conectado.
+- [x] Mostrar un icono según el tipo de dispositivo y un indicador circular de batería (widget de la barra de tareas, 0.16).
+- [x] Contemplar auriculares, teclados, mouse y joysticks; mostrar cada uno solo mientras Windows lo reporte conectado (0.16).
 - [ ] Representar con claridad los estados desconectado y batería no disponible.
-- [ ] Mantener la información actualizada y hacer que el indicador circular refleje el nivel de batería reportado.
+- [x] Mantener la información actualizada y hacer que el indicador circular refleje el nivel de batería reportado (0.16; rojo ≤ 15 % desde 0.19).
 
 Objetivo observable: el usuario puede consultar de un vistazo el dispositivo y su batería en una pastilla horizontal que ahorra espacio, tanto como vista compacta del widget como para la integración en la barra de tareas de P-017.
 
 Criterios de aceptación: el usuario puede cambiar entre la vista actual y la compacta; la pastilla presenta icono, nivel de batería y estado correctos para los tipos de dispositivo admitidos, e indica claramente cuándo no hay conexión o no existe un nivel de batería disponible. El modo compacto y el de barra de tareas comparten esta presentación y evitan tener que mantener abierta la ventana grande.
-
-### P-020 — Añadir selección de idioma inglés/español
-
-- [ ] Añadir en `Options` una preferencia para elegir inglés o español.
-- [ ] Traducir todos los textos de interfaz, botones, tooltips, menús y estados visibles; conservar los mensajes de diagnóstico y logs de la aplicación en inglés.
-- [ ] Guardar la preferencia y aplicarla al iniciar; usar inglés como idioma predeterminado y como fallback si falta una traducción.
-- [ ] Verificar cambio de idioma en la ventana principal, bandeja, vista compacta y ventanas secundarias.
-
-Objetivo observable: cada usuario puede elegir inglés o español desde `Options` y la selección se conserva entre ejecuciones.
-
-Criterios de aceptación: todos los textos visibles cambian al idioma elegido sin reiniciar la aplicación, la selección persiste y los logs siguen en inglés.
-
-### P-021 — Unificar los iconos vectoriales estilo Lucide
-
-Avance parcial: los dispositivos de la ventana principal y la barra de tareas usan geometrías vectoriales estilo Lucide en `0.17-dev4`; queda pendiente la revisión visual del usuario.
-
-- [x] Reemplazar los pictogramas de dispositivos en la ventana principal y barra de tareas por geometrías vectoriales estilo Lucide.
-- [ ] Revisar tamaño, alineación y contraste de los iconos en la build `0.17-dev4` antes de cerrar el pendiente.
-
-Objetivo observable: la interfaz usa una familia coherente de iconos Material Design en todas sus vistas.
-
-Criterios de aceptación: no quedan iconos mezclados de fuentes distintas en los controles cubiertos y todos se ven correctamente en una instalación limpia.
-
-### P-022 — Integrar temas para la ventana principal en 0.17
-
-- [ ] Ofrecer `System` (tema actual de 0.16) y `Elegant Black`, usando los tokens y radios de shadcn/ui para el nuevo tema.
-- [ ] Aplicar ambos temas a la ventana grande y guardar la selección del usuario.
-
-### P-023 — Añadir una pantalla Options y actualizar About
-
-- [ ] Cambiar el botón de configuración para abrir `Options` con inicio de Windows, widget de barra de tareas, selector de tema y botón `About`.
-- [ ] Mantener el resto de About; tras las redes añadir “You can support my work through PayPal or Patreon.” y enlaces a `https://paypal.me/borissdk` y `https://patreon.com/borissdk`.
-
-### P-024 — Ajustar espacios y selector de tema en Options
-
-- [ ] Eliminar los espacios verticales sobrantes señalados en `Fix.jpg` y hacer que el selector de tema de `fix2.jpg` ajuste su altura al texto, con el padding habitual.
-- [ ] Verificar que `Options` quede compacto y que el selector conserve legibilidad y uso normal.
-
-### P-025 — Elegir el dispositivo visible por categoría
-
-- [ ] Permitir elegir auriculares, teclado, mouse y control desde `Options` y desde el menú que abre su pastilla en la barra de tareas.
-- [ ] Conservar cada elección por identidad física y mostrar un dispositivo conectado por categoría.
 
 ### P-026 — Batería de mandos Bluetooth (8BitDo)
 
@@ -172,6 +84,27 @@ Criterios de aceptación: no quedan iconos mezclados de fuentes distintas en los
 - [ ] Validar el porcentaje frente al nivel real. El SN30 Pro para Xbox queda fuera: por Bluetooth solo tiene modo Android, sin batería.
 
 ## Completado recientemente
+
+- [x] P-020 — Selección de idioma inglés/español en `Options` con vista previa en vivo, guardado al iniciar e inglés como predeterminado y respaldo; logs en inglés. Validado por el usuario en `0.21-dev8` y publicado en `0.21` (`2026-09-25`).
+
+- [x] P-017 — Widget compacto de dispositivos conectados en la barra de tareas; cerrado por el usuario (`2026-09-25`).
+
+## Descartados
+
+- P-008 — Mejorar preferencias y configuración; retirado del backlog por el usuario (`2026-09-25`).
+- P-009 — Mejorar estados vacíos y accesibilidad; retirado del backlog por el usuario (`2026-09-25`). Lo ya hecho (anillo de foco, estados de Bluetooth y acceso a su configuración) se mantiene.
+
+- [x] P-005 — La reconexión se mantiene como lógica interna y automática, sin controles en la interfaz ni conexiones simuladas; `testing.md` actualizado. Cerrado por el usuario (`2026-09-25`).
+
+- [x] P-014 — Estados de conexión por grupo físico (Classic prioritario en multiprotocolo, BLE en dispositivos solo BLE) y detección de reconexiones sin `Refresh`; validado por el usuario con hardware en `0.21-dev7` (`2026-09-25`).
+
+- [x] P-016 — Detectar Bluetooth desactivado (`Windows.Devices.Radios`), mostrar `Bluetooth is turned off.` y encenderlo con `Turn on Bluetooth` o abrir la configuración; validado por el usuario en `0.21-dev2` (`2026-09-25`, `SetStateAsync` devolvió `Allowed`).
+
+- [x] P-025 — Elegir el dispositivo visible por categoría desde `Options` y desde la pastilla, conservado por identidad física; publicado en `0.18`.
+- [x] P-024 — `Options` compacto y selector de tema con altura ajustada al texto (34 px, `h-9`); publicado en `0.19`.
+- [x] P-023 — Pantalla `Options` (inicio con Windows, widget, tema y `About`) y enlaces de PayPal y Patreon en `About`; publicado en `0.17`, iconos en `0.20`.
+- [x] P-022 — Temas `System` y `Elegant Black` aplicados y guardados; publicado en `0.17`, refinado en `0.19` (tokens shadcn/ui, modo claro de Windows).
+- [x] P-021 — Iconos vectoriales unificados: Lucide en la interfaz y glifos de Windows para dispositivos en `System`; publicado en `0.17`–`0.20`.
 
 - [x] P-002 — Actualizar la batería durante la sesión con consultas generales, sin filtros por marca/modelo; aceptación confirmada por el responsable (`2026-09-22`).
 - [x] P-003 — Definir el alcance de la lista de dispositivos; cierre confirmado por el responsable del proyecto (`2026-09-22`).

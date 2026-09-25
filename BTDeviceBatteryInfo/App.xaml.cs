@@ -28,14 +28,16 @@ public partial class App : System.Windows.Application
 
         try
         {
+            var settings = await SettingsService.LoadAsync();
+            AppLanguage.Apply(Resources, settings.Language);
             _instanceMutex = new Mutex(initiallyOwned: true, InstanceMutexName, out var createdNew);
             if (!createdNew)
             {
                 _instanceMutex.Dispose();
                 _instanceMutex = null;
                 System.Windows.MessageBox.Show(
-                    "BT Device Battery Info is already open.",
-                    "Application already open",
+                    AppLanguage.Get("App.AlreadyOpen"),
+                    AppLanguage.Get("App.AlreadyOpenTitle"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 Shutdown();
@@ -45,7 +47,6 @@ public partial class App : System.Windows.Application
             _ownsInstanceMutex = true;
 
             _logger = new FileLogger();
-            var settings = await SettingsService.LoadAsync();
             var bluetooth = new BluetoothService(_logger);
             _window = new MainWindow(settings, bluetooth, _logger);
             _window.Show();
@@ -54,7 +55,7 @@ public partial class App : System.Windows.Application
         {
             RecordUnhandledException("Startup error", ex);
             System.Windows.MessageBox.Show(
-                $"The application could not start.\n\n{ex.Message}",
+                $"{AppLanguage.Get("App.StartError")}\n\n{ex.Message}",
                 "BT Device Battery Info",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -70,7 +71,7 @@ public partial class App : System.Windows.Application
 
         _handlingUnhandledException = true;
         System.Windows.MessageBox.Show(
-            $"The application encountered an unexpected error and will close.\n\n{e.Exception.Message}",
+            $"{AppLanguage.Get("App.UnexpectedError")}\n\n{e.Exception.Message}",
             "BT Device Battery Info",
             MessageBoxButton.OK,
             MessageBoxImage.Error);

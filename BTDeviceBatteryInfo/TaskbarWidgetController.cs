@@ -223,7 +223,7 @@ internal sealed class TaskbarDockWindow : Window
                 Padding = new Thickness(8, 0, 4, 0),
                 Margin = new Thickness(2, 2, 0, 2),
                 BorderThickness = new Thickness(1),
-                ToolTip = $"{device.Name} — {device.BatteryText}. Click to choose another {CategoryLabel(device.Category)}.",
+                ToolTip = AppLanguage.Format("Widget.Tooltip", device.Name, device.BatteryText, CategoryLabel(device.Category)),
                 Cursor = Cursors.Hand
             };
             button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "ShadcnWidgetBrush");
@@ -285,11 +285,11 @@ internal sealed class TaskbarDockWindow : Window
 
     private static string CategoryLabel(BluetoothDeviceCategory category) => category switch
     {
-        BluetoothDeviceCategory.Headphones => "headphones",
-        BluetoothDeviceCategory.Keyboard => "keyboard",
-        BluetoothDeviceCategory.Mouse => "mouse",
-        BluetoothDeviceCategory.GameController => "controller",
-        _ => "device"
+        BluetoothDeviceCategory.Headphones => AppLanguage.Get("Widget.Headphones"),
+        BluetoothDeviceCategory.Keyboard => AppLanguage.Get("Widget.Keyboard"),
+        BluetoothDeviceCategory.Mouse => AppLanguage.Get("Widget.Mouse"),
+        BluetoothDeviceCategory.GameController => AppLanguage.Get("Widget.Controller"),
+        _ => AppLanguage.Get("Widget.Device")
     };
 
     public bool TryDock(out string reason)

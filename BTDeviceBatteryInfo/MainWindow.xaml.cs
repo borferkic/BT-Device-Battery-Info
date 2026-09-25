@@ -23,6 +23,7 @@ public partial class MainWindow : Window, IDisposable
     private Forms.ToolStripMenuItem? _refreshMenuItem;
     private Forms.ToolStripMenuItem? _startWithWindowsMenuItem;
     private Forms.ToolStripMenuItem? _taskbarWidgetMenuItem;
+    private Forms.ToolStripMenuItem? _exitMenuItem;
     private readonly TaskbarWidgetController _taskbarWidget;
     private bool _isExiting;
 
@@ -76,22 +77,26 @@ public partial class MainWindow : Window, IDisposable
         _toggleWidgetMenuItem = new Forms.ToolStripMenuItem();
         _toggleWidgetMenuItem.Click += (_, _) => ToggleWidgetFromTray();
         menu.Items.Add(_toggleWidgetMenuItem);
-        _taskbarWidgetMenuItem = new Forms.ToolStripMenuItem("Show compact taskbar widget")
+        _taskbarWidgetMenuItem = new Forms.ToolStripMenuItem
         {
             Checked = _settings.TaskbarWidgetEnabled
         };
         _taskbarWidgetMenuItem.Click += async (_, _) => await ToggleTaskbarWidgetAsync(hideMainWindow: false);
         menu.Items.Add(_taskbarWidgetMenuItem);
-        _refreshMenuItem = new Forms.ToolStripMenuItem("Refresh now");
+        _refreshMenuItem = new Forms.ToolStripMenuItem();
         _refreshMenuItem.Click += async (_, _) => await ViewModel.RefreshNowAsync();
         menu.Items.Add(_refreshMenuItem);
-        _startWithWindowsMenuItem = new Forms.ToolStripMenuItem("Start with Windows")
+        _startWithWindowsMenuItem = new Forms.ToolStripMenuItem
         {
             Checked = StartupService.IsEnabled()
         };
         _startWithWindowsMenuItem.Click += async (_, _) => await ToggleStartWithWindowsAsync();
         menu.Items.Add(_startWithWindowsMenuItem);
-        menu.Items.Add("Exit", null, (_, _) => ExitApplication());
+        _exitMenuItem = new Forms.ToolStripMenuItem();
+        _exitMenuItem.Click += (_, _) => ExitApplication();
+        menu.Items.Add(_exitMenuItem);
+        ApplyTrayTexts();
+        AppLanguage.LanguageChanged += OnLanguageChanged;
 
         _tray = new Forms.NotifyIcon
         {
@@ -238,10 +243,21 @@ public partial class MainWindow : Window, IDisposable
         UpdateWidgetMenuItem();
     }
 
+    private void OnLanguageChanged(object? sender, EventArgs e) => ApplyTrayTexts();
+
+    private void ApplyTrayTexts()
+    {
+        if (_taskbarWidgetMenuItem is not null) _taskbarWidgetMenuItem.Text = AppLanguage.Get("Tray.TaskbarWidget");
+        if (_refreshMenuItem is not null) _refreshMenuItem.Text = AppLanguage.Get("Tray.RefreshNow");
+        if (_startWithWindowsMenuItem is not null) _startWithWindowsMenuItem.Text = AppLanguage.Get("Tray.StartWithWindows");
+        if (_exitMenuItem is not null) _exitMenuItem.Text = AppLanguage.Get("Tray.Exit");
+        UpdateWidgetMenuItem();
+    }
+
     private void UpdateWidgetMenuItem()
     {
         if (_toggleWidgetMenuItem is not null)
-            _toggleWidgetMenuItem.Text = IsVisible ? "Hide widget" : "Show widget";
+            _toggleWidgetMenuItem.Text = AppLanguage.Get(IsVisible ? "Tray.HideWidget" : "Tray.ShowWidget");
     }
 
     private void OnThemeChanged(object? sender, EventArgs e)
@@ -283,7 +299,7 @@ public partial class MainWindow : Window, IDisposable
                 _startWithWindowsMenuItem.Checked = StartupService.IsEnabled();
 
             System.Windows.MessageBox.Show(
-                $"Could not update the Windows startup setting.\n\n{ex.Message}",
+                $"{AppLanguage.Get("Tray.StartupError")}\n\n{ex.Message}",
                 "BT Device Battery Info",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
@@ -304,6 +320,7 @@ public partial class MainWindow : Window, IDisposable
 
     public void Dispose()
     {
+        AppLanguage.LanguageChanged -= OnLanguageChanged;
         ThemeManager.ThemeChanged -= OnThemeChanged;
         ThemeManager.StopListening();
         _taskbarWidget.Dispose();

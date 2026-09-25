@@ -11,6 +11,7 @@ public partial class OptionsWindow : Window
     private readonly AppSettings _settings;
     private readonly Func<bool, Task> _setTaskbarWidgetEnabled;
     private readonly string _originalTheme;
+    private readonly string _originalLanguage;
 
     public OptionsWindow(AppSettings settings, IEnumerable<BluetoothDeviceItem> connectedDevices, Func<bool, Task> setTaskbarWidgetEnabled)
     {
@@ -21,6 +22,8 @@ public partial class OptionsWindow : Window
         StartWithWindowsCheckBox.IsChecked = StartupService.IsEnabled();
         TaskbarWidgetCheckBox.IsChecked = settings.TaskbarWidgetEnabled;
         ThemeComboBox.SelectedIndex = settings.ThemeName == ThemeManager.ElegantBlackTheme ? 1 : 0;
+        _originalLanguage = AppLanguage.Normalize(settings.Language);
+        LanguageComboBox.SelectedIndex = _originalLanguage == AppLanguage.Spanish ? 1 : 0;
         var devices = connectedDevices.ToArray();
         ConfigureDevicePicker(HeadphonesComboBox, devices, BluetoothDeviceCategory.Headphones, settings.TaskbarHeadphonesDeviceId);
         ConfigureDevicePicker(KeyboardComboBox, devices, BluetoothDeviceCategory.Keyboard, settings.TaskbarKeyboardDeviceId);
@@ -36,7 +39,7 @@ public partial class OptionsWindow : Window
         {
             picker.Items.Add(new ComboBoxItem
             {
-                Content = "No connected devices",
+                Content = AppLanguage.Get("Options.NoConnectedDevices"),
                 IsEnabled = false,
                 Style = (Style)picker.FindResource("OptionsPickerItemStyle")
             });
@@ -67,6 +70,13 @@ public partial class OptionsWindow : Window
             ThemeManager.Apply(System.Windows.Application.Current.Resources, theme);
     }
 
+    private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Live preview; Cancel restores the original language.
+        if (IsLoaded && LanguageComboBox.SelectedItem is ComboBoxItem { Tag: string language })
+            AppLanguage.Apply(System.Windows.Application.Current.Resources, language);
+    }
+
     private async void Save_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -75,6 +85,7 @@ public partial class OptionsWindow : Window
             StartupService.SetEnabled(startWithWindows);
             _settings.StartWithWindows = startWithWindows;
             _settings.ThemeName = (ThemeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? ThemeManager.SystemTheme;
+            _settings.Language = AppLanguage.Normalize((LanguageComboBox.SelectedItem as ComboBoxItem)?.Tag as string);
             SaveDeviceSelection(HeadphonesComboBox, BluetoothDeviceCategory.Headphones);
             SaveDeviceSelection(KeyboardComboBox, BluetoothDeviceCategory.Keyboard);
             SaveDeviceSelection(MouseComboBox, BluetoothDeviceCategory.Mouse);
@@ -85,7 +96,7 @@ public partial class OptionsWindow : Window
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Could not save options.\n\n{ex.Message}", "BT Device Battery Info", MessageBoxButton.OK, MessageBoxImage.Error);
+            System.Windows.MessageBox.Show($"{AppLanguage.Get("Options.SaveError")}\n\n{ex.Message}", "BT Device Battery Info", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -109,6 +120,8 @@ public partial class OptionsWindow : Window
     private void Cancel_Click(object sender, RoutedEventArgs e)
     {
         ThemeManager.Apply(System.Windows.Application.Current.Resources, _originalTheme);
+        if (AppLanguage.CurrentLanguage != _originalLanguage)
+            AppLanguage.Apply(System.Windows.Application.Current.Resources, _originalLanguage);
         Close();
     }
 

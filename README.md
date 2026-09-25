@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.20` — **Controller battery and Windows device icons**.
+Latest release: `0.21` — **Language selection and Bluetooth status**.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
@@ -46,7 +46,9 @@ Latest release: `0.20` — **Controller battery and Windows device icons**.
   - **System**: follows the Windows 11 look, uses the Windows device icons, and switches automatically between light and dark mode when Windows changes.
   - The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`, plus light and dark app icons.
 - **Application**
-  - `Options` window with switches for Start with Windows and the taskbar widget, the theme selector, and the device per category.
+  - `Options` window with switches for Start with Windows and the taskbar widget, the theme and language selectors, and the device per category.
+  - English and Spanish interface, switchable live from `Options`.
+  - Detects when Bluetooth is off or the adapter is disabled, with a `Turn on Bluetooth` button and a shortcut to Bluetooth settings.
   - Tray actions to show or hide the widget, enable or disable Start with Windows, refresh, and exit.
   - Single instance: the app informs you when it is already running.
   - Keyboard navigation with a visible focus ring.
@@ -183,7 +185,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.20` — **Batería de mandos e iconos de Windows**.
+Última versión: `0.21` — **Selección de idioma y estado de Bluetooth**.
 
 ### Funcionalidades
 
@@ -203,7 +205,9 @@ If you like BT Device Battery Info and find it useful, you can support its devel
   - **System**: sigue el aspecto de Windows 11, usa los iconos de dispositivos de Windows y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
   - El tema se aplica a todas las ventanas, tooltips, menús y al widget, con vista previa en vivo en `Options` e iconos de la app en versión clara y oscura.
 - **Aplicación**
-  - Ventana `Options` con interruptores para el inicio con Windows y el widget, el selector de tema y el dispositivo por categoría.
+  - Ventana `Options` con interruptores para el inicio con Windows y el widget, los selectores de tema e idioma, y el dispositivo por categoría.
+  - Interfaz en inglés y español, con cambio en vivo desde `Options`.
+  - Detecta cuando Bluetooth está apagado o el adaptador deshabilitado, con un botón `Turn on Bluetooth` y un acceso a la configuración de Bluetooth.
   - Opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows, actualizar y salir.
   - Instancia única: avisa si la aplicación ya está abierta.
   - Navegación con teclado con un anillo de foco visible.

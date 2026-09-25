@@ -4,6 +4,20 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.21] — Language selection and Bluetooth status
+
+### Added
+
+- English and Spanish interface, selectable in `Options` with a live preview; English is the default.
+- Detects when Bluetooth is turned off, the adapter is disabled, or no adapter is present, and shows it in the main window.
+- `Turn on Bluetooth` button that turns Bluetooth on through Windows, and a `Bluetooth settings` shortcut.
+
+### Fixed
+
+- Devices that reconnect after Bluetooth is turned off and on again are detected without a manual refresh.
+- `Refresh now` no longer waits about 30 seconds right after the app starts.
+- The refresh indicator no longer stays stuck in the device list; the button shows `Refreshing…` instead.
+
 ## [0.20] — Controller battery and Windows device icons
 
 ### Added

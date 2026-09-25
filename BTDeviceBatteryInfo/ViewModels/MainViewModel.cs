@@ -14,6 +14,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly AppSettings _settings;
     private readonly BluetoothService _bluetooth;
     private readonly FileLogger _logger;
+    private readonly BluetoothRadioService _radio;
     private readonly SemaphoreSlim _refreshGate = new(1, 1);
     private readonly CancellationTokenSource _lifetimeCts = new();
     private readonly ObservableCollection<BluetoothDeviceItem> _connectedDevices = [];
@@ -28,9 +29,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private bool _selectionResolved;
     private bool _disconnectedDevicesExpanded;
     private string _status = "DISCONNECTED";
-    private string _deviceListMessage = "Searching for paired or connected Bluetooth devices…";
-    private string _refreshStatus = string.Empty;
+    private string _deviceListMessageKey = "Main.Searching";
     private bool _isLoading = true;
+    private bool _isTurningOnBluetooth;
+    private string _bluetoothActionStatus = string.Empty;
 
     public MainViewModel(AppSettings settings, BluetoothService bluetooth, FileLogger logger)
     {
@@ -40,6 +42,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _readOnlyConnectedDevices = new ReadOnlyObservableCollection<BluetoothDeviceItem>(_connectedDevices);
         _readOnlyDisconnectedDevices = new ReadOnlyObservableCollection<BluetoothDeviceItem>(_disconnectedDevices);
         ReconnectCommand = new AsyncCommand(() => ReconnectAsync(force: false));
+        TurnOnBluetoothCommand = new AsyncCommand(TurnOnBluetoothAsync);
+        OpenBluetoothSettingsCommand = new AsyncCommand(OpenBluetoothSettingsAsync);
+        _radio = new BluetoothRadioService(logger);
+        _radio.StatusChanged += OnRadioStatusChanged;
+        AppLanguage.LanguageChanged += OnLanguageChanged;
         _bluetooth.StateChanged += OnStateChanged;
         _bluetooth.DevicesChanged += OnDevicesChanged;
         _bluetooth.InitialDiscoveryCompleted += OnInitialDiscoveryCompleted;
@@ -47,6 +54,43 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public ICommand ReconnectCommand { get; }
+    public ICommand TurnOnBluetoothCommand { get; }
+    public ICommand OpenBluetoothSettingsCommand { get; }
+
+    /// <summary>True when Windows reports the Bluetooth radio as off, disabled, or missing.</summary>
+    public bool IsBluetoothUnavailable => _radio.Status is BluetoothRadioStatus.Off or BluetoothRadioStatus.Disabled or BluetoothRadioStatus.NoAdapter;
+    public Visibility BluetoothUnavailableVisibility => IsBluetoothUnavailable ? Visibility.Visible : Visibility.Collapsed;
+    public string BluetoothUnavailableTitle => _radio.Status switch
+    {
+        BluetoothRadioStatus.Disabled => AppLanguage.Get("Radio.DisabledTitle"),
+        BluetoothRadioStatus.NoAdapter => AppLanguage.Get("Radio.NoAdapterTitle"),
+        _ => AppLanguage.Get("Radio.OffTitle")
+    };
+    public string BluetoothUnavailableDescription => _radio.Status switch
+    {
+        BluetoothRadioStatus.Disabled => AppLanguage.Get("Radio.DisabledDescription"),
+        BluetoothRadioStatus.NoAdapter => AppLanguage.Get("Radio.NoAdapterDescription"),
+        _ => AppLanguage.Get("Radio.OffDescription")
+    };
+    public Visibility TurnOnBluetoothVisibility => _radio.Status == BluetoothRadioStatus.Off ? Visibility.Visible : Visibility.Collapsed;
+    public bool IsTurningOnBluetooth
+    {
+        get => _isTurningOnBluetooth;
+        private set { if (_isTurningOnBluetooth == value) return; _isTurningOnBluetooth = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanTurnOnBluetooth)); }
+    }
+    public bool CanTurnOnBluetooth => !IsTurningOnBluetooth;
+    public string BluetoothActionStatus
+    {
+        get => _bluetoothActionStatus;
+        private set
+        {
+            if (_bluetoothActionStatus == value) return;
+            _bluetoothActionStatus = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(BluetoothActionStatusVisibility));
+        }
+    }
+    public Visibility BluetoothActionStatusVisibility => string.IsNullOrWhiteSpace(BluetoothActionStatus) ? Visibility.Collapsed : Visibility.Visible;
     public ReadOnlyObservableCollection<BluetoothDeviceItem> ConnectedDevices => _readOnlyConnectedDevices;
     public ReadOnlyObservableCollection<BluetoothDeviceItem> DisconnectedDevices => _readOnlyDisconnectedDevices;
     public int DeviceCount => ConnectedDeviceCount + DisconnectedDeviceCount;
@@ -66,32 +110,36 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             OnPropertyChanged(nameof(VisibleDeviceRowCount));
         }
     }
-    public string DeviceCountText => DeviceCount == 1 ? "● 1 Bluetooth device" : $"● {DeviceCount} Bluetooth devices";
+    public string DeviceCountText => DeviceCount == 1 ? AppLanguage.Get("Main.DeviceCountOne") : AppLanguage.Format("Main.DeviceCountMany", DeviceCount);
+    /// <summary>Localized list message. The setter takes a localization key; unknown keys (for example exception text) are shown as-is.</summary>
     public string DeviceListMessage
     {
-        get => _deviceListMessage;
+        get => string.IsNullOrWhiteSpace(_deviceListMessageKey) ? string.Empty : AppLanguage.Get(_deviceListMessageKey);
         private set
         {
-            if (_deviceListMessage == value) return;
-            _deviceListMessage = value;
+            if (_deviceListMessageKey == value) return;
+            _deviceListMessageKey = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(DeviceListMessageVisibility));
         }
     }
     public Visibility DeviceListMessageVisibility => string.IsNullOrWhiteSpace(DeviceListMessage) ? Visibility.Collapsed : Visibility.Visible;
-    public string RefreshStatus
+    private bool _isRefreshing;
+    public bool IsRefreshing
     {
-        get => _refreshStatus;
+        get => _isRefreshing;
         private set
         {
-            if (_refreshStatus == value) return;
-            _refreshStatus = value;
+            if (_isRefreshing == value) return;
+            _isRefreshing = value;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(RefreshStatusVisibility));
+            OnPropertyChanged(nameof(CanRefresh));
+            OnPropertyChanged(nameof(RefreshButtonText));
         }
     }
-    public Visibility RefreshStatusVisibility => string.IsNullOrWhiteSpace(RefreshStatus) ? Visibility.Collapsed : Visibility.Visible;
-    public Visibility LoadingVisibility => _isLoading ? Visibility.Visible : Visibility.Collapsed;
+    public bool CanRefresh => !IsRefreshing;
+    public string RefreshButtonText => AppLanguage.Get(IsRefreshing ? "Main.Refreshing" : "Main.RefreshNow");
+    public Visibility LoadingVisibility => _isLoading && !IsBluetoothUnavailable ? Visibility.Visible : Visibility.Collapsed;
     public string ActionText => _status == "CONNECTED" ? "RECONNECT" : "CONNECT";
     public System.Windows.Media.Brush StatusBrush => _status == "ERROR" ? ThemeManager.Brush("ShadcnDestructiveBrush") : ConnectedDeviceCount <= 0 ? ThemeManager.Brush("ShadcnWarningBrush") : ThemeManager.Brush("ShadcnSuccessBrush");
     public bool AutoReconnect { get => _settings.AutoReconnect; set { _settings.AutoReconnect = value; OnPropertyChanged(); } }
@@ -105,6 +153,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     public async Task InitializeAsync()
     {
+        await _radio.InitializeAsync();
+        NotifyRadioState();
         await RefreshDevicesAsync();
         if (_bluetooth.IsInitialDiscoveryCompleted)
             await CompleteLoadingAsync();
@@ -121,12 +171,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         try
         {
-            await InvokeOnUiAsync(() => RefreshStatus = "Refreshing devices and battery…");
+            await InvokeOnUiAsync(() => IsRefreshing = true);
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             await _bluetooth.RefreshNowAsync();
+            var queryMilliseconds = stopwatch.ElapsedMilliseconds;
             await RefreshDevicesAsync();
-
-            await Task.Delay(TimeSpan.FromSeconds(10), token);
-            await InvokeOnUiAsync(() => RefreshStatus = string.Empty);
+            await _logger.LogAsync($"Manual refresh completed in {stopwatch.ElapsedMilliseconds} ms (Windows query {queryMilliseconds} ms).");
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
@@ -134,10 +184,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         catch (Exception ex)
         {
             await _logger.LogAsync("Manual Bluetooth refresh error: " + ex.Message);
-            await InvokeOnUiAsync(() => RefreshStatus = "Unable to refresh Bluetooth devices.");
         }
         finally
         {
+            // Only the latest refresh clears the indicator, so an overlapping refresh cannot leave it stuck or clear it early.
+            if (ReferenceEquals(Volatile.Read(ref _manualRefreshCts), refreshCts))
+                await InvokeOnUiAsync(() => IsRefreshing = false);
             if (ReferenceEquals(Volatile.Read(ref _manualRefreshCts), refreshCts))
                 Interlocked.CompareExchange(ref _manualRefreshCts, null, refreshCts);
             refreshCts.Dispose();
@@ -184,7 +236,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             await InvokeOnUiAsync(() =>
             {
                 _status = "ERROR";
-                DeviceListMessage = "Unable to restore the selected connection.";
+                DeviceListMessage = "Main.RestoreError";
                 NotifyState();
             });
             await _logger.LogAsync("Connection failed");
@@ -223,8 +275,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                         _disconnectedDevicesExpanded = false;
                     DeviceListMessage = latestDevices.Count == 0
                         ? discoveryCompleted
-                            ? "No paired or connected Bluetooth devices found."
-                            : "Searching for paired or connected Bluetooth devices…"
+                            ? "Main.NoDevices"
+                            : "Main.Searching"
                         : string.Empty;
                     OnPropertyChanged(nameof(DeviceCount));
                     OnPropertyChanged(nameof(ConnectedDeviceCount));
@@ -251,7 +303,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             if (!_isDisposed)
             {
                 await _logger.LogAsync("Bluetooth refresh error: " + ex.Message);
-                await InvokeOnUiAsync(() => DeviceListMessage = "Unable to query Bluetooth devices.");
+                await InvokeOnUiAsync(() => DeviceListMessage = "Main.QueryError");
             }
             return [];
         }
@@ -365,9 +417,66 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private void Set<T>(ref T field, T value, [CallerMemberName] string? name = null) { field = value; OnPropertyChanged(name); }
     private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
+    private async Task TurnOnBluetoothAsync()
+    {
+        if (IsTurningOnBluetooth) return;
+        IsTurningOnBluetooth = true;
+        BluetoothActionStatus = AppLanguage.Get("Radio.TurningOn");
+        try
+        {
+            var result = await _radio.TurnOnAsync();
+            // On success the radio StateChanged event refreshes the view; report failures as Windows returned them.
+            BluetoothActionStatus = result.Succeeded ? string.Empty : AppLanguage.Get(result.MessageKey);
+        }
+        finally
+        {
+            IsTurningOnBluetooth = false;
+        }
+    }
+
+    private static Task OpenBluetoothSettingsAsync()
+    {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:bluetooth") { UseShellExecute = true });
+        return Task.CompletedTask;
+    }
+
+    private void OnRadioStatusChanged(object? sender, EventArgs e) => _ = InvokeOnUiAsync(async () =>
+    {
+        NotifyRadioState();
+        if (_radio.Status == BluetoothRadioStatus.On)
+        {
+            BluetoothActionStatus = string.Empty;
+            await RefreshNowAsync();
+        }
+    });
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        OnPropertyChanged(nameof(DeviceListMessage));
+        OnPropertyChanged(nameof(RefreshButtonText));
+        OnPropertyChanged(nameof(DeviceCountText));
+        NotifyRadioState();
+        // Device cards compute their texts on access; replace each item so the bindings re-read them.
+        foreach (var collection in new[] { _connectedDevices, _disconnectedDevices })
+            for (var i = 0; i < collection.Count; i++) collection[i] = collection[i] with { };
+    }
+
+    private void NotifyRadioState()
+    {
+        OnPropertyChanged(nameof(IsBluetoothUnavailable));
+        OnPropertyChanged(nameof(BluetoothUnavailableVisibility));
+        OnPropertyChanged(nameof(BluetoothUnavailableTitle));
+        OnPropertyChanged(nameof(BluetoothUnavailableDescription));
+        OnPropertyChanged(nameof(TurnOnBluetoothVisibility));
+        OnPropertyChanged(nameof(LoadingVisibility));
+    }
+
     public void Dispose()
     {
         _isDisposed = true;
+        _radio.StatusChanged -= OnRadioStatusChanged;
+        AppLanguage.LanguageChanged -= OnLanguageChanged;
+        _radio.Dispose();
         _lifetimeCts.Cancel();
         _manualRefreshCts?.Cancel();
         Interlocked.Exchange(ref _reconnectCts, null)?.Cancel();
@@ -379,9 +488,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
 public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category, string PhysicalDeviceId)
 {
-    public string ConnectionText => IsConnected ? "Connected" : "Disconnected";
+    public string ConnectionText => AppLanguage.Get(IsConnected ? "Device.Connected" : "Device.Disconnected");
     public bool HasBattery => BatteryPercent is not null;
-    public string BatteryText => BatteryPercent is int battery ? $"Battery: {battery}%" : "Battery unavailable";
+    public string BatteryText => BatteryPercent is int battery ? AppLanguage.Format("Device.Battery", battery) : AppLanguage.Get("Device.BatteryUnavailable");
     public bool IsBatteryLow => BatteryPercent <= 15;
     public double BatteryFillWidth => BatteryPercent switch { null => 0, <= 15 => 3, <= 50 => 7, <= 75 => 11, _ => 15 };
 }
