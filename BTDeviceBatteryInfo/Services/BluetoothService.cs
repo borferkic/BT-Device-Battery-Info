@@ -16,6 +16,7 @@ public sealed class BluetoothService : IDisposable
     private static readonly TimeSpan BatteryUnavailableRetryDelay = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan BatteryRefreshInterval = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan BatteryValueExpiration = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan GamingInputFallbackDelay = TimeSpan.FromMilliseconds(1500);
     private const string BluetoothClassicProtocolId = "{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}";
     private const string BluetoothLeProtocolId = "{bb7bb05e-5972-42b5-94fc-76eaa7084d49}";
     private static readonly string BluetoothSelector = $"System.Devices.Aep.ProtocolId:=\"{BluetoothClassicProtocolId}\" OR System.Devices.Aep.ProtocolId:=\"{BluetoothLeProtocolId}\"";
@@ -71,7 +72,11 @@ public sealed class BluetoothService : IDisposable
     public event EventHandler<BluetoothDeviceInfo>? StateChanged;
     public event EventHandler? DevicesChanged;
     public event EventHandler? InitialDiscoveryCompleted;
-    public BluetoothService(FileLogger logger) => _logger = logger;
+    public BluetoothService(FileLogger logger)
+    {
+        _logger = logger;
+        GamingInputBattery.Initialize();
+    }
 
     public bool IsInitialDiscoveryCompleted
     {
@@ -531,7 +536,13 @@ public sealed class BluetoothService : IDisposable
             await BatteryQueryRunner.RunWithSourceAsync(
                 new Func<CancellationToken, Task<BatteryQueryValue>>[]
                 {
-                    async token => ToBatteryQueryValue(await ReadPnpContainerBatteryAsync(candidate))
+                    async token => ToBatteryQueryValue(await ReadPnpContainerBatteryAsync(candidate)),
+                    async token =>
+                    {
+                        // Lowest-priority fallback: give PnP and GATT time to answer first.
+                        await Task.Delay(GamingInputFallbackDelay, token);
+                        return await GamingInputBattery.ReadAsync(candidate.ContainerId, token);
+                    }
                 }.Concat(candidate.Endpoints.Select(endpoint =>
                     (Func<CancellationToken, Task<BatteryQueryValue>>)(async token => ToBatteryQueryValue(await ReadGattLimitedAsync(endpoint, token))))),
                 result =>

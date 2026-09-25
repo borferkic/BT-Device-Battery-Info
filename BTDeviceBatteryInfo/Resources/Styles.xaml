@@ -3,6 +3,8 @@
                     xmlns:icons="clr-namespace:BTDeviceBatteryInfo.Services">
     <!-- Colors, radii, sizes and shadows come from Themes/*.xaml, swapped at runtime by ThemeManager. -->
     <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+    <!-- Windows device glyphs: Segoe Fluent Icons (Windows 11) with Segoe MDL2 Assets fallback (Windows 10). -->
+    <FontFamily x:Key="SystemIconFontFamily">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
     <Style x:Key="WidgetBorder" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource ShadcnBackgroundBrush}" />

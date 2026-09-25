@@ -4,6 +4,23 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.20] — Controller battery and Windows device icons
+
+### Added
+
+- Battery level for wireless game controllers in X-input mode over Bluetooth, read through Windows.Gaming.Input (for example, the 8BitDo Arcade Stick).
+- The `System` theme uses the Windows device icons for headphones, keyboards, mice, and controllers.
+- PayPal and Patreon icons in `About`, next to the Instagram, Twitch, and LinkedIn icons.
+
+### Changed
+
+- `About` shows the app icon instead of the creator avatar and has tighter spacing.
+
+### Fixed
+
+- Social network links in `About` show their icons instead of text placeholders.
+- Device selectors in `Options` show "No connected devices" instead of an empty box when a category has no connected device.
+
 ## [0.19] — Refined themes and Windows light mode
 
 ### Added

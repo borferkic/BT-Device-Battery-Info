@@ -197,8 +197,21 @@ internal sealed class TaskbarDockWindow : Window
                 VerticalAlignment = VerticalAlignment.Center
             };
             icon.SetResourceReference(Shape.StrokeProperty, "ShadcnWidgetForegroundBrush");
+            icon.SetResourceReference(VisibilityProperty, "ShadcnLucideDeviceIconVisibility");
             Grid.SetColumn(icon, 0);
             content.Children.Add(icon);
+            var glyph = new TextBlock
+            {
+                Text = LucideIcons.SystemGlyphForCategory(device.Category),
+                FontSize = 18,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            glyph.SetResourceReference(TextBlock.FontFamilyProperty, "SystemIconFontFamily");
+            glyph.SetResourceReference(TextBlock.ForegroundProperty, "ShadcnWidgetForegroundBrush");
+            glyph.SetResourceReference(VisibilityProperty, "ShadcnSystemDeviceIconVisibility");
+            Grid.SetColumn(glyph, 0);
+            content.Children.Add(glyph);
             var batteryRing = new BatteryRing(device.BatteryPercent);
             Grid.SetColumn(batteryRing, 2);
             content.Children.Add(batteryRing);

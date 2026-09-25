@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.19` — **Refined themes and Windows light mode**.
+Latest release: `0.20` — **Controller battery and Windows device icons**.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
@@ -35,6 +35,7 @@ Latest release: `0.19` — **Refined themes and Windows light mode**.
   - Shows battery percentage through Windows PnP properties or the standard GATT Battery Service when available.
   - Groups the endpoints of the same physical device and keeps devices with the same name separate when they have different Windows identities.
   - Shows loading placeholders during the initial scan and a clear message when no devices are available.
+  - Reads the battery of wireless game controllers in X-input mode over Bluetooth through Windows.Gaming.Input (for example, the 8BitDo Arcade Stick).
   - `Refresh now` in the widget and system tray refreshes devices and triggers a new battery query.
 - **Taskbar widget**
   - Compact battery indicators for connected headphones, keyboards, mice, and controllers on the left side of the Windows taskbar.
@@ -42,7 +43,7 @@ Latest release: `0.19` — **Refined themes and Windows light mode**.
   - Battery ring states: theme color for a normal level, **red** at 15 % or less, and `–` when the device does not report battery.
 - **Themes**
   - **Elegant Black**: a monochrome dark theme inspired by shadcn/ui, with the Geist Sans font and a subtle gradient on the main window.
-  - **System**: follows the Windows 11 look and switches automatically between light and dark mode when Windows changes.
+  - **System**: follows the Windows 11 look, uses the Windows device icons, and switches automatically between light and dark mode when Windows changes.
   - The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`, plus light and dark app icons.
 - **Application**
   - `Options` window with switches for Start with Windows and the taskbar widget, the theme selector, and the device per category.
@@ -182,7 +183,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.19` — **Temas refinados y modo claro de Windows**.
+Última versión: `0.20` — **Batería de mandos e iconos de Windows**.
 
 ### Funcionalidades
 
@@ -191,6 +192,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
   - Muestra el porcentaje de batería mediante propiedades PnP de Windows o el servicio estándar GATT Battery Service cuando está disponible.
   - Agrupa los endpoints de un mismo dispositivo físico y mantiene separados los dispositivos con el mismo nombre cuando tienen identidades diferentes en Windows.
   - Muestra marcadores de carga durante la búsqueda inicial y un mensaje claro cuando no hay dispositivos.
+  - Lee la batería de mandos inalámbricos en modo X-input por Bluetooth mediante Windows.Gaming.Input (por ejemplo, el 8BitDo Arcade Stick).
   - `Refresh now`, en el widget y el área de notificaciones, actualiza los dispositivos y vuelve a consultar la batería.
 - **Widget de la barra de tareas**
   - Indicadores compactos de batería para auriculares, teclados, mouse y controles conectados en el lado izquierdo de la barra de tareas.
@@ -198,7 +200,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
   - Estados del anillo: color del tema con nivel normal, **rojo** con 15 % o menos y `–` cuando el dispositivo no reporta batería.
 - **Temas**
   - **Elegant Black**: tema oscuro monocromo inspirado en shadcn/ui, con la fuente Geist Sans y un gradiente sutil en la ventana principal.
-  - **System**: sigue el aspecto de Windows 11 y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
+  - **System**: sigue el aspecto de Windows 11, usa los iconos de dispositivos de Windows y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
   - El tema se aplica a todas las ventanas, tooltips, menús y al widget, con vista previa en vivo en `Options` e iconos de la app en versión clara y oscura.
 - **Aplicación**
   - Ventana `Options` con interruptores para el inicio con Windows y el widget, el selector de tema y el dispositivo por categoría.

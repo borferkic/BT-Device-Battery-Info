@@ -30,13 +30,19 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" Background="{DynamicResource ShadcnElevatedBrush}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" VerticalAlignment="Center">
+                        <Grid>
                         <Path x:Name="DeviceIcon"
                               Data="{x:Static icons:LucideIcons.Headphones}"
                               Width="21" Height="21" Stretch="Uniform"
                               Stroke="{DynamicResource ShadcnForegroundBrush}"
                               StrokeThickness="1.7" StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round" StrokeLineJoin="Round"
-                              Fill="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                              Fill="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center"
+                              Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}" />
+                        <TextBlock x:Name="DeviceGlyph" Text="&#xE7F6;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="20"
+                                   Foreground="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}" />
+                        </Grid>
                     </Border>
                     <StackPanel Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Name}"
@@ -82,15 +88,19 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Category}" Value="{x:Static models:BluetoothDeviceCategory.Headphones}">
                     <Setter TargetName="DeviceIcon" Property="Data" Value="{x:Static icons:LucideIcons.Headphones}" />
+                    <Setter TargetName="DeviceGlyph" Property="Text" Value="&#xE7F6;" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Category}" Value="{x:Static models:BluetoothDeviceCategory.Keyboard}">
                     <Setter TargetName="DeviceIcon" Property="Data" Value="{x:Static icons:LucideIcons.Keyboard}" />
+                    <Setter TargetName="DeviceGlyph" Property="Text" Value="&#xE765;" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Category}" Value="{x:Static models:BluetoothDeviceCategory.Mouse}">
                     <Setter TargetName="DeviceIcon" Property="Data" Value="{x:Static icons:LucideIcons.Mouse}" />
+                    <Setter TargetName="DeviceGlyph" Property="Text" Value="&#xE962;" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Category}" Value="{x:Static models:BluetoothDeviceCategory.GameController}">
                     <Setter TargetName="DeviceIcon" Property="Data" Value="{x:Static icons:LucideIcons.Gamepad}" />
+                    <Setter TargetName="DeviceGlyph" Property="Text" Value="&#xE7FC;" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>

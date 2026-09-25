@@ -40,6 +40,7 @@ public partial class OptionsWindow : Window
                 IsEnabled = false,
                 Style = (Style)picker.FindResource("OptionsPickerItemStyle")
             });
+            picker.SelectedIndex = 0;
             picker.IsEnabled = false;
             return;
         }

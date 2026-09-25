@@ -166,6 +166,11 @@ Criterios de aceptación: no quedan iconos mezclados de fuentes distintas en los
 - [ ] Permitir elegir auriculares, teclado, mouse y control desde `Options` y desde el menú que abre su pastilla en la barra de tareas.
 - [ ] Conservar cada elección por identidad física y mostrar un dispositivo conectado por categoría.
 
+### P-026 — Batería de mandos Bluetooth (8BitDo)
+
+- [x] Leer la batería de mandos en modo X-input con `Windows.Gaming.Input` como fuente de último recurso (0.20-dev2; confirmado con el Arcade Stick).
+- [ ] Validar el porcentaje frente al nivel real. El SN30 Pro para Xbox queda fuera: por Bluetooth solo tiene modo Android, sin batería.
+
 ## Completado recientemente
 
 - [x] P-002 — Actualizar la batería durante la sesión con consultas generales, sin filtros por marca/modelo; aceptación confirmada por el responsable (`2026-09-22`).

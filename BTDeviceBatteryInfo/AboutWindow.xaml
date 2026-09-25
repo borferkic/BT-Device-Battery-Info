@@ -36,22 +36,18 @@
             </Grid>
 
             <StackPanel Grid.Row="1" Margin="0,24,0,0">
-                <Ellipse Width="76" Height="76" Stroke="{DynamicResource ShadcnBorderBrush}" StrokeThickness="2" HorizontalAlignment="Center" Margin="0,0,0,12">
-                    <Ellipse.Fill>
-                        <ImageBrush ImageSource="avatarapp.png" Stretch="UniformToFill"/>
-                    </Ellipse.Fill>
-                </Ellipse>
+                <Image Source="{DynamicResource ShadcnAppIconImage}" Width="76" Height="76" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,12" RenderOptions.BitmapScalingMode="HighQuality" />
                 <TextBlock Text="BT Device Battery Info" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                <TextBlock Text="Version 0.19" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                <TextBlock Text="Version 0.20" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"/>
             </StackPanel>
 
-            <StackPanel Grid.Row="2" Margin="0,24,0,0">
+            <StackPanel Grid.Row="2" Margin="0,16,0,0">
                 <TextBlock Text="Quickly check your Bluetooth devices and review their connection status and battery level from a simple, unobtrusive widget."
                            Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
                     <StackPanel Width="76">
                         <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
-                            <TextBlock Text="IG" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Path Data="{x:Static icons:LucideIcons.Instagram}" Style="{StaticResource LucideToolbarIcon}" Width="15" Height="15" Stroke="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
                             <Hyperlink NavigateUri="https://www.instagram.com/borissdk/" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">Instagram</Hyperlink>
@@ -59,7 +55,7 @@
                     </StackPanel>
                     <StackPanel Width="76">
                         <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
-                            <TextBlock Text="TW" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Path Data="{x:Static icons:LucideIcons.Twitch}" Style="{StaticResource LucideToolbarIcon}" Width="15" Height="15" Stroke="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
                             <Hyperlink NavigateUri="https://www.twitch.tv/borizillaTV" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">Twitch</Hyperlink>
@@ -67,21 +63,31 @@
                     </StackPanel>
                     <StackPanel Width="76">
                         <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
-                            <TextBlock Text="in" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Path Data="{x:Static icons:LucideIcons.LinkedIn}" Style="{StaticResource LucideToolbarIcon}" Width="15" Height="15" Stroke="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
                             <Hyperlink NavigateUri="https://www.linkedin.com/in/borissdk/" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">LinkedIn</Hyperlink>
                         </TextBlock>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Text="You can support my work through PayPal or Patreon." Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Margin="0,22,0,0"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                    <TextBlock FontSize="12" Margin="0,0,18,0">
-                        <Hyperlink NavigateUri="https://paypal.me/borissdk" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">PayPal</Hyperlink>
-                    </TextBlock>
-                    <TextBlock FontSize="12">
-                        <Hyperlink NavigateUri="https://patreon.com/borissdk" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">Patreon</Hyperlink>
-                    </TextBlock>
+                <TextBlock Text="You can support my work through PayPal or Patreon." Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Margin="0,14,0,0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+                    <StackPanel Width="76">
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                            <Path Data="{x:Static icons:LucideIcons.PayPal}" Width="13" Height="13" Stretch="Uniform" Fill="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
+                            <Hyperlink NavigateUri="https://paypal.me/borissdk" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">PayPal</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Width="76">
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                            <Path Data="{x:Static icons:LucideIcons.Patreon}" Width="13" Height="13" Stretch="Uniform" Fill="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
+                            <Hyperlink NavigateUri="https://patreon.com/borissdk" RequestNavigate="OpenLink_Click" Foreground="{DynamicResource ShadcnForegroundBrush}">Patreon</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
 

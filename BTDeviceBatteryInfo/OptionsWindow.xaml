@@ -163,28 +163,32 @@
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                            <Path Data="{x:Static icons:LucideIcons.Headphones}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center"/>
+                            <Path Data="{x:Static icons:LucideIcons.Headphones}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}"/>
+                            <TextBlock Text="&#xE7F6;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="14" Foreground="{DynamicResource ShadcnMutedBrush}" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}"/>
                             <TextBlock Text="Headphones" Style="{StaticResource ShadcnCaptionText}" Margin="7,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ComboBox x:Name="HeadphonesComboBox" Style="{StaticResource OptionsPickerStyle}" ToolTip="Choose which connected headphones to show"/>
                     </StackPanel>
                     <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                            <Path Data="{x:Static icons:LucideIcons.Keyboard}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center"/>
+                            <Path Data="{x:Static icons:LucideIcons.Keyboard}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}"/>
+                            <TextBlock Text="&#xE765;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="14" Foreground="{DynamicResource ShadcnMutedBrush}" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}"/>
                             <TextBlock Text="Keyboard" Style="{StaticResource ShadcnCaptionText}" Margin="7,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ComboBox x:Name="KeyboardComboBox" Style="{StaticResource OptionsPickerStyle}" ToolTip="Choose which connected keyboard to show"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,8,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                            <Path Data="{x:Static icons:LucideIcons.Gamepad}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center"/>
+                            <Path Data="{x:Static icons:LucideIcons.Gamepad}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}"/>
+                            <TextBlock Text="&#xE7FC;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="14" Foreground="{DynamicResource ShadcnMutedBrush}" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}"/>
                             <TextBlock Text="Controller" Style="{StaticResource ShadcnCaptionText}" Margin="7,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ComboBox x:Name="GameControllerComboBox" Style="{StaticResource OptionsPickerStyle}" ToolTip="Choose which connected controller to show"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,12,0,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                            <Path Data="{x:Static icons:LucideIcons.Mouse}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center"/>
+                            <Path Data="{x:Static icons:LucideIcons.Mouse}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}"/>
+                            <TextBlock Text="&#xE962;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="14" Foreground="{DynamicResource ShadcnMutedBrush}" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}"/>
                             <TextBlock Text="Mouse" Style="{StaticResource ShadcnCaptionText}" Margin="7,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ComboBox x:Name="MouseComboBox" Style="{StaticResource OptionsPickerStyle}" ToolTip="Choose which connected mouse to show"/>
