@@ -37,7 +37,7 @@ public static class ThemeManager
         else merged.Insert(0, theme);
 
         resources["AppFontFamily"] = isElegantBlack
-            ? new System.Windows.Media.FontFamily(new Uri("pack://application:,,,/"), "./Resources/#Geist")
+            ? new System.Windows.Media.FontFamily(new Uri("pack://application:,,,/"), "./Assets/Fonts/#Geist")
             : System.Windows.SystemFonts.MessageFontFamily;
 
         if (!_listening)

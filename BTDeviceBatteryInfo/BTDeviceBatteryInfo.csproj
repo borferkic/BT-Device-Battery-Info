@@ -9,7 +9,7 @@
     <Description>Widget para consultar el estado y la batería de dispositivos Bluetooth en Windows.</Description>
     <Copyright>Boris SdK</Copyright>
     <Version>0.21</Version>
-    <ApplicationIcon>Icon/Icon-dark.ico</ApplicationIcon>
+    <ApplicationIcon>Assets/Icons/Icon-dark.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -17,18 +17,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="validation/**/*.cs" />
-    <Resource Include="Icon.ico" />
-    <Resource Include="Icon/Icon-dark.ico" />
-    <Resource Include="Icon/icon-dark-128.png" />
-    <Resource Include="Icon/Icon-light.ico" />
-    <Resource Include="Icon/icon-light-128.png" />
-    <Resource Include="avatarapp.png" />
-    <Resource Include="Resources/MaterialSymbolsRounded.ttf" />
-    <Resource Include="Resources/GeistSans.ttf" />
-    <Content Include="Resources/MaterialSymbols-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="Resources/Lucide-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="Resources/Geist-OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Resource Include="Assets/Icons/Icon-dark.ico" />
+    <Resource Include="Assets/Icons/icon-dark-128.png" />
+    <Resource Include="Assets/Icons/Icon-light.ico" />
+    <Resource Include="Assets/Icons/icon-light-128.png" />
+    <Resource Include="Assets/Fonts/GeistSans.ttf" />
+    <Content Include="Assets/Licenses/Lucide-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Assets/Fonts/Geist-OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

@@ -6,6 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../Services/BatteryQueryRunner.cs" Link="BatteryQueryRunner.cs" />
+    <Compile Include="../../BTDeviceBatteryInfo/Services/BatteryQueryRunner.cs" Link="BatteryQueryRunner.cs" />
   </ItemGroup>
 </Project>

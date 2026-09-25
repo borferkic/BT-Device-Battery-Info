@@ -48,8 +48,8 @@
     <SolidColorBrush x:Key="ShadcnWidgetRingBrush" Color="#FF0F7B0F" />
     <CornerRadius x:Key="ShadcnWidgetCornerRadius">16</CornerRadius>
     <SolidColorBrush x:Key="ShadcnWindowBackgroundBrush" Color="#FFF3F3F3" />
-    <BitmapImage x:Key="ShadcnAppIconImage" UriSource="pack://application:,,,/Icon/icon-light-128.png" />
-    <BitmapImage x:Key="ShadcnAppWindowIcon" UriSource="pack://application:,,,/Icon/Icon-light.ico" />
+    <BitmapImage x:Key="ShadcnAppIconImage" UriSource="pack://application:,,,/Assets/Icons/icon-light-128.png" />
+    <BitmapImage x:Key="ShadcnAppWindowIcon" UriSource="pack://application:,,,/Assets/Icons/Icon-light.ico" />
     <!-- Device icons: Lucide paths in Elegant Black, Windows glyphs (Segoe Fluent Icons) in System. -->
     <Visibility x:Key="ShadcnLucideDeviceIconVisibility">Collapsed</Visibility>
     <Visibility x:Key="ShadcnSystemDeviceIconVisibility">Visible</Visibility>

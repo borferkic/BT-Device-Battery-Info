@@ -272,7 +272,7 @@ public partial class MainWindow : Window, IDisposable
     private static Drawing.Icon LoadTrayIcon()
     {
         var variant = ThemeManager.IsLight ? "light" : "dark";
-        var resource = System.Windows.Application.GetResourceStream(new Uri($"pack://application:,,,/Icon/Icon-{variant}.ico", UriKind.Absolute));
+        var resource = System.Windows.Application.GetResourceStream(new Uri($"pack://application:,,,/Assets/Icons/Icon-{variant}.ico", UriKind.Absolute));
         if (resource is null) return (Drawing.Icon)Drawing.SystemIcons.Information.Clone();
 
         using (resource.Stream)

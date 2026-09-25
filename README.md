@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="96" height="96" alt="BT Device Battery Info icon" src="BTDeviceBatteryInfo/Icon/icon-dark-256.png" />
+  <img width="96" height="96" alt="BT Device Battery Info icon" src="BTDeviceBatteryInfo/Assets/Icons/icon-dark-256.png" />
 
   <h1>BT Device Battery Info</h1>
 
@@ -153,12 +153,14 @@ Developers need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop devel
 .
 ├── BT Device Battery Info.slnx
 ├── BTDeviceBatteryInfo/
+│   ├── Assets/          # Icons, fonts, and third-party licenses
 │   ├── Models/          # Device and application data models
-│   ├── Services/        # Bluetooth, battery, settings, logging, themes, and startup logic
+│   ├── Resources/       # WPF styles, themes, and interface strings (XAML)
+│   ├── Services/        # Bluetooth, battery, settings, logging, themes, and language
 │   ├── ViewModels/      # UI state and commands
-│   ├── Resources/       # Shared WPF styles, themes, and fonts
-│   ├── Icon/            # Light and dark application icons
-│   ├── docs/            # Documentation, architecture, testing, and changelog
+│   ├── Views/           # Windows and the taskbar widget
+│   ├── docs/            # Architecture, testing, backlog, and research
+├── tests/               # Validation projects
 ├── .github/workflows/   # Windows continuous integration
 ├── CONTRIBUTING.md
 └── LICENSE

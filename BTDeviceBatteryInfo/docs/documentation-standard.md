@@ -12,12 +12,10 @@ Mantén una sola fuente de verdad para cada propósito:
 | `docs/architecture.md` | Diseño vigente | Flujo, módulos, ciclo de vida, datos y límites técnicos reales. |
 | `docs/testing.md` | Validación | Comandos, matriz manual, evidencias y limitaciones de cobertura. |
 | `docs/pending.md` | Trabajo futuro | Tareas priorizadas, criterios de aceptación y estado. |
-| `docs/changelog/unreleased.md` | Próxima versión | Cambios realizados, validación y pendientes de publicación. |
-| `CHANGELOG.md` | Historial público | Resumen user-facing por versión. |
-| `docs/changelog/<versión>.md` | Detalle histórico | Alcance y validación de una versión publicada. |
+| `CHANGELOG.md` | Historial público | Resumen user-facing por versión y cambios no publicados en `Unreleased`. |
 | `CONTRIBUTING.md` | Colaboración | Flujo, formato, validaciones y evidencia requerida. |
 
-No dupliques una tarea entre `roadmap.md`, `pending.md` y un plan local. `roadmap.md` solo expresa dirección; `pending.md` contiene el trabajo accionable.
+No dupliques una tarea entre `pending.md` y un plan local: `pending.md` es la única fuente del trabajo accionable.
 
 ## Formato Markdown
 
@@ -48,7 +46,7 @@ No marques una tarea como completada solo porque el código compile. La aceptaci
 
 Registra primero los cambios visibles bajo `Unreleased` y usa categorías consistentes: `Añadido`, `Cambiado`, `Corregido`, `Eliminado`, `Rendimiento` o `Seguridad`.
 
-Para cada cambio relevante indica en `docs/changelog/unreleased.md`:
+Para cada cambio relevante indica en la sección `Unreleased` de `CHANGELOG.md` o en la tarea de `pending.md`:
 
 - qué cambió y por qué;
 - impacto visible;

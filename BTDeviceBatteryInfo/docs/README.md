@@ -6,13 +6,11 @@ Esta carpeta contiene la documentación de mantenimiento, arquitectura, validaci
 
 1. [Arquitectura](architecture.md): flujo de arranque, responsabilidades y límites técnicos.
 2. [Pruebas y validación](testing.md): comandos automatizados, matriz manual y formato de evidencias.
-3. [Estado del QA](qa-status.md): última revisión, evidencia y bloqueadores conocidos.
-4. [Estándar de documentación](documentation-standard.md): formato, jerarquía y reglas de mantenimiento.
-5. [Pendientes](pending.md): backlog canónico priorizado por impacto.
-6. [Cambios no publicados](changelog/unreleased.md): registro detallado para la próxima versión.
-7. [Versión 0.15](changelog/0.15.md): notas detalladas de la versión pública actual.
-8. [Roadmap](roadmap.md): dirección general y decisiones de producto.
-9. [Historial de changelog](changelog/): notas de versiones publicadas.
+3. [Estándar de documentación](documentation-standard.md): formato, jerarquía y reglas de mantenimiento.
+4. [Pendientes](pending.md): backlog canónico priorizado por impacto.
+5. [Changelog](../../CHANGELOG.md): historial de versiones y cambios no publicados (`Unreleased`).
+6. [Lineamientos de traspaso](lineamientos-traspaso.md): cómo retomar el proyecto en otra PC.
+7. [Investigación de batería 8BitDo](research-8bitdo-battery.md): pruebas y decisiones sobre mandos.
 
 ## Convenciones
 
@@ -20,11 +18,10 @@ Esta carpeta contiene la documentación de mantenimiento, arquitectura, validaci
 - Cada documento tiene un único título H1 y usa títulos H2 para sus secciones principales.
 - Los enlaces entre documentos usan rutas relativas.
 - `docs/pending.md` es la única fuente de verdad para trabajo futuro.
-- `docs/qa-status.md` conserva el resultado de la última revisión, no reemplaza los procedimientos de `testing.md`.
-- `docs/changelog/unreleased.md` reúne los cambios ya realizados que todavía no pertenecen a una versión publicada.
+- `CHANGELOG.md` (raíz) es el único changelog: los cambios no publicados van en `Unreleased` y cada versión tiene su entrada.
+- La evidencia de QA de cada versión se registra en `pending.md` al cerrar la tarea correspondiente.
 - `docs/documentation-standard.md` define el formato y el orden que deben seguir los documentos nuevos.
-- `BTDeviceBatteryInfo/skills/Changelog.md` se conserva como material de apoyo legado; no es la skill operativa del proyecto.
 
 ## Estado documental
 
-La línea base pública es la versión `0.15 — Recuperación de batería HFP/PnP`. Los cambios posteriores se mantienen bajo `Unreleased` hasta que se defina la próxima versión.
+La última versión pública es `0.21 — Language selection and Bluetooth status`. Los cambios posteriores se registran bajo `Unreleased` en `CHANGELOG.md`.

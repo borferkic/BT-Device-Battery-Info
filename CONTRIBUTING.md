@@ -28,7 +28,7 @@ Separa siempre la validación automatizada de la validación manual dependiente 
 - Usa `BTDeviceBatteryInfo/docs/architecture.md` para el comportamiento real y las responsabilidades de los módulos.
 - Usa `BTDeviceBatteryInfo/docs/testing.md` para procedimientos reproducibles y evidencias de QA.
 - Usa `BTDeviceBatteryInfo/docs/pending.md` como única lista de pendientes del proyecto.
-- Usa `BTDeviceBatteryInfo/docs/changelog/unreleased.md` para el detalle de cambios que todavía no tienen versión.
+- Registra los cambios que todavía no tienen versión en la sección `Unreleased` de `CHANGELOG.md`.
 - Mantén los archivos Markdown en LF y el código C#/XAML en CRLF, según `.editorconfig` y `.gitattributes`.
 - Conserva la separación `Models`, `Services`, `ViewModels` y `MainWindow.xaml`.
 

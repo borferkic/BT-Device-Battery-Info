@@ -131,7 +131,7 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 - HFP, AVRCP, BLE, and base endpoints are unified by `ContainerId`.
 - Bose headsets now use Windows' native `DEVPKEY_Bluetooth_BatteryLevel` property.
 
-Local build `0.13`, validated with a connected Bose QC Ultra 2. [Details and limitations](BTDeviceBatteryInfo/docs/changelog/unreleased.md).
+Local build `0.13`, validated with a connected Bose QC Ultra 2.
 
 ## [0.12] — Reliability and experience
 
@@ -152,14 +152,12 @@ Local build `0.13`, validated with a connected Bose QC Ultra 2. [Details and lim
 - Protected startup and asynchronous event handlers against unhandled errors that caused termination with `0xe0434352`.
 - Added battery retries and PnP/GATT queries across the container and its related endpoints.
 
-Details and validation are available in [Version 0.12 — Reliability and experience](BTDeviceBatteryInfo/docs/changelog/0.12.md).
 
 ## [0.11] — Application Icon
 
 ### Added
 
 - Added the BT Device Battery Info icon to the executable, application window, and Windows system tray.
-- Detailed notes: [Version 0.11 — Application Icon](BTDeviceBatteryInfo/docs/changelog/0.11.md).
 
 ## [0.10] — First Build
 
