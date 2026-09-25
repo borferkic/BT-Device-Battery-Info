@@ -4,26 +4,43 @@
 
 Information in: [English](#english) | [Español](#espanol)
 
-Release `0.16` — **Compact taskbar widget**.
+Latest release: `0.19` — **Refined themes and Windows light mode**.
 
 BT Device Battery Info is an open-source Windows desktop widget that displays paired or connected Bluetooth devices and their battery level when Windows makes that information available.
 
-The application is lightweight and unobtrusive. It runs from the system tray, shows the widget when requested, and updates the device list as Bluetooth devices connect, disconnect, or change state. Disconnected devices are grouped in a collapsed `Disconected Devices` section with a count. The widget gear opens an About window with project information and creator links.
+The application is lightweight and unobtrusive. It runs from the system tray, shows the widget when requested, and updates the device list as Bluetooth devices connect, disconnect, or change state. Disconnected devices are grouped in a collapsible `Disconnected devices` section with a count. The gear button opens `Options`, where you can configure startup, the taskbar widget, and the theme, and open `About`.
 
 ## Features
 
+### Devices and battery
+
 - Detects paired and connected Bluetooth Classic and Bluetooth Low Energy (BLE) devices.
-- Displays each device name and connection state.
-- Shows battery percentage through Windows PnP properties or the standard GATT Battery Service when available.
-- Keeps devices with the same name separate when they have different Windows device identities.
-- Shows a loading indicator during the initial device scan.
-- Grows or shrinks the complete widget automatically as devices appear or disappear, without a scrollbar.
-- Provides tray actions to show or hide the widget, enable or disable Start with Windows, and exit the application.
+- Displays each device name, category icon, and connection state.
+- Shows battery percentage through Windows PnP properties or the standard GATT Battery Service when available, and highlights low battery (15 % or less).
+- Groups the endpoints of the same physical device and keeps devices with the same name separate when they have different Windows identities.
+- Shows loading placeholders during the initial scan and a clear message when no devices are available.
 - Provides `Refresh now` in the widget and system tray to refresh devices and trigger a new battery query.
-- Lets you place compact battery pills for connected headphones, keyboards, mice, and controllers in the left side of the Windows taskbar.
+
+### Taskbar widget
+
+- Places compact battery indicators for connected headphones, keyboards, mice, and controllers on the left side of the Windows taskbar.
+- Lets you choose which device is shown for each category, from `Options` or by clicking an indicator.
+
+### Themes and appearance
+
+- `Elegant Black`: a monochrome dark theme inspired by shadcn/ui, with the Geist Sans font and a subtle gradient on the main window.
+- `System`: follows the Windows 11 look and switches automatically between light and dark mode when Windows changes.
+- The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`.
+- Light and dark app icons that follow the active theme.
+- Keyboard navigation with a visible focus ring.
+
+### Application
+
+- `Options` window with switches for Start with Windows and the taskbar widget, the theme selector, and the device per category.
+- Tray actions to show or hide the widget, enable or disable Start with Windows, and exit the application.
 - Prevents multiple instances from running at the same time and informs the user when the application is already open.
-- Includes an About window with project information and creator links.
-- Stores application data and diagnostic logs in `%LocalAppData%\BTDeviceBatteryInfo`.
+- `About` window with project information and links to Instagram, Twitch, LinkedIn, PayPal, and Patreon.
+- Stores settings and diagnostic logs in `%LocalAppData%\BTDeviceBatteryInfo`.
 
 ## Screenshots
 
@@ -50,7 +67,7 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 
 ## Download
 
-Download [version 0.16](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.16) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
+Download the [latest version (0.19)](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
 
 The release is self-contained and does not require the .NET Desktop Runtime. Developers building from source need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
 
@@ -97,7 +114,8 @@ The widget is read-only with respect to the Bluetooth adapter. It does not remov
 │   ├── Models/          # Device and application data models
 │   ├── Services/        # Bluetooth, battery, settings, logging, and startup logic
 │   ├── ViewModels/      # UI state and commands
-│   ├── Resources/       # Shared WPF styles
+│   ├── Resources/       # Shared WPF styles, themes, and fonts
+│   ├── Icon/            # Light and dark application icons
 │   ├── docs/            # Documentation, architecture, testing, and changelog
 ├── .github/workflows/   # Windows continuous integration
 ├── CONTRIBUTING.md
@@ -121,25 +139,42 @@ The project documentation is organized in [BTDeviceBatteryInfo/docs/README.md](B
 
 ## Español
 
-Versión `0.16` — **Widget compacto en la barra de tareas**.
+Última versión: `0.19` — **Temas refinados y modo claro de Windows**.
 
 BT Device Battery Info es un widget de escritorio open source para Windows que muestra los dispositivos Bluetooth emparejados o conectados y su nivel de batería cuando Windows proporciona esa información.
 
-La aplicación es ligera y discreta. Funciona desde el área de notificaciones, muestra el widget cuando el usuario lo solicita y actualiza la lista cuando los dispositivos Bluetooth se conectan, desconectan o cambian de estado. Los dispositivos desconectados se agrupan en la sección contraída `Disconected Devices`, que muestra la cantidad y permite expandirse. El engranaje abre una ventana About con información del proyecto y enlaces del creador.
+La aplicación es ligera y discreta. Funciona desde el área de notificaciones, muestra el widget cuando el usuario lo solicita y actualiza la lista cuando los dispositivos Bluetooth se conectan, desconectan o cambian de estado. Los dispositivos desconectados se agrupan en la sección contraíble `Disconnected devices`, que muestra la cantidad. El engranaje abre `Options`, donde se configuran el inicio con Windows, el widget de la barra de tareas y el tema, y desde donde se accede a `About`.
 
 ### Funcionalidades
 
+#### Dispositivos y batería
+
 - Detecta dispositivos Bluetooth Classic y Bluetooth Low Energy (BLE) emparejados o conectados.
-- Muestra el nombre y el estado de conexión de cada dispositivo.
-- Muestra el porcentaje de batería mediante propiedades PnP de Windows o el servicio estándar GATT Battery Service cuando está disponible.
-- Mantiene separados los dispositivos con el mismo nombre cuando tienen identidades diferentes en Windows.
-- Muestra un indicador de carga durante la búsqueda inicial.
-- Aumenta o reduce automáticamente el tamaño completo del widget según aparezcan o desaparezcan dispositivos, sin barra de desplazamiento.
-- Incluye opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows y salir de la aplicación.
+- Muestra el nombre, el icono de categoría y el estado de conexión de cada dispositivo.
+- Muestra el porcentaje de batería mediante propiedades PnP de Windows o el servicio estándar GATT Battery Service cuando está disponible, y resalta la batería baja (15 % o menos).
+- Agrupa los endpoints de un mismo dispositivo físico y mantiene separados los dispositivos con el mismo nombre cuando tienen identidades diferentes en Windows.
+- Muestra marcadores de carga durante la búsqueda inicial y un mensaje claro cuando no hay dispositivos.
 - Incluye `Refresh now` en el widget y el área de notificaciones para actualizar los dispositivos y volver a consultar la batería.
-- Permite mostrar pastillas compactas de batería para auriculares, teclados, mouse y controles conectados en el lado izquierdo de la barra de tareas de Windows.
+
+#### Widget de la barra de tareas
+
+- Muestra indicadores compactos de batería para auriculares, teclados, mouse y controles conectados en el lado izquierdo de la barra de tareas de Windows.
+- Permite elegir qué dispositivo se muestra en cada categoría, desde `Options` o haciendo clic en un indicador.
+
+#### Temas y apariencia
+
+- `Elegant Black`: tema oscuro monocromo inspirado en shadcn/ui, con la fuente Geist Sans y un gradiente sutil en la ventana principal.
+- `System`: sigue el aspecto de Windows 11 y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
+- El tema se aplica a todas las ventanas, tooltips, menús y al widget de la barra de tareas, con vista previa en vivo en `Options`.
+- Iconos de la aplicación en versión clara y oscura según el tema activo.
+- Navegación con teclado con un anillo de foco visible.
+
+#### Aplicación
+
+- Ventana `Options` con interruptores para el inicio con Windows y el widget de la barra de tareas, el selector de tema y el dispositivo por categoría.
+- Opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows y salir de la aplicación.
 - Evita que se ejecuten varias instancias al mismo tiempo y avisa si la aplicación ya está abierta.
-- Incluye una ventana About con información del proyecto y enlaces del creador.
+- Ventana `About` con información del proyecto y enlaces a Instagram, Twitch, LinkedIn, PayPal y Patreon.
 - Guarda la configuración y los registros en `%LocalAppData%\BTDeviceBatteryInfo`.
 
 ### Capturas
@@ -167,7 +202,7 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 
 ### Descargar
 
-Descarga la [versión 0.16](https://github.com/borferkic/BT-Device-Battery-Info/releases/tag/v0.16) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
+Descarga la [última versión (0.19)](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
 
 La versión publicada es autocontenida y no requiere el .NET Desktop Runtime. Para compilar desde el código fuente se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
 
