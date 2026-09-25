@@ -6,3 +6,4 @@
 - Antes de generar cualquier build, presenta al usuario la lista concreta de tareas y espera su confirmación explícita.
 - Espera la prueba manual del usuario antes de actualizar QA, changelog o pendientes con resultados. Mantén cada pendiente en un máximo de dos líneas.
 - No subas la carpeta `.claude/` (skills y configuración local de Claude Code) a Git; está excluida en `.gitignore`.
+- Tras subir una versión a `main`, crea y sube su tag anotado `v<versión>` (mensaje `BT Device Battery Info <versión>`) sin pedir confirmación. La release de GitHub sigue requiriendo autorización.
