@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="BTDeviceBatteryInfo/BTDeviceBatteryInfo.csproj" />
+  <Project Path="tests/BTDeviceBatteryInfo.Tests/BTDeviceBatteryInfo.Tests.csproj" />
 </Solution>

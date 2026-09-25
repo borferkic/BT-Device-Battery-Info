@@ -17,7 +17,7 @@ git diff --check
 No hay una suite basada en `Microsoft.NET.Test.Sdk`, xUnit, NUnit o MSTest: `dotnet test` termina sin pruebas descubiertas. Desde 0.13 existe además un ejecutable de validación del coordinador, sin dependencias externas ni hardware:
 
 ```powershell
-dotnet run --project tests/BatteryQueries/BatteryQueries.csproj -c Release
+dotnet test ".\BT Device Battery Info.slnx" -c Release
 ```
 
 Comprueba publicación temprana, retención de operaciones pendientes, rechazo de valores inválidos, cancelación, resultados tardíos e independencia entre dispositivos. No valida WinRT, la agrupación de endpoints ni el aspecto visual.

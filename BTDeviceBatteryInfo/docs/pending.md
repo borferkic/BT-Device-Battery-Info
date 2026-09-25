@@ -20,16 +20,12 @@ Sin pendientes de prioridad alta (P-014 y P-016 cerrados en `0.21`).
 
 ### P-006 — Crear pruebas automatizadas
 
-- [ ] Añadir un proyecto de pruebas independiente.
-- [ ] Cubrir `ReconnectPolicy`, persistencia de `AppSettings` y transformaciones de batería.
+- [x] Añadir un proyecto de pruebas independiente: `tests/BTDeviceBatteryInfo.Tests` (xUnit, 33 pruebas), que sustituye a `tests/BatteryQueries` (`2026-09-25`).
+- [x] Cubrir `ReconnectPolicy`, `AppLanguage.Normalize`, la lógica de batería de las tarjetas y el coordinador `BatteryQueryRunner`.
+- [x] Verificar que los tres temas y los dos idiomas definen las mismas claves.
+- [ ] Cubrir la persistencia de `AppSettings`.
 - [ ] Cubrir agrupación de endpoints, selección, coalescencia de refrescos y cancelación de reconexión.
-- [ ] Ejecutar las pruebas en CI además de la compilación.
-
-### P-007 — Crear una matriz de validación Bluetooth
-
-- [ ] Registrar modelo, perfil, controlador, versión/arquitectura de Windows y resultado.
-- [ ] Probar Bluetooth Classic, BLE, dispositivos sin batería expuesta y varios endpoints del mismo contenedor.
-- [ ] Mantener identificadores reales redactados en evidencias compartidas.
+- [x] Ejecutar las pruebas en CI además de la compilación (`dotnet test` sobre la solución).
 
 ### P-010 — Endurecer el ciclo de vida
 
@@ -51,10 +47,6 @@ Criterios de aceptación: cerrar la aplicación durante una consulta no produce 
 - [ ] Preparar un paquete distribuible con versión visible, icono, actualización y desinstalación.
 - [ ] Definir un proceso de publicación que no dependa solo de artefactos manuales.
 
-### P-013 — Agrupación configurable
-
-- [ ] Evaluar una preferencia para mostrar por separado o agrupar endpoints que compartan `ContainerId`.
-
 ### P-018 — Registrar conexiones y desconexiones para QA
 
 - [ ] Registrar fecha y hora, dispositivo con identificadores redactados, transición de conexión y fuente/evidencia disponible (por ejemplo, eventos del watcher y estado Classic/BLE).
@@ -65,18 +57,6 @@ Criterios de aceptación: cerrar la aplicación durante una consulta no produce 
 Objetivo observable: ante una conexión o desconexión, QA puede reconstruir cuándo se detectó el cambio y qué evidencia disponible lo acompañó.
 
 Criterios de aceptación: el registro local contiene transiciones fechadas y redactadas con su fuente/evidencia, no duplica estados inalterados, distingue causas conocidas de inferencias y respeta la política de retención definida.
-
-### P-019 — Añadir una vista compacta tipo pastilla
-
-- [ ] Ofrecer un modo compacto horizontal tipo pastilla, alternable con la ventana actual, que ocupe menos espacio en pantalla.
-- [x] Mostrar un icono según el tipo de dispositivo y un indicador circular de batería (widget de la barra de tareas, 0.16).
-- [x] Contemplar auriculares, teclados, mouse y joysticks; mostrar cada uno solo mientras Windows lo reporte conectado (0.16).
-- [ ] Representar con claridad los estados desconectado y batería no disponible.
-- [x] Mantener la información actualizada y hacer que el indicador circular refleje el nivel de batería reportado (0.16; rojo ≤ 15 % desde 0.19).
-
-Objetivo observable: el usuario puede consultar de un vistazo el dispositivo y su batería en una pastilla horizontal que ahorra espacio, tanto como vista compacta del widget como para la integración en la barra de tareas de P-017.
-
-Criterios de aceptación: el usuario puede cambiar entre la vista actual y la compacta; la pastilla presenta icono, nivel de batería y estado correctos para los tipos de dispositivo admitidos, e indica claramente cuándo no hay conexión o no existe un nivel de batería disponible. El modo compacto y el de barra de tareas comparten esta presentación y evitan tener que mantener abierta la ventana grande.
 
 ### P-026 — Batería de mandos Bluetooth (8BitDo)
 
@@ -90,6 +70,10 @@ Criterios de aceptación: el usuario puede cambiar entre la vista actual y la co
 - [x] P-017 — Widget compacto de dispositivos conectados en la barra de tareas; cerrado por el usuario (`2026-09-25`).
 
 ## Descartados
+
+- P-007 — Matriz de validación Bluetooth; retirado por el usuario (`2026-09-25`): las pruebas reales con hardware son suficientes.
+- P-013 — Agrupación configurable; retirado por el usuario (`2026-09-25`): se mantiene la agrupación por dispositivo físico.
+- P-019 — Vista compacta tipo pastilla; retirado por el usuario (`2026-09-25`): el widget de la barra de tareas ya cubre esa función.
 
 - P-008 — Mejorar preferencias y configuración; retirado del backlog por el usuario (`2026-09-25`).
 - P-009 — Mejorar estados vacíos y accesibilidad; retirado del backlog por el usuario (`2026-09-25`). Lo ya hecho (anillo de foco, estados de Bluetooth y acceso a su configuración) se mantiene.

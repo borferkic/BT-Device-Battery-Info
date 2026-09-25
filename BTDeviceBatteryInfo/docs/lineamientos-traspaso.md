@@ -41,7 +41,7 @@ Este documento permite retomar **BT Device Battery Info** en otra PC sin depende
 - `P-014` permanece abierto en [pendientes](pending.md): la agrupación y selección por identidad física están implementadas, pero falta una validación controlada con hardware multiprotocolo. Comprueba desconexión Classic mientras BLE sigue presente, retirada del endpoint representante, reconexión, recuperación de batería y estabilidad en varios ciclos de reconciliación. No declares resuelto el problema por una compilación o por inspección estática.
 - `P-016` requiere investigar una API oficial para detectar y, si Windows lo permite, activar el adaptador Bluetooth. El botón solicitado no debe prometer éxito sin confirmación de Windows.
 - `P-017` tiene la presentación compacta confirmada por el usuario en una build anterior; siguen pendientes pruebas de DPI y recuperación tras reiniciar Explorer. Consulta el estado actual antes de cerrar la tarea.
-- La validación `tests/BatteryQueries` cubre escenarios del coordinador de batería, pero no sustituye pruebas de WinRT, de agrupación de endpoints ni de interfaz. `dotnet test` sobre la solución no descubre una suite de pruebas de marco convencional según la documentación actual. Registra por separado cada comando ejecutado y cada prueba manual confirmada.
+- El proyecto de pruebas `tests/BTDeviceBatteryInfo.Tests` (xUnit, `dotnet test`) cubre escenarios del coordinador de batería, pero no sustituye pruebas de WinRT, de agrupación de endpoints ni de interfaz. `dotnet test` sobre la solución no descubre una suite de pruebas de marco convencional según la documentación actual. Registra por separado cada comando ejecutado y cada prueba manual confirmada.
 
 ## Publicación y trazabilidad
 

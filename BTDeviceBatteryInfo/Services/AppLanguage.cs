@@ -24,7 +24,7 @@ public static class AppLanguage
     public static void Apply(ResourceDictionary resources, string? language)
     {
         CurrentLanguage = Normalize(language);
-        var strings = new ResourceDictionary { Source = new Uri($"pack://application:,,,/{StringsFolder}Strings.{CurrentLanguage}.xaml") };
+        var strings = new ResourceDictionary { Source = new Uri($"pack://application:,,,/BTDeviceBatteryInfo;component/{StringsFolder}Strings.{CurrentLanguage}.xaml") };
 
         var merged = resources.MergedDictionaries;
         var index = merged.ToList().FindIndex(dictionary =>
@@ -40,7 +40,7 @@ public static class AppLanguage
     {
         var resourceKey = "Str." + key;
         if (System.Windows.Application.Current?.TryFindResource(resourceKey) is string value) return value;
-        _fallback ??= new ResourceDictionary { Source = new Uri($"pack://application:,,,/{StringsFolder}Strings.{English}.xaml") };
+        _fallback ??= new ResourceDictionary { Source = new Uri($"pack://application:,,,/BTDeviceBatteryInfo;component/{StringsFolder}Strings.{English}.xaml") };
         return _fallback[resourceKey] as string ?? key;
     }
 
