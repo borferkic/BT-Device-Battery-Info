@@ -1,46 +1,54 @@
-# BT Device Battery Info
+<div align="center">
+  <img width="96" height="96" alt="BT Device Battery Info icon" src="BTDeviceBatteryInfo/Icon/icon-dark-256.png" />
+
+  <h1>BT Device Battery Info</h1>
+
+  <a href="https://github.com/borferkic/BT-Device-Battery-Info/releases/latest"><img src="https://img.shields.io/github/v/release/borferkic/BT-Device-Battery-Info?style=flat-square&color=2ea44f" alt="Latest release" /></a>
+  <a href="https://github.com/borferkic/BT-Device-Battery-Info/releases"><img src="https://img.shields.io/github/downloads/borferkic/BT-Device-Battery-Info/total?style=flat-square&color=555" alt="Downloads" /></a>
+  <img src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D6?style=flat-square&logo=windows&logoColor=white" alt="Platform: Windows 10 / 11" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT" /></a>
+  <br />
+  <a href="https://paypal.me/borissdk"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=flat-square&logo=paypal&logoColor=white" alt="Donate with PayPal" /></a>
+  <a href="https://patreon.com/borissdk"><img src="https://img.shields.io/badge/Support-Patreon-F96854?style=flat-square&logo=patreon&logoColor=white" alt="Support on Patreon" /></a>
+
+  <p><a href="#english">English</a> | <a href="#espanol">Español</a></p>
+</div>
 
 <a id="english"></a>
 
-Information in: [English](#english) | [Español](#espanol)
+**A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
 Latest release: `0.19` — **Refined themes and Windows light mode**.
 
-BT Device Battery Info is an open-source Windows desktop widget that displays paired or connected Bluetooth devices and their battery level when Windows makes that information available.
+<div align="center">
+  <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
+  <br />
+  <img alt="Taskbar widget with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png" />
+</div>
 
-The application is lightweight and unobtrusive. It runs from the system tray, shows the widget when requested, and updates the device list as Bluetooth devices connect, disconnect, or change state. Disconnected devices are grouped in a collapsible `Disconnected devices` section with a count. The gear button opens `Options`, where you can configure startup, the taskbar widget, and the theme, and open `About`.
+---
 
 ## Features
 
-### Devices and battery
-
-- Detects paired and connected Bluetooth Classic and Bluetooth Low Energy (BLE) devices.
-- Displays each device name, category icon, and connection state.
-- Shows battery percentage through Windows PnP properties or the standard GATT Battery Service when available, and highlights low battery (15 % or less).
-- Groups the endpoints of the same physical device and keeps devices with the same name separate when they have different Windows identities.
-- Shows loading placeholders during the initial scan and a clear message when no devices are available.
-- Provides `Refresh now` in the widget and system tray to refresh devices and trigger a new battery query.
-
-### Taskbar widget
-
-- Places compact battery indicators for connected headphones, keyboards, mice, and controllers on the left side of the Windows taskbar.
-- Lets you choose which device is shown for each category, from `Options` or by clicking an indicator.
-
-### Themes and appearance
-
-- `Elegant Black`: a monochrome dark theme inspired by shadcn/ui, with the Geist Sans font and a subtle gradient on the main window.
-- `System`: follows the Windows 11 look and switches automatically between light and dark mode when Windows changes.
-- The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`.
-- Light and dark app icons that follow the active theme.
-- Keyboard navigation with a visible focus ring.
-
-### Application
-
-- `Options` window with switches for Start with Windows and the taskbar widget, the theme selector, and the device per category.
-- Tray actions to show or hide the widget, enable or disable Start with Windows, and exit the application.
-- Prevents multiple instances from running at the same time and informs the user when the application is already open.
-- `About` window with project information and links to Instagram, Twitch, LinkedIn, PayPal, and Patreon.
-- Stores settings and diagnostic logs in `%LocalAppData%\BTDeviceBatteryInfo`.
+- **Devices and battery**
+  - Detects paired and connected Bluetooth Classic and Bluetooth Low Energy (BLE) devices, with their name, category icon, and connection state.
+  - Shows battery percentage through Windows PnP properties or the standard GATT Battery Service when available.
+  - Groups the endpoints of the same physical device and keeps devices with the same name separate when they have different Windows identities.
+  - Shows loading placeholders during the initial scan and a clear message when no devices are available.
+  - `Refresh now` in the widget and system tray refreshes devices and triggers a new battery query.
+- **Taskbar widget**
+  - Compact battery indicators for connected headphones, keyboards, mice, and controllers on the left side of the Windows taskbar.
+  - Choose which device is shown for each category, from `Options` or by clicking an indicator.
+  - Battery ring states: theme color for a normal level, **red** at 15 % or less, and `–` when the device does not report battery.
+- **Themes**
+  - **Elegant Black**: a monochrome dark theme inspired by shadcn/ui, with the Geist Sans font and a subtle gradient on the main window.
+  - **System**: follows the Windows 11 look and switches automatically between light and dark mode when Windows changes.
+  - The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`, plus light and dark app icons.
+- **Application**
+  - `Options` window with switches for Start with Windows and the taskbar widget, the theme selector, and the device per category.
+  - Tray actions to show or hide the widget, enable or disable Start with Windows, refresh, and exit.
+  - Single instance: the app informs you when it is already running.
+  - Keyboard navigation with a visible focus ring.
 
 ## Screenshots
 
@@ -50,8 +58,6 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 |---|---|
 | ![Main window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png) | ![Options window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/options-window-elegant-black.png) |
 
-![Taskbar widget with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png)
-
 **System theme (Windows 11 dark)**
 
 | Main window | Options |
@@ -60,22 +66,59 @@ The application is lightweight and unobtrusive. It runs from the system tray, sh
 
 ![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
 
+## Quick start
+
+1. Open the [latest release](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest).
+2. Under **Assets**, download `BTDeviceBatteryInfo.exe`.
+3. Run it. The app starts in the system tray; use the tray icon to show the widget.
+
+The release is self-contained and does not require the .NET Desktop Runtime.
+
+> [!IMPORTANT]
+> The executable is not code-signed yet, so Windows SmartScreen may show
+> "Windows protected your PC". Select **More info → Run anyway** to start the app.
+
+> [!NOTE]
+> Battery levels are shown only when the device and Windows report them.
+> Some headphones, keyboards, or older devices may appear without a percentage.
+
 ## Requirements
 
 - Windows 10 version 19041 or later, or Windows 11.
 - A Bluetooth adapter and paired Bluetooth devices. Battery reporting depends on the device, profile, driver, and information exposed by Windows.
 
-## Download
+## How it works
 
-Download the [latest version (0.19)](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest) from GitHub Releases and run `BTDeviceBatteryInfo.exe`.
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│                     Windows Bluetooth stack                      │
+└───────────────────────────────┬──────────────────────────────────┘
+                                ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ BluetoothService — DeviceWatcher (Classic + BLE endpoints)       │
+│ Groups endpoints of the same device by ContainerId               │
+└───────────────┬─────────────────────────────────┬────────────────┘
+                ▼                                 ▼
+┌───────────────────────────────┐ ┌────────────────────────────────┐
+│ PnP / HFP battery (CfgMgr32)  │ │ GATT Battery Service           │
+│ DEVPKEY_Bluetooth_BatteryLevel│ │ 0x180F / 0x2A19 (BLE)          │
+└───────────────┬───────────────┘ └───────────────┬────────────────┘
+                └────────────────┬────────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ MainViewModel — selection, refresh, and state                    │
+└──────┬─────────────────────────┬──────────────────────────┬──────┘
+       ▼                         ▼                          ▼
+  Main window             Taskbar widget               System tray
+```
 
-The release is self-contained and does not require the .NET Desktop Runtime. Developers building from source need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
+Connected devices are prioritized in the list. Some devices may appear without a battery percentage because their hardware or driver does not expose it.
 
-## Support the project
+## Privacy and safety
 
-If you find BT Device Battery Info useful, you can support its development with a donation through [PayPal](https://paypal.me/borissdk). Thank you for helping keep the project moving forward.
-
-[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/borissdk)
+- **Read-only**: the app does not remove pairings, disable adapters, simulate connections, or modify device drivers.
+- **No telemetry**: no analytics and no network connections.
+- **Local data only**: settings and diagnostic logs are stored in `%LocalAppData%\BTDeviceBatteryInfo`.
 
 ## Build and run
 
@@ -99,11 +142,7 @@ dotnet publish ".\BTDeviceBatteryInfo\BTDeviceBatteryInfo.csproj" `
   --output ".\publish\win-x64"
 ```
 
-## How it works
-
-The application uses Windows device enumeration to monitor paired and connected Bluetooth endpoints. Connected devices are prioritized in the list. It combines device information with battery data from Windows PnP properties and, when available, the Bluetooth GATT Battery Service. Some devices may appear without a battery percentage because their hardware or driver does not expose it.
-
-The widget is read-only with respect to the Bluetooth adapter. It does not remove pairings, disable adapters, or modify device drivers.
+Developers need the .NET 8 SDK or Visual Studio 2022 with the .NET desktop development workload.
 
 ## Project structure
 
@@ -112,7 +151,7 @@ The widget is read-only with respect to the Bluetooth adapter. It does not remov
 ├── BT Device Battery Info.slnx
 ├── BTDeviceBatteryInfo/
 │   ├── Models/          # Device and application data models
-│   ├── Services/        # Bluetooth, battery, settings, logging, and startup logic
+│   ├── Services/        # Bluetooth, battery, settings, logging, themes, and startup logic
 │   ├── ViewModels/      # UI state and commands
 │   ├── Resources/       # Shared WPF styles, themes, and fonts
 │   ├── Icon/            # Light and dark application icons
@@ -122,16 +161,18 @@ The widget is read-only with respect to the Bluetooth adapter. It does not remov
 └── LICENSE
 ```
 
-## Open-source license
+## License and contributing
 
 BT Device Battery Info is distributed under the MIT License. See [LICENSE](LICENSE) for the complete license text.
 
-Contributions, bug reports, and improvements are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
-See [CHANGELOG.md](CHANGELOG.md) for release notes.
+Contributions, bug reports, and improvements are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and [CHANGELOG.md](CHANGELOG.md) for release notes. The project documentation is organized in [BTDeviceBatteryInfo/docs/README.md](BTDeviceBatteryInfo/docs/README.md).
 
-## Project documentation
+## Support the project
 
-The project documentation is organized in [BTDeviceBatteryInfo/docs/README.md](BTDeviceBatteryInfo/docs/README.md). It contains the architecture, validation procedure, versioned pending work, and unreleased changes.
+If you like BT Device Battery Info and find it useful, you can support its development through **[PayPal](https://paypal.me/borissdk)** or **[Patreon](https://patreon.com/borissdk)**. Thank you for helping keep the project moving forward.
+
+<a href="https://paypal.me/borissdk"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Donate with PayPal" /></a>
+<a href="https://patreon.com/borissdk"><img src="https://img.shields.io/badge/Support-Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white" alt="Support on Patreon" /></a>
 
 ---
 
@@ -139,43 +180,31 @@ The project documentation is organized in [BTDeviceBatteryInfo/docs/README.md](B
 
 ## Español
 
+**Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
+
 Última versión: `0.19` — **Temas refinados y modo claro de Windows**.
-
-BT Device Battery Info es un widget de escritorio open source para Windows que muestra los dispositivos Bluetooth emparejados o conectados y su nivel de batería cuando Windows proporciona esa información.
-
-La aplicación es ligera y discreta. Funciona desde el área de notificaciones, muestra el widget cuando el usuario lo solicita y actualiza la lista cuando los dispositivos Bluetooth se conectan, desconectan o cambian de estado. Los dispositivos desconectados se agrupan en la sección contraíble `Disconnected devices`, que muestra la cantidad. El engranaje abre `Options`, donde se configuran el inicio con Windows, el widget de la barra de tareas y el tema, y desde donde se accede a `About`.
 
 ### Funcionalidades
 
-#### Dispositivos y batería
-
-- Detecta dispositivos Bluetooth Classic y Bluetooth Low Energy (BLE) emparejados o conectados.
-- Muestra el nombre, el icono de categoría y el estado de conexión de cada dispositivo.
-- Muestra el porcentaje de batería mediante propiedades PnP de Windows o el servicio estándar GATT Battery Service cuando está disponible, y resalta la batería baja (15 % o menos).
-- Agrupa los endpoints de un mismo dispositivo físico y mantiene separados los dispositivos con el mismo nombre cuando tienen identidades diferentes en Windows.
-- Muestra marcadores de carga durante la búsqueda inicial y un mensaje claro cuando no hay dispositivos.
-- Incluye `Refresh now` en el widget y el área de notificaciones para actualizar los dispositivos y volver a consultar la batería.
-
-#### Widget de la barra de tareas
-
-- Muestra indicadores compactos de batería para auriculares, teclados, mouse y controles conectados en el lado izquierdo de la barra de tareas de Windows.
-- Permite elegir qué dispositivo se muestra en cada categoría, desde `Options` o haciendo clic en un indicador.
-
-#### Temas y apariencia
-
-- `Elegant Black`: tema oscuro monocromo inspirado en shadcn/ui, con la fuente Geist Sans y un gradiente sutil en la ventana principal.
-- `System`: sigue el aspecto de Windows 11 y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
-- El tema se aplica a todas las ventanas, tooltips, menús y al widget de la barra de tareas, con vista previa en vivo en `Options`.
-- Iconos de la aplicación en versión clara y oscura según el tema activo.
-- Navegación con teclado con un anillo de foco visible.
-
-#### Aplicación
-
-- Ventana `Options` con interruptores para el inicio con Windows y el widget de la barra de tareas, el selector de tema y el dispositivo por categoría.
-- Opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows y salir de la aplicación.
-- Evita que se ejecuten varias instancias al mismo tiempo y avisa si la aplicación ya está abierta.
-- Ventana `About` con información del proyecto y enlaces a Instagram, Twitch, LinkedIn, PayPal y Patreon.
-- Guarda la configuración y los registros en `%LocalAppData%\BTDeviceBatteryInfo`.
+- **Dispositivos y batería**
+  - Detecta dispositivos Bluetooth Classic y Bluetooth Low Energy (BLE) emparejados o conectados, con su nombre, icono de categoría y estado de conexión.
+  - Muestra el porcentaje de batería mediante propiedades PnP de Windows o el servicio estándar GATT Battery Service cuando está disponible.
+  - Agrupa los endpoints de un mismo dispositivo físico y mantiene separados los dispositivos con el mismo nombre cuando tienen identidades diferentes en Windows.
+  - Muestra marcadores de carga durante la búsqueda inicial y un mensaje claro cuando no hay dispositivos.
+  - `Refresh now`, en el widget y el área de notificaciones, actualiza los dispositivos y vuelve a consultar la batería.
+- **Widget de la barra de tareas**
+  - Indicadores compactos de batería para auriculares, teclados, mouse y controles conectados en el lado izquierdo de la barra de tareas.
+  - Permite elegir qué dispositivo se muestra en cada categoría, desde `Options` o haciendo clic en un indicador.
+  - Estados del anillo: color del tema con nivel normal, **rojo** con 15 % o menos y `–` cuando el dispositivo no reporta batería.
+- **Temas**
+  - **Elegant Black**: tema oscuro monocromo inspirado en shadcn/ui, con la fuente Geist Sans y un gradiente sutil en la ventana principal.
+  - **System**: sigue el aspecto de Windows 11 y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
+  - El tema se aplica a todas las ventanas, tooltips, menús y al widget, con vista previa en vivo en `Options` e iconos de la app en versión clara y oscura.
+- **Aplicación**
+  - Ventana `Options` con interruptores para el inicio con Windows y el widget, el selector de tema y el dispositivo por categoría.
+  - Opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows, actualizar y salir.
+  - Instancia única: avisa si la aplicación ya está abierta.
+  - Navegación con teclado con un anillo de foco visible.
 
 ### Capturas
 
@@ -195,20 +224,32 @@ La aplicación es ligera y discreta. Funciona desde el área de notificaciones, 
 
 ![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
 
+### Inicio rápido
+
+1. Abre la [última versión](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest).
+2. En **Assets**, descarga `BTDeviceBatteryInfo.exe`.
+3. Ejecútalo. La aplicación se inicia en el área de notificaciones; usa su icono para mostrar el widget.
+
+La versión publicada es autocontenida y no requiere el .NET Desktop Runtime.
+
+> [!IMPORTANT]
+> El ejecutable todavía no está firmado, por lo que Windows SmartScreen puede mostrar
+> "Windows protegió tu PC". Selecciona **Más información → Ejecutar de todas formas** para iniciar la aplicación.
+
+> [!NOTE]
+> El nivel de batería solo se muestra cuando el dispositivo y Windows lo reportan.
+> Algunos auriculares, teclados o dispositivos antiguos pueden aparecer sin porcentaje.
+
 ### Requisitos
 
 - Windows 10 versión 19041 o posterior, o Windows 11.
 - Un adaptador Bluetooth y dispositivos Bluetooth emparejados. La información de batería depende del dispositivo, el perfil, el controlador y los datos que Windows exponga.
 
-### Descargar
+### Privacidad y seguridad
 
-Descarga la [última versión (0.19)](https://github.com/borferkic/BT-Device-Battery-Info/releases/latest) desde GitHub Releases y ejecuta `BTDeviceBatteryInfo.exe`.
-
-La versión publicada es autocontenida y no requiere el .NET Desktop Runtime. Para compilar desde el código fuente se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
-
-### Apoya el proyecto
-
-Si BT Device Battery Info te resulta útil, puedes apoyar su desarrollo con una donación mediante [PayPal](https://paypal.me/borissdk). Gracias por ayudar a que el proyecto siga avanzando.
+- **Solo lectura**: la aplicación no elimina emparejamientos, no desactiva adaptadores, no simula conexiones ni modifica controladores.
+- **Sin telemetría**: sin analíticas ni conexiones de red.
+- **Datos locales**: la configuración y los registros se guardan en `%LocalAppData%\BTDeviceBatteryInfo`.
 
 ### Compilar y ejecutar
 
@@ -232,8 +273,17 @@ dotnet publish ".\BTDeviceBatteryInfo\BTDeviceBatteryInfo.csproj" `
   --output ".\publish\win-x64"
 ```
 
-### Licencia
+Para compilar se necesita el .NET 8 SDK o Visual Studio 2022 con la carga de trabajo de desarrollo de escritorio .NET.
+
+### Licencia y contribuciones
 
 BT Device Battery Info se distribuye bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para ver el texto completo.
 
-Consulta [CHANGELOG.md](CHANGELOG.md) para ver las notas de versión.
+Las contribuciones, reportes de errores y mejoras son bienvenidos. Consulta [CONTRIBUTING.md](CONTRIBUTING.md) y [CHANGELOG.md](CHANGELOG.md) para ver las notas de versión.
+
+### Apoya el proyecto
+
+Si te gusta BT Device Battery Info y te resulta útil, puedes apoyar su desarrollo mediante **[PayPal](https://paypal.me/borissdk)** o **[Patreon](https://patreon.com/borissdk)**. Gracias por ayudar a que el proyecto siga avanzando.
+
+<a href="https://paypal.me/borissdk"><img src="https://img.shields.io/badge/Donar-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Donar con PayPal" /></a>
+<a href="https://patreon.com/borissdk"><img src="https://img.shields.io/badge/Apoyar-Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white" alt="Apoyar en Patreon" /></a>
