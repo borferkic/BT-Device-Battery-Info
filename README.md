@@ -69,7 +69,11 @@ Latest release: `0.22` — **Low battery alerts and update notice**.
 |---|---|
 | ![Main window with the System theme](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Options window with the System theme](BTDeviceBatteryInfo/docs/images/options-window.png) |
 
-![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
+**Taskbar widget**
+
+| Elegant Black | System |
+|---|---|
+| ![Taskbar widget with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) |
 
 **Low battery notification**
 
@@ -234,15 +238,17 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 |---|---|
 | ![Ventana principal con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png) | ![Ventana de opciones con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/options-window-elegant-black.png) |
 
-![Widget de la barra de tareas con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png)
-
 **Tema System (Windows 11 oscuro)**
 
 | Ventana principal | Opciones |
 |---|---|
 | ![Ventana principal con el tema System](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Ventana de opciones con el tema System](BTDeviceBatteryInfo/docs/images/options-window.png) |
 
-![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png)
+**Widget de la barra de tareas**
+
+| Elegant Black | System |
+|---|---|
+| ![Widget de la barra de tareas con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) |
 
 **Aviso de batería baja**
 
