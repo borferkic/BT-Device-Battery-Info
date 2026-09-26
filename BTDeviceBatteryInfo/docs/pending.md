@@ -14,7 +14,7 @@ Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto
 
 ## Prioridad alta
 
-Sin pendientes de prioridad alta (P-014 y P-016 cerrados en `0.21`).
+Sin pendientes de prioridad alta.
 
 ## Prioridad media
 
@@ -22,9 +22,20 @@ Sin pendientes de prioridad media.
 
 ## Prioridad baja
 
-Sin pendientes de prioridad baja.
+### P-034 — Overlay de batería sobre los juegos
+
+- [ ] Overlay tipo Discord con la batería de los dispositivos del widget, sobre cualquier juego; posición elegible en 6 puntos: las 4 esquinas y el centro vertical de los lados izquierdo y derecho; una pastilla por dispositivo, apiladas en vertical, semitransparentes y con opacidad ajustable.
+- [ ] Viable sin inyección en juegos en ventana o pantalla completa sin bordes (ventana transparente, siempre encima y que no capture clics); la pantalla completa exclusiva requiere inyectar en el juego y queda fuera por el riesgo con los antitrampas.
 
 ## Completado recientemente
+
+- [x] P-028 — Mandos por `Windows.Gaming.Input` muestran niveles; el valor fijo 100/1000 mWh de los 8BitDo se muestra como no disponible y sin avisos (`0.23`). Cerrado por el usuario sin validación final (`2026-09-25`).
+- [x] P-033 — El aviso de batería baja muestra el icono del tipo de dispositivo en rojo en lugar del triángulo; validado por el usuario (`2026-09-25`).
+- [x] P-032 — En el tema `System` los indicadores de la barra de tareas imitan los botones de Windows 11 (transparentes, sin borde, 4 px, resalte sutil, 40 px); validado por el usuario (`2026-09-25`).
+
+- [x] P-031 — Posición del widget de la barra de tareas (`Left`/`Right`, `Right` por defecto) para convivir con widgets de otras apps; validado por el usuario (`2026-09-25`).
+- [x] P-030 — El tema `System` usa el color de énfasis de Windows y se actualiza al cambiarlo; validado por el usuario (`2026-09-25`).
+- [x] P-029 — Ventana compacta anclada sobre el reloj: pastillas de una línea, contadores con punto verde/rojo, versión en el pie, avisos en rojo y `Options` compacto; validado por el usuario (`2026-09-25`).
 
 - [x] P-027 — Aviso de nuevas versiones al abrir la aplicación con enlace a la release; las builds `dev` se consideran inferiores a su versión. Validado por el usuario y publicado en `0.22` (`2026-09-25`).
 

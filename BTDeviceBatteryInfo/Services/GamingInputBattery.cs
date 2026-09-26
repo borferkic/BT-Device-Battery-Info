@@ -1,3 +1,4 @@
+using BTDeviceBatteryInfo.Models;
 using Windows.Devices.Enumeration;
 using Windows.Devices.HumanInterfaceDevice;
 using Windows.Gaming.Input;
@@ -11,6 +12,7 @@ namespace BTDeviceBatteryInfo.Services;
 /// </summary>
 internal static class GamingInputBattery
 {
+    public const string SourceName = "Windows.Gaming.Input";
     private const string ContainerIdProperty = "System.Devices.ContainerId";
     private const string VendorIdProperty = "System.DeviceInterface.Hid.VendorId";
     private const string ProductIdProperty = "System.DeviceInterface.Hid.ProductId";
@@ -55,9 +57,36 @@ internal static class GamingInputBattery
         if (report?.RemainingCapacityInMilliwattHours is not int remaining
             || report.FullChargeCapacityInMilliwattHours is not int full || full <= 0)
             return BatteryQueryValue.Unavailable;
+        if (IsPlaceholderReport(remaining, full) && IsEightBitDo(await GetContainerNameAsync(containerId)))
+            return BatteryQueryValue.Unavailable;
 
-        var percent = (int)Math.Round(Math.Clamp(remaining * 100.0 / full, 0, 100));
+        // X-input controllers only report coarse ranges; keep the level, not a made-up percentage.
+        var level = BatteryLevels.FromFraction(Math.Clamp((double)remaining / full, 0, 1));
         var charging = report.Status == Windows.System.Power.BatteryStatus.Charging ? ", charging" : "";
-        return new BatteryQueryValue(percent, $"Windows.Gaming.Input{charging}");
+        return new BatteryQueryValue(BatteryLevels.RepresentativePercent(level), $"{SourceName} (level {level}, {remaining}/{full} mWh{charging})");
+    }
+
+    /// <summary>
+    /// 8BitDo controllers in X-input mode report a fixed 100/1000 mWh whether they are empty or fully charged,
+    /// so that value says nothing about the battery and is treated as unavailable. They identify as an
+    /// Xbox One S controller, so the rule is limited to 8BitDo devices by name: a real Xbox controller can
+    /// report the same value as a genuine low level.
+    /// </summary>
+    internal static bool IsPlaceholderReport(int remaining, int full) => remaining == 100 && full == 1000;
+
+    internal static bool IsEightBitDo(string? deviceName) =>
+        deviceName?.Contains("8BitDo", StringComparison.OrdinalIgnoreCase) == true;
+
+    private static async Task<string?> GetContainerNameAsync(string containerId)
+    {
+        try
+        {
+            var container = await DeviceInformation.CreateFromIdAsync($"{{{containerId.Trim('{', '}')}}}", [], DeviceInformationKind.DeviceContainer);
+            return container.Name;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

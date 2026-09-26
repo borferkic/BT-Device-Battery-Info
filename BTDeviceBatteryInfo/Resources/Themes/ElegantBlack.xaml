@@ -47,6 +47,7 @@
     <SolidColorBrush x:Key="ShadcnWidgetTrackBrush" Color="#FF27272A" />
     <SolidColorBrush x:Key="ShadcnWidgetRingBrush" Color="#FFEDEDEF" />
     <CornerRadius x:Key="ShadcnWidgetCornerRadius">6</CornerRadius>
+    <sys:Double x:Key="ShadcnWidgetButtonHeight">36</sys:Double>
     <!-- Main window surface: very subtle top-left to bottom-right gradient. -->
     <LinearGradientBrush x:Key="ShadcnWindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#FF18181B" Offset="0" />
@@ -58,4 +59,6 @@
     <!-- Device icons: Lucide paths in Elegant Black, Windows glyphs (Segoe Fluent Icons) in System. -->
     <Visibility x:Key="ShadcnLucideDeviceIconVisibility">Visible</Visibility>
     <Visibility x:Key="ShadcnSystemDeviceIconVisibility">Collapsed</Visibility>
+    <SolidColorBrush x:Key="ShadcnSuccessTintBrush" Color="#2622C55E" />
+    <SolidColorBrush x:Key="ShadcnSuccessTintHoverBrush" Color="#4022C55E" />
 </ResourceDictionary>

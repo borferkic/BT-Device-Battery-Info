@@ -177,6 +177,25 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Update notice: status (success) color so it stands out in both themes. -->
+    <Style x:Key="ShadcnUpdateButton" TargetType="Button" BasedOn="{StaticResource ShadcnButtonBase}">
+        <Setter Property="Height" Value="22" />
+        <Setter Property="Padding" Value="8,0" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource ShadcnSuccessBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShadcnSuccessBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ShadcnSuccessTintBrush}" />
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True" />
+                    <Condition Property="IsEnabled" Value="True" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource ShadcnSuccessTintHoverBrush}" />
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+
     <!-- shadcn Switch / Windows 11 toggle, used for on/off options. -->
     <Style x:Key="ShadcnSwitch" TargetType="CheckBox">
         <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
@@ -353,7 +372,7 @@
                                       Cursor="Hand">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
-                                    <Border x:Name="HeaderBorder" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" Padding="8,7">
+                                    <Border x:Name="HeaderBorder" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" Padding="8,7,0,7">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />

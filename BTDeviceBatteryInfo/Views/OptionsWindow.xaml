@@ -2,9 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:icons="clr-namespace:BTDeviceBatteryInfo.Services"
-        Title="{DynamicResource Str.Options.Title}" Icon="{DynamicResource ShadcnAppWindowIcon}" Width="444" Height="628"
-        MinWidth="444" MaxWidth="444" MinHeight="628" MaxHeight="628"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Title="{DynamicResource Str.Options.Title}" Icon="{DynamicResource ShadcnAppWindowIcon}" Width="444" SizeToContent="Height"
+        MinWidth="444" MaxWidth="444"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
         WindowStyle="None" ResizeMode="NoResize"
         Background="Transparent" AllowsTransparency="True"
         FontFamily="{DynamicResource AppFontFamily}">
@@ -50,7 +50,7 @@
             </Setter>
         </Style>
         <Style x:Key="OptionsPickerStyle" TargetType="ComboBox">
-            <Setter Property="Height" Value="34"/>
+            <Setter Property="Height" Value="30"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Padding" Value="12,0"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -127,7 +127,7 @@
     <Grid Margin="12">
     <Border Style="{StaticResource ShadcnWindowShadow}"/>
     <Border Style="{StaticResource ShadcnMainWindowBorder}">
-        <Grid Margin="20,16">
+        <Grid Margin="16,12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -135,35 +135,53 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Str.Options.Title}" Style="{StaticResource ShadcnMainTitle}"/>
-                    <TextBlock Text="{DynamicResource Str.Options.Subtitle}" Style="{StaticResource ShadcnMutedText}" Margin="0,3,0,0"/>
+                    <TextBlock Text="{DynamicResource Str.Options.Subtitle}" Style="{StaticResource ShadcnMutedText}" Margin="0,2,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="1" ToolTip="{DynamicResource Str.Options.Close}" Style="{StaticResource ShadcnIconButton}" Click="Cancel_Click">
                     <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
                 </Button>
             </Grid>
-            <ScrollViewer Grid.Row="1" Margin="0,16,0,12" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer Grid.Row="1" Margin="0,12,0,10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <CheckBox x:Name="StartWithWindowsCheckBox" Content="{DynamicResource Str.Options.StartWithWindows}" Style="{StaticResource ShadcnSwitch}" Margin="4,4,0,12" HorizontalAlignment="Left"/>
-                <CheckBox x:Name="TaskbarWidgetCheckBox" Content="{DynamicResource Str.Options.TaskbarWidget}" Style="{StaticResource ShadcnSwitch}" Margin="4,0,0,12" HorizontalAlignment="Left"/>
-                <Grid Margin="4,0,0,16">
+                <CheckBox x:Name="StartWithWindowsCheckBox" Content="{DynamicResource Str.Options.StartWithWindows}" Style="{StaticResource ShadcnSwitch}" Margin="4,2,0,8" HorizontalAlignment="Left"/>
+                <Grid Margin="4,0,0,8">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <CheckBox x:Name="TaskbarWidgetCheckBox" Content="{DynamicResource Str.Options.TaskbarWidget}" Style="{StaticResource ShadcnSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="TaskbarPositionComboBox" Grid.Column="1" Width="84" Style="{StaticResource OptionsPickerStyle}"
+                              ToolTip="{DynamicResource Str.Options.TaskbarPosition}" IsEnabled="{Binding IsChecked, ElementName=TaskbarWidgetCheckBox}">
+                        <ComboBoxItem Content="{DynamicResource Str.Options.PositionLeft}" Tag="Left" Style="{StaticResource OptionsPickerItemStyle}"/>
+                        <ComboBoxItem Content="{DynamicResource Str.Options.PositionRight}" Tag="Right" Style="{StaticResource OptionsPickerItemStyle}"/>
+                    </ComboBox>
+                </Grid>
+                <Grid Margin="4,0,0,12">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <CheckBox x:Name="LowBatteryCheckBox" Content="{DynamicResource Str.Options.LowBatteryNotifications}" Style="{StaticResource ShadcnSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                     <ComboBox x:Name="LowBatteryThresholdComboBox" Grid.Column="1" Width="84" Style="{StaticResource OptionsPickerStyle}"
                               ToolTip="{DynamicResource Str.Options.LowBatteryThreshold}" IsEnabled="{Binding IsChecked, ElementName=LowBatteryCheckBox}"/>
                 </Grid>
-                <TextBlock Text="{DynamicResource Str.Options.Theme}" Style="{StaticResource ShadcnSectionTitle}" Margin="0,0,0,6"/>
-                <ComboBox x:Name="ThemeComboBox" Style="{StaticResource OptionsPickerStyle}"
-                          SelectionChanged="ThemeComboBox_SelectionChanged">
-                    <ComboBoxItem Content="System" Tag="System"/>
-                    <ComboBoxItem Content="Elegant Black" Tag="Elegant Black"/>
-                </ComboBox>
-                <TextBlock Text="{DynamicResource Str.Options.Language}" Style="{StaticResource ShadcnSectionTitle}" Margin="0,16,0,6"/>
-                <ComboBox x:Name="LanguageComboBox" Style="{StaticResource OptionsPickerStyle}"
-                          SelectionChanged="LanguageComboBox_SelectionChanged">
-                    <ComboBoxItem Content="English" Tag="en"/>
-                    <ComboBoxItem Content="Español" Tag="es"/>
-                </ComboBox>
-                <TextBlock Text="{DynamicResource Str.Options.TaskbarDevices}" Style="{StaticResource ShadcnSectionTitle}" Margin="0,16,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="{DynamicResource Str.Options.Theme}" Style="{StaticResource ShadcnSectionTitle}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="ThemeComboBox" Style="{StaticResource OptionsPickerStyle}"
+                                  SelectionChanged="ThemeComboBox_SelectionChanged">
+                            <ComboBoxItem Content="System" Tag="System"/>
+                            <ComboBoxItem Content="Elegant Black" Tag="Elegant Black"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                        <TextBlock Text="{DynamicResource Str.Options.Language}" Style="{StaticResource ShadcnSectionTitle}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="LanguageComboBox" Style="{StaticResource OptionsPickerStyle}"
+                                  SelectionChanged="LanguageComboBox_SelectionChanged">
+                            <ComboBoxItem Content="English" Tag="en"/>
+                            <ComboBoxItem Content="Español" Tag="es"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="{DynamicResource Str.Options.TaskbarDevices}" Style="{StaticResource ShadcnSectionTitle}" Margin="0,12,0,4"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -189,7 +207,7 @@
                         </StackPanel>
                         <ComboBox x:Name="KeyboardComboBox" Style="{StaticResource OptionsPickerStyle}" ToolTip="{DynamicResource Str.Options.ChooseKeyboard}"/>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,8,0">
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,8,8,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
                             <Path Data="{x:Static icons:LucideIcons.Gamepad}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}"/>
                             <TextBlock Text="&#xE7FC;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="14" Foreground="{DynamicResource ShadcnMutedBrush}" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}"/>
@@ -197,7 +215,7 @@
                         </StackPanel>
                         <ComboBox x:Name="GameControllerComboBox" Style="{StaticResource OptionsPickerStyle}" ToolTip="{DynamicResource Str.Options.ChooseController}"/>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,12,0,0">
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,8,0,0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
                             <Path Data="{x:Static icons:LucideIcons.Mouse}" Width="15" Height="15" Stretch="Uniform" Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}"/>
                             <TextBlock Text="&#xE962;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="14" Foreground="{DynamicResource ShadcnMutedBrush}" VerticalAlignment="Center" Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}"/>
@@ -206,7 +224,7 @@
                         <ComboBox x:Name="MouseComboBox" Style="{StaticResource OptionsPickerStyle}" ToolTip="{DynamicResource Str.Options.ChooseMouse}"/>
                     </StackPanel>
                 </Grid>
-                <Button Style="{StaticResource ShadcnButtonBase}" HorizontalAlignment="Center" Margin="0,16,0,4" Click="About_Click">
+                <Button Style="{StaticResource ShadcnButtonBase}" HorizontalAlignment="Center" Margin="0,12,0,2" Click="About_Click">
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{x:Static icons:LucideIcons.Info}" Width="15" Height="15" Stretch="Uniform"
                               Stroke="{DynamicResource ShadcnMutedBrush}" StrokeThickness="1.8"

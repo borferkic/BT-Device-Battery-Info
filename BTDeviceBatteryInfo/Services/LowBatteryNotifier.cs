@@ -1,7 +1,8 @@
 namespace BTDeviceBatteryInfo.Services;
 
 /// <summary>A device reading used to decide low-battery alerts.</summary>
-public sealed record LowBatteryReading(string DeviceId, string Name, bool IsConnected, int? BatteryPercent);
+/// <remarks><paramref name="IsLevelLow"/> is set for coarse level sources, which ignore the percentage threshold.</remarks>
+public sealed record LowBatteryReading(string DeviceId, string Name, bool IsConnected, int? BatteryPercent, bool? IsLevelLow = null);
 
 /// <summary>
 /// Decides when to raise a low-battery alert: once per device when it drops to or below the threshold,
@@ -22,7 +23,8 @@ public sealed class LowBatteryNotifier
         {
             if (!reading.IsConnected || reading.BatteryPercent is not int battery) continue;
 
-            if (battery > threshold)
+            var isLow = reading.IsLevelLow ?? battery <= threshold;
+            if (!isLow)
             {
                 // Recharged above the threshold: the next drop alerts again.
                 _alerted.Remove(reading.DeviceId);

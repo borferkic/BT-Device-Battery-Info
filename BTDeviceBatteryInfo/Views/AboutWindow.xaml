@@ -7,7 +7,7 @@
         Width="424" Height="554"
         MinWidth="424" MaxWidth="424"
         MinHeight="554" MaxHeight="554"
-        WindowStartupLocation="CenterOwner"
+        WindowStartupLocation="CenterScreen"
         ShowInTaskbar="False"
         WindowStyle="None" AllowsTransparency="True"
         ResizeMode="NoResize"
@@ -38,7 +38,7 @@
             <StackPanel Grid.Row="1" Margin="0,24,0,0">
                 <Image Source="{DynamicResource ShadcnAppIconImage}" Width="76" Height="76" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,12" RenderOptions.BitmapScalingMode="HighQuality" />
                 <TextBlock Text="BT Device Battery Info" Foreground="{DynamicResource ShadcnForegroundBrush}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                <TextBlock Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"><Run Text="{DynamicResource Str.About.VersionWord}"/> <Run Text="0.22"/></TextBlock>
+                <TextBlock Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,0"><Run Text="{DynamicResource Str.About.VersionWord}"/> <Run x:Name="VersionRun"/></TextBlock>
             </StackPanel>
 
             <StackPanel Grid.Row="2" Margin="0,16,0,0">

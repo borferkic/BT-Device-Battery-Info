@@ -102,7 +102,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public int DeviceCount => ConnectedDeviceCount + DisconnectedDeviceCount;
     public int ConnectedDeviceCount => _connectedDevices.Count;
     public int DisconnectedDeviceCount => _disconnectedDevices.Count;
-    public string DisconnectedDeviceCountText => DisconnectedDeviceCount.ToString();
+    public string DisconnectedDeviceCountText => DisconnectedDeviceCount == 1 ? AppLanguage.Get("Main.DeviceCountOne") : AppLanguage.Format("Main.DeviceCountMany", DisconnectedDeviceCount);
+    public string AppVersionText { get; } = "v" + UpdateChecker.CurrentVersion;
     public Visibility DisconnectedDevicesVisibility => DisconnectedDeviceCount > 0 ? Visibility.Visible : Visibility.Collapsed;
     public int VisibleDeviceRowCount => ConnectedDeviceCount + (DisconnectedDeviceCount > 0 ? 1 : 0) + (IsDisconnectedDevicesExpanded ? DisconnectedDeviceCount : 0);
     public bool IsDisconnectedDevicesExpanded
@@ -116,7 +117,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             OnPropertyChanged(nameof(VisibleDeviceRowCount));
         }
     }
-    public string DeviceCountText => DeviceCount == 1 ? AppLanguage.Get("Main.DeviceCountOne") : AppLanguage.Format("Main.DeviceCountMany", DeviceCount);
+    public string DeviceCountText => ConnectedDeviceCount == 1 ? AppLanguage.Get("Main.DeviceCountOne") : AppLanguage.Format("Main.DeviceCountMany", ConnectedDeviceCount);
     /// <summary>Localized list message. The setter takes a localization key; unknown keys (for example exception text) are shown as-is.</summary>
     public string DeviceListMessage
     {
@@ -327,7 +328,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         var index = 0;
         foreach (var device in devices)
         {
-            var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent, device.Category, device.PhysicalDeviceId);
+            var item = new BluetoothDeviceItem(device.Name, device.IsConnected, device.BatteryPercent, device.Category, device.PhysicalDeviceId, device.BatteryLevel);
             if (index == target.Count) target.Add(item);
             else if (target[index] != item) target[index] = item;
             index++;
@@ -483,6 +484,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         OnPropertyChanged(nameof(RefreshButtonText));
         OnPropertyChanged(nameof(DeviceCountText));
         OnPropertyChanged(nameof(UpdateAvailableText));
+        OnPropertyChanged(nameof(DisconnectedDeviceCountText));
         NotifyRadioState();
         // Device cards compute their texts on access; replace each item so the bindings re-read them.
         foreach (var collection in new[] { _connectedDevices, _disconnectedDevices })
@@ -514,11 +516,24 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 }
 
-public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category, string PhysicalDeviceId)
+public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category, string PhysicalDeviceId,
+    BatteryLevel? BatteryLevel = null)
 {
     public string ConnectionText => AppLanguage.Get(IsConnected ? "Device.Connected" : "Device.Disconnected");
     public bool HasBattery => BatteryPercent is not null;
-    public string BatteryText => BatteryPercent is int battery ? AppLanguage.Format("Device.Battery", battery) : AppLanguage.Get("Device.BatteryUnavailable");
-    public bool IsBatteryLow => BatteryPercent <= 15;
-    public double BatteryFillWidth => BatteryPercent switch { null => 0, <= 15 => 3, <= 50 => 7, <= 75 => 11, _ => 15 };
+    /// <summary>Localized name of a coarse level (Empty/Low/Medium/Full).</summary>
+    public string? BatteryLevelName => BatteryLevel is Models.BatteryLevel level ? AppLanguage.Get("Battery.Level." + level) : null;
+    public string BatteryText => BatteryLevelName is string levelName
+        ? AppLanguage.Format("Device.BatteryLevel", levelName)
+        : BatteryPercent is int battery ? AppLanguage.Format("Device.Battery", battery) : AppLanguage.Get("Device.BatteryUnavailable");
+    public bool IsBatteryLow => BatteryLevel is Models.BatteryLevel level ? BatteryLevels.IsLow(level) : BatteryPercent <= 15;
+    public string BatteryShortText => BatteryLevelName ?? (BatteryPercent is int battery ? $"{battery}%" : "—");
+    public double BatteryFillWidth => BatteryLevel switch
+    {
+        Models.BatteryLevel.Empty => 1,
+        Models.BatteryLevel.Low => 4,
+        Models.BatteryLevel.Medium => 8,
+        Models.BatteryLevel.Full => 15,
+        _ => BatteryPercent switch { null => 0, <= 15 => 3, <= 50 => 7, <= 75 => 11, _ => 15 }
+    };
 }

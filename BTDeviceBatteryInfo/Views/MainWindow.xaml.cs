@@ -10,9 +10,6 @@ namespace BTDeviceBatteryInfo;
 
 public partial class MainWindow : Window, IDisposable
 {
-    private const double DefaultWindowHeight = 320;
-    private const double AdditionalDeviceHeight = 72;
-    private const int VisibleDeviceSlots = 2;
 
     private readonly AppSettings _settings;
     private readonly BluetoothService _bluetooth;
@@ -39,7 +36,8 @@ public partial class MainWindow : Window, IDisposable
         ThemeManager.ThemeChanged += OnThemeChanged;
         _bluetooth = bluetooth;
         _logger = logger;
-        RestorePlacement();
+        SizeChanged += (_, _) => AnchorToWorkArea();
+        SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;
         Topmost = settings.AlwaysOnTop;
         Opacity = settings.Opacity;
 
@@ -53,7 +51,7 @@ public partial class MainWindow : Window, IDisposable
         {
             try
             {
-                UpdateWindowHeight();
+                AnchorToWorkArea();
                 await ViewModel.InitializeAsync();
                 CreateTrayIcon();
                 _taskbarWidget.SetEnabled(_settings.TaskbarWidgetEnabled);
@@ -62,11 +60,6 @@ public partial class MainWindow : Window, IDisposable
             {
                 await HandleBackgroundErrorAsync("Window initialization", ex);
             }
-        };
-        LocationChanged += (_, _) =>
-        {
-            _settings.Left = Left;
-            _settings.Top = Top;
         };
         Closing += OnClosing;
     }
@@ -107,48 +100,33 @@ public partial class MainWindow : Window, IDisposable
             ContextMenuStrip = menu,
             Visible = true
         };
-        _tray.DoubleClick += (_, _) => ShowWidget();
+        _tray.DoubleClick += (_, _) => ToggleWidgetFromTray();
         UpdateWidgetMenuItem();
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(MainViewModel.DeviceCount) or nameof(MainViewModel.VisibleDeviceRowCount))
-            Dispatcher.BeginInvoke(UpdateWindowHeight);
     }
 
-    private void UpdateWindowHeight()
+    /// <summary>
+    /// Keeps the window in the bottom-right corner of the primary work area (above the clock when the taskbar is at the
+    /// bottom). The window grows upwards because its height follows the content; the transparent shadow margin
+    /// leaves a small gap from the screen edge and the taskbar.
+    /// </summary>
+    private void AnchorToWorkArea()
     {
-        var extraDevices = Math.Max(0, ViewModel.VisibleDeviceRowCount - VisibleDeviceSlots);
-        var targetHeight = DefaultWindowHeight + extraDevices * AdditionalDeviceHeight;
-        Height = targetHeight;
+        var workArea = SystemParameters.WorkArea;
+        var width = ActualWidth > 0 ? ActualWidth : Width;
+        var height = ActualHeight > 0 ? ActualHeight : Height;
+        MaxHeight = workArea.Height;
+        Left = workArea.Right - width;
+        Top = Math.Max(workArea.Top, workArea.Bottom - height);
     }
 
-    private void RestorePlacement()
+    private void OnSystemParametersChanged(object? sender, PropertyChangedEventArgs e)
     {
-        var right = SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth;
-        var bottom = SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight;
-        if (_settings.Left < SystemParameters.VirtualScreenLeft || _settings.Top < SystemParameters.VirtualScreenTop || _settings.Left > right - 50 || _settings.Top > bottom - 50)
-        {
-            Left = SystemParameters.WorkArea.Left + (SystemParameters.WorkArea.Width - Width) / 2;
-            Top = SystemParameters.WorkArea.Top + (SystemParameters.WorkArea.Height - Height) / 2;
-        }
-        else
-        {
-            Left = _settings.Left;
-            Top = _settings.Top;
-        }
-    }
-
-    private async void DragWindow(object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton != System.Windows.Input.MouseButton.Left) return;
-        try
-        {
-            DragMove();
-            await SettingsService.SaveAsync(_settings);
-        }
-        catch (Exception ex) { await HandleBackgroundErrorAsync("Window placement save", ex); }
+        if (e.PropertyName == nameof(SystemParameters.WorkArea))
+            Dispatcher.BeginInvoke(AnchorToWorkArea);
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e)
@@ -265,13 +243,23 @@ public partial class MainWindow : Window, IDisposable
     private void OnConnectedDevicesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
         var readings = ViewModel.ConnectedDevices.Select(device =>
-            new LowBatteryReading(device.PhysicalDeviceId, device.Name, device.IsConnected, device.BatteryPercent));
+            new LowBatteryReading(device.PhysicalDeviceId, device.Name, device.IsConnected, device.BatteryPercent,
+                device.BatteryLevel is Models.BatteryLevel level ? BatteryLevels.IsLow(level) : null));
         var alerts = _lowBatteryNotifier.Evaluate(readings, _settings.LowBatteryNotificationsEnabled,
             LowBatteryNotifier.NormalizeThreshold(_settings.LowBatteryThreshold));
         foreach (var alert in alerts)
         {
-            _tray?.ShowBalloonTip(5000, AppLanguage.Get("Notify.LowBatteryTitle"),
-                AppLanguage.Format("Notify.LowBatteryText", alert.Name, alert.BatteryPercent ?? 0), Forms.ToolTipIcon.Warning);
+            var title = AppLanguage.Get("Notify.LowBatteryTitle");
+            var text = alert.IsLevelLow is null
+                ? AppLanguage.Format("Notify.LowBatteryText", alert.Name, alert.BatteryPercent ?? 0)
+                : AppLanguage.Format("Notify.LowBatteryLevelText", alert.Name);
+            var category = ViewModel.ConnectedDevices.FirstOrDefault(device => device.PhysicalDeviceId == alert.DeviceId)?.Category
+                ?? Models.BluetoothDeviceCategory.Unknown;
+            if (_tray is not null && !TrayBalloon.TryShow(_tray, title, text, category, out var error))
+            {
+                _tray.ShowBalloonTip(5000, title, text, Forms.ToolTipIcon.Warning);
+                _ = _logger.LogAsync($"Device icon balloon failed, used the warning icon instead: {error}");
+            }
             _ = _logger.LogAsync($"Low battery notification: {alert.Name} at {alert.BatteryPercent}%.");
         }
     }
@@ -336,6 +324,7 @@ public partial class MainWindow : Window, IDisposable
 
     public void Dispose()
     {
+        SystemParameters.StaticPropertyChanged -= OnSystemParametersChanged;
         AppLanguage.LanguageChanged -= OnLanguageChanged;
         ThemeManager.ThemeChanged -= OnThemeChanged;
         ThemeManager.StopListening();

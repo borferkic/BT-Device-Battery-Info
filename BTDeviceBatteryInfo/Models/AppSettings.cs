@@ -18,6 +18,8 @@ public sealed class AppSettings
     public string Language { get; set; } = "en";
     public bool LowBatteryNotificationsEnabled { get; set; } = true;
     public int LowBatteryThreshold { get; set; } = 15;
+    /// <summary>"Left" (after the Windows widgets button) or "Right" (next to the notification area).</summary>
+    public string TaskbarWidgetPosition { get; set; } = "Right";
     public double Opacity { get; set; } = .95;
     public double Left { get; set; } = 80;
     public double Top { get; set; } = 80;

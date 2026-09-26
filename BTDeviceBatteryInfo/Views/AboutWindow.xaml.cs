@@ -9,6 +9,7 @@ public partial class AboutWindow : Window
     public AboutWindow()
     {
         InitializeComponent();
+        VersionRun.Text = Services.UpdateChecker.CurrentVersion;
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();

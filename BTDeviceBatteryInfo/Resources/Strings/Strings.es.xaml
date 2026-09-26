@@ -4,16 +4,15 @@
     <!-- User interface strings (Spanish). Logs stay in English. -->
     <sys:String x:Key="Str.Main.Subtitle">Resumen de dispositivos Bluetooth</sys:String>
     <sys:String x:Key="Str.Main.YourDevices">Tus dispositivos</sys:String>
-    <sys:String x:Key="Str.Main.DisconnectedDevices">Dispositivos desconectados</sys:String>
+    <sys:String x:Key="Str.Main.DisconnectedDevices">Desconectados</sys:String>
     <sys:String x:Key="Str.Main.Loading">Cargando dispositivos...</sys:String>
-    <sys:String x:Key="Str.Main.Beta">BETA</sys:String>
     <sys:String x:Key="Str.Main.RefreshNow">Actualizar</sys:String>
     <sys:String x:Key="Str.Main.Refreshing">Actualizando…</sys:String>
     <sys:String x:Key="Str.Main.MinimizeToTray">Minimizar a la bandeja</sys:String>
     <sys:String x:Key="Str.Main.Options">Opciones</sys:String>
     <sys:String x:Key="Str.Main.Exit">Salir</sys:String>
-    <sys:String x:Key="Str.Main.DeviceCountOne">● 1 dispositivo Bluetooth</sys:String>
-    <sys:String x:Key="Str.Main.DeviceCountMany">● {0} dispositivos Bluetooth</sys:String>
+    <sys:String x:Key="Str.Main.DeviceCountOne">1 dispositivo</sys:String>
+    <sys:String x:Key="Str.Main.DeviceCountMany">{0} dispositivos</sys:String>
     <sys:String x:Key="Str.Main.Searching">Buscando dispositivos Bluetooth emparejados o conectados…</sys:String>
     <sys:String x:Key="Str.Main.NoDevices">No se encontraron dispositivos Bluetooth emparejados o conectados.</sys:String>
     <sys:String x:Key="Str.Main.QueryError">No se pudieron consultar los dispositivos Bluetooth.</sys:String>
@@ -87,4 +86,13 @@
     <sys:String x:Key="Str.Notify.LowBatteryText">{0} tiene {1} % de batería.</sys:String>
     <sys:String x:Key="Str.Update.Available">Actualización {0} disponible</sys:String>
     <sys:String x:Key="Str.Update.Tooltip">Abrir la página de descarga en GitHub</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Empty">Vacía</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Low">Baja</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Medium">Media</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Full">Llena</sys:String>
+    <sys:String x:Key="Str.Device.BatteryLevel">Nivel de batería: {0} (aproximado, informado por Windows)</sys:String>
+    <sys:String x:Key="Str.Notify.LowBatteryLevelText">{0} tiene un nivel de batería bajo.</sys:String>
+    <sys:String x:Key="Str.Options.TaskbarPosition">Posición del widget en la barra de tareas</sys:String>
+    <sys:String x:Key="Str.Options.PositionLeft">Izquierda</sys:String>
+    <sys:String x:Key="Str.Options.PositionRight">Derecha</sys:String>
 </ResourceDictionary>

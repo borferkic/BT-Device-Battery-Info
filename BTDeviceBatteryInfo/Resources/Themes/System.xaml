@@ -40,17 +40,20 @@
     <DropShadowEffect x:Key="ShadcnShadowSm" Color="Black" BlurRadius="2" ShadowDepth="1" Direction="270" Opacity="0.25" />
     <DropShadowEffect x:Key="ShadcnShadowMd" Color="Black" BlurRadius="16" ShadowDepth="4" Direction="270" Opacity="0.35" />
     <DropShadowEffect x:Key="ShadcnShadowLg" Color="Black" BlurRadius="32" ShadowDepth="8" Direction="270" Opacity="0.45" />
-    <SolidColorBrush x:Key="ShadcnWidgetBrush" Color="#FF2D3037" />
-    <SolidColorBrush x:Key="ShadcnWidgetHoverBrush" Color="#FF383B42" />
-    <SolidColorBrush x:Key="ShadcnWidgetBorderBrush" Color="#FF4B4E54" />
+    <SolidColorBrush x:Key="ShadcnWidgetBrush" Color="#00FFFFFF" />
+    <SolidColorBrush x:Key="ShadcnWidgetHoverBrush" Color="#15FFFFFF" />
+    <SolidColorBrush x:Key="ShadcnWidgetBorderBrush" Color="#00FFFFFF" />
     <SolidColorBrush x:Key="ShadcnWidgetForegroundBrush" Color="#FFF3F3F3" />
     <SolidColorBrush x:Key="ShadcnWidgetTrackBrush" Color="#FF6E7177" />
     <SolidColorBrush x:Key="ShadcnWidgetRingBrush" Color="#FF6CCB5F" />
-    <CornerRadius x:Key="ShadcnWidgetCornerRadius">16</CornerRadius>
+    <CornerRadius x:Key="ShadcnWidgetCornerRadius">4</CornerRadius>
+    <sys:Double x:Key="ShadcnWidgetButtonHeight">40</sys:Double>
     <SolidColorBrush x:Key="ShadcnWindowBackgroundBrush" Color="#FF202020" />
     <BitmapImage x:Key="ShadcnAppIconImage" UriSource="pack://application:,,,/Assets/Icons/icon-dark-128.png" />
     <BitmapImage x:Key="ShadcnAppWindowIcon" UriSource="pack://application:,,,/Assets/Icons/Icon-dark.ico" />
     <!-- Device icons: Lucide paths in Elegant Black, Windows glyphs (Segoe Fluent Icons) in System. -->
     <Visibility x:Key="ShadcnLucideDeviceIconVisibility">Collapsed</Visibility>
     <Visibility x:Key="ShadcnSystemDeviceIconVisibility">Visible</Visibility>
+    <SolidColorBrush x:Key="ShadcnSuccessTintBrush" Color="#266CCB5F" />
+    <SolidColorBrush x:Key="ShadcnSuccessTintHoverBrush" Color="#406CCB5F" />
 </ResourceDictionary>

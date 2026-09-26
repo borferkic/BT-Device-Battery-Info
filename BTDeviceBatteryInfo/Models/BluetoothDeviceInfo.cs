@@ -7,4 +7,5 @@ public sealed record BluetoothDeviceInfo(
     bool IsConnected,
     int? BatteryPercent,
     string PhysicalDeviceId,
-    BluetoothDeviceCategory Category = BluetoothDeviceCategory.Unknown);
+    BluetoothDeviceCategory Category = BluetoothDeviceCategory.Unknown,
+    BatteryLevel? BatteryLevel = null);

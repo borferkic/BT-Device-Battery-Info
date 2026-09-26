@@ -4,16 +4,15 @@
     <!-- User interface strings (English, default and fallback). Logs stay in English. -->
     <sys:String x:Key="Str.Main.Subtitle">Bluetooth device overview</sys:String>
     <sys:String x:Key="Str.Main.YourDevices">Your devices</sys:String>
-    <sys:String x:Key="Str.Main.DisconnectedDevices">Disconnected devices</sys:String>
+    <sys:String x:Key="Str.Main.DisconnectedDevices">Disconnected</sys:String>
     <sys:String x:Key="Str.Main.Loading">Loading devices...</sys:String>
-    <sys:String x:Key="Str.Main.Beta">BETA</sys:String>
     <sys:String x:Key="Str.Main.RefreshNow">Refresh now</sys:String>
     <sys:String x:Key="Str.Main.Refreshing">Refreshing…</sys:String>
     <sys:String x:Key="Str.Main.MinimizeToTray">Minimize to tray</sys:String>
     <sys:String x:Key="Str.Main.Options">Options</sys:String>
     <sys:String x:Key="Str.Main.Exit">Exit</sys:String>
-    <sys:String x:Key="Str.Main.DeviceCountOne">● 1 Bluetooth device</sys:String>
-    <sys:String x:Key="Str.Main.DeviceCountMany">● {0} Bluetooth devices</sys:String>
+    <sys:String x:Key="Str.Main.DeviceCountOne">1 device</sys:String>
+    <sys:String x:Key="Str.Main.DeviceCountMany">{0} devices</sys:String>
     <sys:String x:Key="Str.Main.Searching">Searching for paired or connected Bluetooth devices…</sys:String>
     <sys:String x:Key="Str.Main.NoDevices">No paired or connected Bluetooth devices found.</sys:String>
     <sys:String x:Key="Str.Main.QueryError">Unable to query Bluetooth devices.</sys:String>
@@ -87,4 +86,13 @@
     <sys:String x:Key="Str.Notify.LowBatteryText">{0} is at {1}% battery.</sys:String>
     <sys:String x:Key="Str.Update.Available">Update {0} available</sys:String>
     <sys:String x:Key="Str.Update.Tooltip">Open the download page on GitHub</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Empty">Empty</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Low">Low</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Medium">Medium</sys:String>
+    <sys:String x:Key="Str.Battery.Level.Full">Full</sys:String>
+    <sys:String x:Key="Str.Device.BatteryLevel">Battery level: {0} (approximate, reported by Windows)</sys:String>
+    <sys:String x:Key="Str.Notify.LowBatteryLevelText">{0} has a low battery level.</sys:String>
+    <sys:String x:Key="Str.Options.TaskbarPosition">Taskbar widget position</sys:String>
+    <sys:String x:Key="Str.Options.PositionLeft">Left</sys:String>
+    <sys:String x:Key="Str.Options.PositionRight">Right</sys:String>
 </ResourceDictionary>

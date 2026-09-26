@@ -42,6 +42,9 @@ public static class LucideIcons
 
     public static Geometry BluetoothOff { get; } = Geometry.Parse("M17,17 L12,22 V12 L7,17 M2,2 L22,22 M14.5,9.5 L17,7 L12,2 V6.5");
 
+    public static Geometry Download { get; } = Geometry.Parse(
+        "M12,22 A10,10 0 1 0 12,2 A10,10 0 0 0 12,22 Z M12,8 V16 M8,12 L12,16 L16,12");
+
     public static Geometry Bluetooth { get; } = Geometry.Parse("M7,7 L17,17 L12,22 V2 L17,7 L7,17");
 
     public static Geometry Instagram { get; } = Geometry.Parse(

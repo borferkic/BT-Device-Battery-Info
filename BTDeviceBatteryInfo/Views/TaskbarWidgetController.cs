@@ -98,7 +98,7 @@ internal sealed class TaskbarWidgetController : IDisposable
         }
 
         _window.UpdateDevices(devices, _settings, _selectDevice);
-        if (_window.TryDock(out var reason))
+        if (_window.TryDock(_settings.TaskbarWidgetPosition != "Left", out var reason))
         {
             _window.Show();
             SetStatus($"Taskbar widget visible (device categories: {devices.Select(device => device.Category).Distinct().Count()}).");
@@ -196,7 +196,8 @@ internal sealed class TaskbarDockWindow : Window
                 StrokeLineJoin = PenLineJoin.Round,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            icon.SetResourceReference(Shape.StrokeProperty, "ShadcnWidgetForegroundBrush");
+            var iconBrush = device.IsBatteryLow ? "ShadcnDestructiveBrush" : "ShadcnWidgetForegroundBrush";
+            icon.SetResourceReference(Shape.StrokeProperty, iconBrush);
             icon.SetResourceReference(VisibilityProperty, "ShadcnLucideDeviceIconVisibility");
             Grid.SetColumn(icon, 0);
             content.Children.Add(icon);
@@ -208,24 +209,25 @@ internal sealed class TaskbarDockWindow : Window
                 VerticalAlignment = VerticalAlignment.Center
             };
             glyph.SetResourceReference(TextBlock.FontFamilyProperty, "SystemIconFontFamily");
-            glyph.SetResourceReference(TextBlock.ForegroundProperty, "ShadcnWidgetForegroundBrush");
+            glyph.SetResourceReference(TextBlock.ForegroundProperty, iconBrush);
             glyph.SetResourceReference(VisibilityProperty, "ShadcnSystemDeviceIconVisibility");
             Grid.SetColumn(glyph, 0);
             content.Children.Add(glyph);
-            var batteryRing = new BatteryRing(device.BatteryPercent);
+            var batteryRing = new BatteryRing(device.BatteryPercent, device.BatteryLevelName?[..1]);
             Grid.SetColumn(batteryRing, 2);
             content.Children.Add(batteryRing);
             var button = new Button
             {
                 Content = content,
                 Width = 64,
-                Height = 36,
                 Padding = new Thickness(8, 0, 4, 0),
-                Margin = new Thickness(2, 2, 0, 2),
+                Margin = new Thickness(2, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
                 BorderThickness = new Thickness(1),
                 ToolTip = AppLanguage.Format("Widget.Tooltip", device.Name, device.BatteryText, CategoryLabel(device.Category)),
                 Cursor = Cursors.Hand
             };
+            button.SetResourceReference(HeightProperty, "ShadcnWidgetButtonHeight");
             button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "ShadcnWidgetBrush");
             button.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "ShadcnWidgetForegroundBrush");
             button.SetResourceReference(System.Windows.Controls.Control.BorderBrushProperty, "ShadcnWidgetBorderBrush");
@@ -292,7 +294,7 @@ internal sealed class TaskbarDockWindow : Window
         _ => AppLanguage.Get("Widget.Device")
     };
 
-    public bool TryDock(out string reason)
+    public bool TryDock(bool nextToNotificationArea, out string reason)
     {
         var taskbar = FindWindow("Shell_TrayWnd", null);
         if (taskbar == IntPtr.Zero || !GetWindowRect(taskbar, out var taskbarRect))
@@ -334,15 +336,29 @@ internal sealed class TaskbarDockWindow : Window
             return Fail("UI Automation found no taskbar buttons", out reason);
         }
 
-        foreach (var button in buttons)
-            if (button.Id.Contains("WidgetsButton", StringComparison.OrdinalIgnoreCase))
-                left = Math.Max(left, (int)Math.Ceiling(button.Bounds.Right) + 6);
+        if (nextToNotificationArea)
+        {
+            // Right end: just left of the notification area (system icons and clock).
+            var tray = FindWindowEx(taskbar, IntPtr.Zero, "TrayNotifyWnd", null);
+            if (tray == IntPtr.Zero || !GetWindowRect(tray, out var trayRect))
+                return Fail("the notification area was not found", out reason);
+            left = trayRect.Left - 8 - width;
+        }
+        else
+        {
+            foreach (var button in buttons)
+                if (button.Id.Contains("WidgetsButton", StringComparison.OrdinalIgnoreCase))
+                    left = Math.Max(left, (int)Math.Ceiling(button.Bounds.Right) + 6);
+        }
 
         var top = taskbarRect.Top + (taskbarRect.Bottom - taskbarRect.Top - height) / 2;
         var proposed = new System.Windows.Rect(left, top, width, height);
         if (left + width > taskbarRect.Right - 8) return Fail("there is not enough free width on the taskbar", out reason);
+        if (left < taskbarRect.Left) return Fail("there is not enough free width on the taskbar", out reason);
         if (buttons.Any(button => button.Bounds.IntersectsWith(proposed)))
-            return Fail("the left taskbar area is occupied by Windows or app buttons", out reason);
+            return Fail(nextToNotificationArea
+                ? "the area next to the notification area is occupied by Windows or app buttons"
+                : "the left taskbar area is occupied by Windows or app buttons", out reason);
 
         if (_attachedTaskbar != taskbar || GetParent(Handle) != taskbar)
         {
@@ -374,7 +390,7 @@ internal sealed class TaskbarDockWindow : Window
 
     private sealed class BatteryRing : Grid
     {
-        public BatteryRing(int? percent)
+        public BatteryRing(int? percent, string? levelLabel = null)
         {
             Width = Height = 23;
             var track = new Ellipse
@@ -408,7 +424,7 @@ internal sealed class TaskbarDockWindow : Window
             }
             var label = new TextBlock
             {
-                Text = percent is int battery ? battery.ToString() : "–",
+                Text = levelLabel ?? (percent is int battery ? battery.ToString() : "–"),
                 FontSize = 10,
                 FontWeight = FontWeights.Medium,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
@@ -426,6 +442,8 @@ internal sealed class TaskbarDockWindow : Window
     private struct NativePoint { public int X, Y; }
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern IntPtr FindWindow(string className, string? windowName);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr FindWindowEx(IntPtr parent, IntPtr childAfter, string className, string? windowName);
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetWindowRect(IntPtr window, out NativeRect rect);

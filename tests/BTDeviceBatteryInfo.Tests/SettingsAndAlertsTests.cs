@@ -57,6 +57,7 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Equal("en", loaded.Language);
         Assert.True(loaded.LowBatteryNotificationsEnabled);
         Assert.Equal(LowBatteryNotifier.DefaultThreshold, loaded.LowBatteryThreshold);
+        Assert.Equal("Right", loaded.TaskbarWidgetPosition);
     }
 
     [Theory]

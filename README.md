@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.22` — **Low battery alerts and update notice**.
+Latest release: `0.23` — **Compact window and taskbar position**.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
@@ -35,20 +35,21 @@ Latest release: `0.22` — **Low battery alerts and update notice**.
   - Shows battery percentage through Windows PnP properties or the standard GATT Battery Service when available.
   - Groups the endpoints of the same physical device and keeps devices with the same name separate when they have different Windows identities.
   - Shows loading placeholders during the initial scan and a clear message when no devices are available.
-  - Reads the battery of wireless game controllers in X-input mode over Bluetooth through Windows.Gaming.Input (for example, the 8BitDo Arcade Stick).
+  - Reads the battery of wireless game controllers in X-input mode over Bluetooth through Windows.Gaming.Input, shown as a level (Empty, Low, Medium, Full) because these controllers only report coarse ranges. 8BitDo controllers in this mode report a fixed value, so their battery is shown as unavailable.
   - `Refresh now` in the widget and system tray refreshes devices and triggers a new battery query.
 - **Taskbar widget**
-  - Compact battery indicators for connected headphones, keyboards, mice, and controllers on the left side of the Windows taskbar.
+  - Compact battery indicators for connected headphones, keyboards, mice, and controllers on the Windows taskbar, next to the notification area (default) or after the Windows widgets button.
   - Choose which device is shown for each category, from `Options` or by clicking an indicator.
-  - Battery ring states: theme color for a normal level, **red** at 15 % or less, and `–` when the device does not report battery.
+  - Battery ring states: theme color for a normal level, **red** when the battery is low (the device icon turns red too), and `–` when the device does not report battery.
 - **Themes**
   - **Elegant Black**: a monochrome dark theme inspired by shadcn/ui, with the Geist Sans font and a subtle gradient on the main window.
-  - **System**: follows the Windows 11 look, uses the Windows device icons, and switches automatically between light and dark mode when Windows changes.
+  - **System**: follows the Windows 11 look, uses the Windows device icons and accent color, and switches automatically between light and dark mode when Windows changes.
   - The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`, plus light and dark app icons.
 - **Application**
   - `Options` window with switches for Start with Windows and the taskbar widget, the theme and language selectors, and the device per category.
   - English and Spanish interface, switchable live from `Options`.
-  - Windows notification when a device drops to the low-battery threshold (configurable in `Options`, 15 % by default).
+  - Compact main window anchored above the clock, with one device per line and a red border when the battery is low.
+  - Windows notification with the device type icon when a device drops to the low-battery threshold (configurable in `Options`, 15 % by default).
   - Notice at startup when a newer version is available on GitHub, with a button that opens its release page.
   - Detects when Bluetooth is off or the adapter is disabled, with a `Turn on Bluetooth` button and a shortcut to Bluetooth settings.
   - Tray actions to show or hide the widget, enable or disable Start with Windows, refresh, and exit.
@@ -201,7 +202,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.22` — **Avisos de batería baja y de nuevas versiones**.
+Última versión: `0.23` — **Ventana compacta y posición en la barra de tareas**.
 
 ### Funcionalidades
 
@@ -210,20 +211,21 @@ If you like BT Device Battery Info and find it useful, you can support its devel
   - Muestra el porcentaje de batería mediante propiedades PnP de Windows o el servicio estándar GATT Battery Service cuando está disponible.
   - Agrupa los endpoints de un mismo dispositivo físico y mantiene separados los dispositivos con el mismo nombre cuando tienen identidades diferentes en Windows.
   - Muestra marcadores de carga durante la búsqueda inicial y un mensaje claro cuando no hay dispositivos.
-  - Lee la batería de mandos inalámbricos en modo X-input por Bluetooth mediante Windows.Gaming.Input (por ejemplo, el 8BitDo Arcade Stick).
+  - Lee la batería de mandos inalámbricos en modo X-input por Bluetooth mediante Windows.Gaming.Input y la muestra como nivel (vacía, baja, media, llena), porque estos mandos solo reportan rangos. Los mandos 8BitDo en este modo reportan un valor fijo, así que su batería aparece como no disponible.
   - `Refresh now`, en el widget y el área de notificaciones, actualiza los dispositivos y vuelve a consultar la batería.
 - **Widget de la barra de tareas**
-  - Indicadores compactos de batería para auriculares, teclados, mouse y controles conectados en el lado izquierdo de la barra de tareas.
+  - Indicadores compactos de batería para auriculares, teclados, mouse y controles conectados en la barra de tareas, junto al área de notificaciones (por defecto) o después del botón de widgets de Windows.
   - Permite elegir qué dispositivo se muestra en cada categoría, desde `Options` o haciendo clic en un indicador.
-  - Estados del anillo: color del tema con nivel normal, **rojo** con 15 % o menos y `–` cuando el dispositivo no reporta batería.
+  - Estados del anillo: color del tema con nivel normal, **rojo** con batería baja (el icono del dispositivo también se pone rojo) y `–` cuando el dispositivo no reporta batería.
 - **Temas**
   - **Elegant Black**: tema oscuro monocromo inspirado en shadcn/ui, con la fuente Geist Sans y un gradiente sutil en la ventana principal.
-  - **System**: sigue el aspecto de Windows 11, usa los iconos de dispositivos de Windows y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
+  - **System**: sigue el aspecto de Windows 11, usa los iconos de dispositivos y el color de énfasis de Windows, y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
   - El tema se aplica a todas las ventanas, tooltips, menús y al widget, con vista previa en vivo en `Options` e iconos de la app en versión clara y oscura.
 - **Aplicación**
   - Ventana `Options` con interruptores para el inicio con Windows y el widget, los selectores de tema e idioma, y el dispositivo por categoría.
   - Interfaz en inglés y español, con cambio en vivo desde `Options`.
-  - Notificación de Windows cuando un dispositivo baja del umbral de batería (configurable en `Options`, 15 % por defecto).
+  - Ventana principal compacta anclada sobre el reloj, con un dispositivo por línea y borde rojo cuando la batería está baja.
+  - Notificación de Windows con el icono del tipo de dispositivo cuando un dispositivo baja del umbral de batería (configurable en `Options`, 15 % por defecto).
   - Aviso al abrir la aplicación cuando hay una versión nueva en GitHub, con un botón que abre su página de descarga.
   - Detecta cuando Bluetooth está apagado o el adaptador deshabilitado, con un botón `Turn on Bluetooth` y un acceso a la configuración de Bluetooth.
   - Opciones en el área de notificaciones para mostrar u ocultar el widget, activar o desactivar el inicio con Windows, actualizar y salir.

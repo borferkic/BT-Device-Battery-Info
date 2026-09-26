@@ -12,7 +12,9 @@ public static class AppLanguage
     public const string Spanish = "es";
 
     private const string StringsFolder = "Resources/Strings/";
-    private static ResourceDictionary? _fallback;
+    private static readonly object FallbackLock = new();
+    // Plain copy of the English strings: safe to read from any thread (a ResourceDictionary is not).
+    private static IReadOnlyDictionary<string, string>? _fallback;
 
     public static string CurrentLanguage { get; private set; } = English;
 
@@ -40,8 +42,19 @@ public static class AppLanguage
     {
         var resourceKey = "Str." + key;
         if (System.Windows.Application.Current?.TryFindResource(resourceKey) is string value) return value;
-        _fallback ??= new ResourceDictionary { Source = new Uri($"pack://application:,,,/BTDeviceBatteryInfo;component/{StringsFolder}Strings.{English}.xaml") };
-        return _fallback[resourceKey] as string ?? key;
+        return LoadFallback().TryGetValue(resourceKey, out var fallback) ? fallback : key;
+    }
+
+    private static IReadOnlyDictionary<string, string> LoadFallback()
+    {
+        if (_fallback is not null) return _fallback;
+        lock (FallbackLock)
+        {
+            if (_fallback is not null) return _fallback;
+            var dictionary = new ResourceDictionary { Source = new Uri($"pack://application:,,,/BTDeviceBatteryInfo;component/{StringsFolder}Strings.{English}.xaml") };
+            _fallback = dictionary.Keys.OfType<string>().ToDictionary(k => k, k => dictionary[k] as string ?? string.Empty, StringComparer.Ordinal);
+            return _fallback;
+        }
     }
 
     public static string Format(string key, params object[] args) => string.Format(Get(key), args);

@@ -5,9 +5,8 @@
         xmlns:icons="clr-namespace:BTDeviceBatteryInfo.Services"
         Title="BT Device Battery Info"
         Icon="{DynamicResource ShadcnAppWindowIcon}"
-        Width="484" Height="344"
-        MinWidth="484" MaxWidth="484"
-        MinHeight="344"
+        Width="364" MinWidth="364" MaxWidth="364"
+        SizeToContent="Height"
         WindowStyle="None" ResizeMode="NoResize"
         Background="Transparent"
         AllowsTransparency="True"
@@ -15,55 +14,45 @@
         FontFamily="{DynamicResource AppFontFamily}">
     <Window.Resources>
         <DataTemplate x:Key="BluetoothDeviceTemplate">
-            <Grid Margin="0,0,0,8">
+            <Grid x:Name="DeviceRow" Margin="0,0,0,4">
             <Border Style="{StaticResource ShadcnCardShadow}" />
-            <Border Background="{DynamicResource ShadcnSurfaceBrush}"
+            <Border x:Name="Card" Background="{DynamicResource ShadcnSurfaceBrush}"
                     BorderBrush="{DynamicResource ShadcnBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="{DynamicResource ShadcnCardCornerRadius}"
-                    Padding="12,10"
-                    MinHeight="64">
+                    Padding="8,6,10,6"
+                    MinHeight="40">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" Background="{DynamicResource ShadcnElevatedBrush}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" VerticalAlignment="Center">
+                    <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" VerticalAlignment="Center">
                         <Grid>
                         <Path x:Name="DeviceIcon"
                               Data="{x:Static icons:LucideIcons.Headphones}"
-                              Width="21" Height="21" Stretch="Uniform"
+                              Width="16" Height="16" Stretch="Uniform"
                               Stroke="{DynamicResource ShadcnForegroundBrush}"
                               StrokeThickness="1.7" StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round" StrokeLineJoin="Round"
                               Fill="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center"
                               Visibility="{DynamicResource ShadcnLucideDeviceIconVisibility}" />
-                        <TextBlock x:Name="DeviceGlyph" Text="&#xE7F6;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="20"
+                        <TextBlock x:Name="DeviceGlyph" Text="&#xE7F6;" FontFamily="{StaticResource SystemIconFontFamily}" FontSize="15"
                                    Foreground="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Visibility="{DynamicResource ShadcnSystemDeviceIconVisibility}" />
                         </Grid>
                     </Border>
-                    <StackPanel Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Name}"
-                                   Foreground="{DynamicResource ShadcnForegroundBrush}"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"
-                                   TextTrimming="CharacterEllipsis" />
-                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                            <Ellipse x:Name="ConnectionDot" Width="6" Height="6" Fill="{DynamicResource ShadcnInactiveBrush}" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding ConnectionText}"
-                                       Foreground="{DynamicResource ShadcnMutedBrush}"
-                                       FontSize="11"
-                                       Margin="6,0,0,0" />
-                        </StackPanel>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock x:Name="BatteryLabel" Text="{Binding BatteryText}"
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" ToolTip="{Binding Name}"
+                               Foreground="{DynamicResource ShadcnForegroundBrush}"
+                               FontSize="13" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="10,0,8,0" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{Binding BatteryText}">
+                        <TextBlock x:Name="BatteryLabel" Text="{Binding BatteryShortText}"
                                    Foreground="{DynamicResource ShadcnMutedBrush}"
-                                   FontSize="11"
-                                   HorizontalAlignment="Right" />
-                        <Grid Width="23" Height="12" Margin="0,5,0,0" HorizontalAlignment="Right" ToolTip="{Binding BatteryText}">
+                                   FontSize="12" VerticalAlignment="Center" />
+                        <Grid Width="23" Height="12" Margin="6,0,0,0" VerticalAlignment="Center">
                             <Border x:Name="BatteryShell" Width="19" Height="10" HorizontalAlignment="Left" VerticalAlignment="Center" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnMutedBrush}" BorderThickness="1" CornerRadius="2">
                                 <Border x:Name="BatteryFill" Width="{Binding BatteryFillWidth}" Height="6" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,0,0,0" Background="{DynamicResource ShadcnBatteryBrush}" CornerRadius="1" />
                             </Border>
@@ -74,8 +63,8 @@
             </Border>
             </Grid>
             <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsConnected}" Value="True">
-                    <Setter TargetName="ConnectionDot" Property="Fill" Value="{DynamicResource ShadcnSuccessBrush}" />
+                <DataTrigger Binding="{Binding IsConnected}" Value="False">
+                    <Setter TargetName="DeviceRow" Property="Opacity" Value="0.6" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding HasBattery}" Value="True">
                     <Setter TargetName="BatteryLabel" Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
@@ -85,6 +74,7 @@
                     <Setter TargetName="BatteryFill" Property="Background" Value="{DynamicResource ShadcnDestructiveBrush}" />
                     <Setter TargetName="BatteryShell" Property="BorderBrush" Value="{DynamicResource ShadcnDestructiveBrush}" />
                     <Setter TargetName="BatteryTip" Property="Background" Value="{DynamicResource ShadcnDestructiveBrush}" />
+                    <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource ShadcnDestructiveBrush}" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Category}" Value="{x:Static models:BluetoothDeviceCategory.Headphones}">
                     <Setter TargetName="DeviceIcon" Property="Data" Value="{x:Static icons:LucideIcons.Headphones}" />
@@ -108,24 +98,22 @@
     <Grid Margin="12">
     <Border Style="{StaticResource ShadcnWindowShadow}" Background="{DynamicResource ShadcnWindowBackgroundBrush}" />
     <Border Style="{StaticResource ShadcnMainWindowBorder}" Background="{DynamicResource ShadcnWindowBackgroundBrush}">
-        <Grid Margin="18,15,18,14">
+        <Grid Margin="14,12,14,12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Grid MouseLeftButtonDown="DragWindow">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <Image Source="{DynamicResource ShadcnAppIconImage}" Width="34" Height="34" Stretch="Uniform" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
-                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="BT Device Battery Info" Style="{StaticResource ShadcnMainTitle}" />
-                    <TextBlock Text="{DynamicResource Str.Main.Subtitle}" Style="{StaticResource ShadcnCaptionText}" Margin="0,1,0,0" />
-                </StackPanel>
+                <Image Source="{DynamicResource ShadcnAppIconImage}" Width="28" Height="28" Stretch="Uniform" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
+                <TextBlock Grid.Column="1" Text="BT Device Battery Info" Style="{StaticResource ShadcnMainTitle}" FontSize="15"
+                           Margin="8,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button ToolTip="{DynamicResource Str.Main.MinimizeToTray}" Style="{StaticResource ShadcnIconButton}" Click="Minimize_Click">
                         <Path Data="{x:Static icons:LucideIcons.Minimize}" Style="{StaticResource LucideToolbarIcon}" />
@@ -139,20 +127,23 @@
                 </StackPanel>
             </Grid>
 
-            <Border Grid.Row="1" Margin="0,16,0,0" Padding="0,0,0,12" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="0,0,0,1">
+            <Border Grid.Row="1" Margin="0,12,0,0" Padding="0,0,0,10" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="0,0,0,1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="{DynamicResource Str.Main.YourDevices}" Style="{StaticResource ShadcnSectionTitle}" VerticalAlignment="Center" />
-                    <Border Grid.Column="1" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnBadgeCornerRadius}" Padding="8,4">
-                        <TextBlock Text="{Binding DeviceCountText}" Style="{StaticResource ShadcnCaptionText}" />
+                    <Border Grid.Column="1" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnBadgeCornerRadius}" Height="20" Padding="6,1" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="6" Height="6" Fill="{DynamicResource ShadcnSuccessBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="{Binding DeviceCountText}" Style="{StaticResource ShadcnCaptionText}" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
-            <Grid Grid.Row="2" Margin="0,10,0,4">
+            <Grid Grid.Row="2" Margin="0,8,0,2">
                 <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                     <ScrollViewer.Style>
                         <Style TargetType="ScrollViewer">
@@ -172,7 +163,7 @@
                                 <Border Width="36" Height="36" Background="{DynamicResource ShadcnElevatedBrush}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
                                     <Path Data="{x:Static icons:LucideIcons.Bluetooth}" Style="{StaticResource LucideToolbarIcon}" Width="18" Height="18" Stroke="{DynamicResource ShadcnForegroundBrush}" />
                                 </Border>
-                                <TextBlock Text="{Binding DeviceListMessage}" Style="{StaticResource ShadcnMutedText}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,0" MaxWidth="320" />
+                                <TextBlock Text="{Binding DeviceListMessage}" Style="{StaticResource ShadcnMutedText}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,0" MaxWidth="280" />
                             </StackPanel>
                         </Border>
                         <ItemsControl ItemsSource="{Binding ConnectedDevices}" ItemTemplate="{StaticResource BluetoothDeviceTemplate}" />
@@ -188,7 +179,10 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{DynamicResource Str.Main.DisconnectedDevices}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                                     <Border Grid.Column="1" MinWidth="24" Height="20" Padding="6,1" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnBadgeCornerRadius}">
-                                        <TextBlock Text="{Binding DisconnectedDeviceCountText}" Style="{StaticResource ShadcnCaptionText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Ellipse Width="6" Height="6" Fill="{DynamicResource ShadcnDestructiveBrush}" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                            <TextBlock Text="{Binding DisconnectedDeviceCountText}" Style="{StaticResource ShadcnCaptionText}" VerticalAlignment="Center" />
+                                        </StackPanel>
                                     </Border>
                                 </Grid>
                             </Expander.Header>
@@ -198,32 +192,30 @@
                 </ScrollViewer>
                 <Grid Background="Transparent" Visibility="{Binding LoadingVisibility}">
                     <StackPanel>
-                        <Border BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnCardCornerRadius}" Padding="12,10" Margin="0,0,0,8" MinHeight="64">
+                        <Border BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnCardCornerRadius}" Padding="8,6,10,6" Margin="0,0,0,4" MinHeight="40">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="40" />
+                                    <ColumnDefinition Width="36" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Border Style="{StaticResource ShadcnSkeleton}" Width="36" Height="36" VerticalAlignment="Center" />
+                                <Border Style="{StaticResource ShadcnSkeleton}" Width="28" Height="28" VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center">
                                     <Border Style="{StaticResource ShadcnSkeleton}" Height="12" Width="150" HorizontalAlignment="Left" />
-                                    <Border Style="{StaticResource ShadcnSkeleton}" Height="10" Width="72" HorizontalAlignment="Left" Margin="0,8,0,0" />
                                 </StackPanel>
                                 <Border Grid.Column="2" Style="{StaticResource ShadcnSkeleton}" Width="44" Height="10" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
-                        <Border BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnCardCornerRadius}" Padding="12,10" Margin="0,0,0,8" MinHeight="64">
+                        <Border BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnCardCornerRadius}" Padding="8,6,10,6" Margin="0,0,0,4" MinHeight="40">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="40" />
+                                    <ColumnDefinition Width="36" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Border Style="{StaticResource ShadcnSkeleton}" Width="36" Height="36" VerticalAlignment="Center" />
+                                <Border Style="{StaticResource ShadcnSkeleton}" Width="28" Height="28" VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center">
                                     <Border Style="{StaticResource ShadcnSkeleton}" Height="12" Width="110" HorizontalAlignment="Left" />
-                                    <Border Style="{StaticResource ShadcnSkeleton}" Height="10" Width="72" HorizontalAlignment="Left" Margin="0,8,0,0" />
                                 </StackPanel>
                                 <Border Grid.Column="2" Style="{StaticResource ShadcnSkeleton}" Width="44" Height="10" VerticalAlignment="Center" />
                             </Grid>
@@ -252,31 +244,38 @@
                             <Path Data="{x:Static icons:LucideIcons.BluetoothOff}" Style="{StaticResource LucideToolbarIcon}" Width="20" Height="20" Stroke="{DynamicResource ShadcnForegroundBrush}" />
                         </Border>
                         <TextBlock Text="{Binding BluetoothUnavailableTitle}" Style="{StaticResource ShadcnSectionTitle}" HorizontalAlignment="Center" Margin="0,12,0,0" />
-                        <TextBlock Text="{Binding BluetoothUnavailableDescription}" Style="{StaticResource ShadcnMutedText}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="320" Margin="0,4,0,0" />
+                        <TextBlock Text="{Binding BluetoothUnavailableDescription}" Style="{StaticResource ShadcnMutedText}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="280" Margin="0,4,0,0" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,14,0,0">
                             <Button Content="{DynamicResource Str.Radio.TurnOn}" Style="{StaticResource ShadcnPrimaryButton}" Command="{Binding TurnOnBluetoothCommand}"
                                     Visibility="{Binding TurnOnBluetoothVisibility}" IsEnabled="{Binding CanTurnOnBluetooth}" Margin="0,0,8,0" />
                             <Button Content="{DynamicResource Str.Radio.Settings}" Style="{StaticResource ShadcnButtonBase}" Command="{Binding OpenBluetoothSettingsCommand}" />
                         </StackPanel>
                         <TextBlock Text="{Binding BluetoothActionStatus}" Visibility="{Binding BluetoothActionStatusVisibility}" Style="{StaticResource ShadcnCaptionText}"
-                                   TextWrapping="Wrap" TextAlignment="Center" MaxWidth="320" Margin="0,10,0,0" />
+                                   TextWrapping="Wrap" TextAlignment="Center" MaxWidth="280" Margin="0,10,0,0" />
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <Grid Grid.Row="3" Margin="0,9,0,0">
+            <Grid Grid.Row="3" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <Border Width="40" Height="22" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnBadgeCornerRadius}" VerticalAlignment="Center">
-                    <TextBlock Text="{DynamicResource Str.Main.Beta}" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Height="22" Padding="7,0" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnBadgeCornerRadius}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding AppVersionText}" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
-                    <Button Content="{Binding UpdateAvailableText}" Command="{Binding OpenUpdateCommand}" Visibility="{Binding UpdateAvailableVisibility}"
-                            ToolTip="{DynamicResource Str.Update.Tooltip}" Style="{StaticResource ShadcnButtonBase}" Height="24" Padding="10,0" FontSize="11" Margin="8,0,0,0" />
+                    <Button Command="{Binding OpenUpdateCommand}" Visibility="{Binding UpdateAvailableVisibility}"
+                            ToolTip="{DynamicResource Str.Update.Tooltip}" Style="{StaticResource ShadcnUpdateButton}" Margin="6,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{x:Static icons:LucideIcons.Download}" Width="12" Height="12" Stretch="Uniform" Fill="Transparent"
+                                  Stroke="{DynamicResource ShadcnSuccessBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                  VerticalAlignment="Center" Margin="0,0,5,0" />
+                            <TextBlock Text="{Binding UpdateAvailableText}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-                <Button Grid.Column="1" Content="{Binding RefreshButtonText}" IsEnabled="{Binding CanRefresh}" Style="{StaticResource ShadcnPrimaryButton}" Click="RefreshNow_Click" />
+                <Button Grid.Column="1" Content="{Binding RefreshButtonText}" IsEnabled="{Binding CanRefresh}" Style="{StaticResource ShadcnPrimaryButton}" Height="22" Padding="10,0" FontSize="11" VerticalAlignment="Center" Click="RefreshNow_Click" />
             </Grid>
         </Grid>
     </Border>

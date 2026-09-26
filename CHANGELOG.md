@@ -4,6 +4,29 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.23] — Compact window and taskbar position
+
+### Added
+
+- Taskbar widget position in `Options`: next to the notification area (default) or after the Windows widgets button, so it can coexist with other taskbar widgets.
+- The `System` theme uses the Windows accent color and updates live when it changes.
+- Low-battery notifications show the device type icon (headphones, keyboard, mouse, or controller) instead of the warning triangle.
+
+### Changed
+
+- The main window is compact and anchored above the clock: one-line device pills with the percentage and battery icon, a green dot for connected devices and a red dot for disconnected ones.
+- A device with low battery gets a red border in the list and a red icon in the taskbar widget.
+- The footer shows the app version, and the update notice is a green button with a download icon.
+- Double-clicking the tray icon hides the window when it is open.
+- In the `System` theme, taskbar indicators look like Windows 11 taskbar buttons.
+- `Options` is more compact, with `Theme` and `Language` side by side.
+- Controllers that only report coarse ranges through Windows.Gaming.Input show a level (Empty, Low, Medium, Full) instead of a made-up percentage.
+- `About` shows the running version instead of a fixed number.
+
+### Fixed
+
+- 8BitDo controllers in X-input mode over Bluetooth report a fixed value that does not change with the charge; the app now shows their battery as unavailable and no longer sends false low-battery alerts.
+
 ## [0.22] — Low battery alerts and update notice
 
 ### Added

@@ -659,8 +659,8 @@ public sealed class BluetoothService : IDisposable
             .ThenByDescending(item => item.Device.Name.Length)
             .First();
         var isConnected = ResolvePhysicalConnection(physicalDeviceId, endpoints);
-        var battery = isConnected
-            ? endpointSnapshots.Select(item => item.Device.BatteryPercent).FirstOrDefault(value => value.HasValue)
+        var batterySource = isConnected
+            ? endpointSnapshots.Select(item => item.Device).FirstOrDefault(device => device.BatteryPercent.HasValue)
             : null;
 
         return new BluetoothDeviceInfo(
@@ -668,9 +668,10 @@ public sealed class BluetoothService : IDisposable
             representative.Device.Name,
             endpointSnapshots.Any(item => item.Device.IsPaired),
             isConnected,
-            battery,
+            batterySource?.BatteryPercent,
             physicalDeviceId,
-            endpointSnapshots.Select(item => item.Device.Category).FirstOrDefault(category => category != BluetoothDeviceCategory.Unknown));
+            endpointSnapshots.Select(item => item.Device.Category).FirstOrDefault(category => category != BluetoothDeviceCategory.Unknown),
+            batterySource?.BatteryLevel);
     }
 
     private bool ResolvePhysicalConnection(string physicalDeviceId, DeviceInformation[] endpoints)
@@ -872,16 +873,21 @@ public sealed class BluetoothService : IDisposable
 
         var containerId = GetString(endpoint, "System.Devices.Aep.ContainerId");
         var battery = GetBatteryPercent(endpoint);
+        BatteryLevel? level = null;
         if (battery is null
             && containerId is not null
             && _containerBatteries.TryGetValue(containerId, out var containerBattery)
             && containerBattery.Value is int cachedBattery
             && containerBattery.LastSuccessUtc is DateTimeOffset lastSuccess
             && DateTimeOffset.UtcNow - lastSuccess <= BatteryValueExpiration)
+        {
             battery = cachedBattery;
+            if (containerBattery.Source?.StartsWith(GamingInputBattery.SourceName, StringComparison.Ordinal) == true)
+                level = BatteryLevels.FromFraction(cachedBattery / 100.0);
+        }
 
         return new BluetoothDeviceInfo(endpoint.Id, endpoint.Name,
-            GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), true, battery, GetPhysicalDeviceId(endpoint), category);
+            GetBoolean(endpoint, "System.Devices.Aep.IsPaired"), true, battery, GetPhysicalDeviceId(endpoint), category, level);
     }
 
     private static BluetoothDeviceCategory GetDeviceCategory(DeviceInformation endpoint)

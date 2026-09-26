@@ -22,6 +22,7 @@ public partial class OptionsWindow : Window
         StartWithWindowsCheckBox.IsChecked = StartupService.IsEnabled();
         TaskbarWidgetCheckBox.IsChecked = settings.TaskbarWidgetEnabled;
         LowBatteryCheckBox.IsChecked = settings.LowBatteryNotificationsEnabled;
+        TaskbarPositionComboBox.SelectedIndex = settings.TaskbarWidgetPosition == "Left" ? 0 : 1;
         foreach (var threshold in LowBatteryNotifier.ThresholdOptions)
             LowBatteryThresholdComboBox.Items.Add(new ComboBoxItem { Content = $"{threshold} %", Tag = threshold, Style = (Style)FindResource("OptionsPickerItemStyle") });
         LowBatteryThresholdComboBox.SelectedIndex = Array.IndexOf(LowBatteryNotifier.ThresholdOptions, LowBatteryNotifier.NormalizeThreshold(settings.LowBatteryThreshold));
@@ -89,6 +90,7 @@ public partial class OptionsWindow : Window
             StartupService.SetEnabled(startWithWindows);
             _settings.StartWithWindows = startWithWindows;
             _settings.LowBatteryNotificationsEnabled = LowBatteryCheckBox.IsChecked == true;
+            _settings.TaskbarWidgetPosition = (TaskbarPositionComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "Right";
             if (LowBatteryThresholdComboBox.SelectedItem is ComboBoxItem { Tag: int threshold }) _settings.LowBatteryThreshold = threshold;
             _settings.ThemeName = (ThemeComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? ThemeManager.SystemTheme;
             _settings.Language = AppLanguage.Normalize((LanguageComboBox.SelectedItem as ComboBoxItem)?.Tag as string);
