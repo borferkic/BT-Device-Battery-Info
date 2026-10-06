@@ -16,11 +16,11 @@
     <sys:String x:Key="Str.Main.Searching">Buscando dispositivos Bluetooth emparejados o conectados…</sys:String>
     <sys:String x:Key="Str.Main.NoDevices">No se encontraron dispositivos Bluetooth emparejados o conectados.</sys:String>
     <sys:String x:Key="Str.Main.QueryError">No se pudieron consultar los dispositivos Bluetooth.</sys:String>
-    <sys:String x:Key="Str.Main.RestoreError">No se pudo restaurar la conexión seleccionada.</sys:String>
     <sys:String x:Key="Str.Device.Connected">Conectado</sys:String>
     <sys:String x:Key="Str.Device.Disconnected">Desconectado</sys:String>
     <sys:String x:Key="Str.Device.Battery">Batería: {0} %</sys:String>
     <sys:String x:Key="Str.Device.BatteryUnavailable">Batería no disponible</sys:String>
+    <sys:String x:Key="Str.Device.BatteryNA">N/D</sys:String>
     <sys:String x:Key="Str.Radio.OffTitle">Bluetooth está desactivado.</sys:String>
     <sys:String x:Key="Str.Radio.DisabledTitle">El adaptador Bluetooth está deshabilitado.</sys:String>
     <sys:String x:Key="Str.Radio.NoAdapterTitle">No se encontró un adaptador Bluetooth.</sys:String>

@@ -16,11 +16,11 @@
     <sys:String x:Key="Str.Main.Searching">Searching for paired or connected Bluetooth devices…</sys:String>
     <sys:String x:Key="Str.Main.NoDevices">No paired or connected Bluetooth devices found.</sys:String>
     <sys:String x:Key="Str.Main.QueryError">Unable to query Bluetooth devices.</sys:String>
-    <sys:String x:Key="Str.Main.RestoreError">Unable to restore the selected connection.</sys:String>
     <sys:String x:Key="Str.Device.Connected">Connected</sys:String>
     <sys:String x:Key="Str.Device.Disconnected">Disconnected</sys:String>
     <sys:String x:Key="Str.Device.Battery">Battery: {0}%</sys:String>
     <sys:String x:Key="Str.Device.BatteryUnavailable">Battery unavailable</sys:String>
+    <sys:String x:Key="Str.Device.BatteryNA">N/A</sys:String>
     <sys:String x:Key="Str.Radio.OffTitle">Bluetooth is turned off.</sys:String>
     <sys:String x:Key="Str.Radio.DisabledTitle">Bluetooth adapter is disabled.</sys:String>
     <sys:String x:Key="Str.Radio.NoAdapterTitle">No Bluetooth adapter found.</sys:String>

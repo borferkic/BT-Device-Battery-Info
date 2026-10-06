@@ -27,6 +27,19 @@ Sin pendientes de prioridad media.
 - [ ] Overlay tipo Discord con la batería de los dispositivos del widget, sobre cualquier juego; posición elegible en 6 puntos: las 4 esquinas y el centro vertical de los lados izquierdo y derecho; una pastilla por dispositivo, apiladas en vertical, semitransparentes y con opacidad ajustable.
 - [ ] Viable sin inyección en juegos en ventana o pantalla completa sin bordes (ventana transparente, siempre encima y que no capture clics); la pantalla completa exclusiva requiere inyectar en el juego y queda fuera por el riesgo con los antitrampas.
 
+### P-035 — Reducir el tamaño del `.exe`
+
+- [ ] Evaluar `EnableCompressionInSingleFile` sobre el `.exe` autocontenido de unos 179 MB; `PublishTrimmed` no es seguro con WPF.
+- [ ] Medir el tiempo de arranque antes y después, porque la descompresión lo puede ralentizar.
+
+### P-036 — Espaciar las consultas a dispositivos sin batería
+
+- [ ] Tras N intentos fallidos, consultar con menos frecuencia a los dispositivos que nunca reportan batería, para ahorrar CPU y radio.
+
+### P-037 — Pruebas de la 0.24
+
+- [ ] Cubrir con xUnit el anillo al 100% sin etiqueta, el fallo de reconexión sin mensaje ni estado ERROR y el texto `N/A`/`N/D`.
+
 ## Completado recientemente
 
 - [x] P-028 — Mandos por `Windows.Gaming.Input` muestran niveles; el valor fijo 100/1000 mWh de los 8BitDo se muestra como no disponible y sin avisos (`0.23`). Cerrado por el usuario sin validación final (`2026-09-25`).

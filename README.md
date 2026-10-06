@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.23` — **Compact window and taskbar position**.
+Latest release: `0.24` — **Fewer false alarms**.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
@@ -202,7 +202,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.23` — **Ventana compacta y posición en la barra de tareas**.
+Última versión: `0.24` — **Menos falsas alarmas**.
 
 ### Funcionalidades
 

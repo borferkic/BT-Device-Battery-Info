@@ -422,6 +422,9 @@ internal sealed class TaskbarDockWindow : Window
                 path.SetResourceReference(Shape.StrokeProperty, value <= 15 ? "ShadcnDestructiveBrush" : "ShadcnWidgetRingBrush");
                 Children.Add(path);
             }
+            // "100" is too wide for the ring and collides with it; a full ring already says 100%.
+            if (levelLabel is null && percent >= 100)
+                return;
             var label = new TextBlock
             {
                 Text = levelLabel ?? (percent is int battery ? battery.ToString() : "–"),

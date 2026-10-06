@@ -4,6 +4,19 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.24] — Fewer false alarms
+
+### Changed
+
+- Devices that do not report a battery level show `N/A` (`N/D` in Spanish) instead of a dash.
+- A failed reconnect no longer turns the status indicator red; red is kept for real errors.
+- In `Options`, `Mouse` and `Controller` swapped places.
+
+### Fixed
+
+- Removed the "Unable to restore the selected connection" message, which was mostly a false positive.
+- The taskbar widget ring no longer shows the number at 100 %, where it overlapped the circle; a full ring means 100 %.
+
 ## [0.23] — Compact window and taskbar position
 
 ### Added

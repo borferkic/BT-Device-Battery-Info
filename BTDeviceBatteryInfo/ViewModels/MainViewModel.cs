@@ -243,8 +243,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
             await InvokeOnUiAsync(() =>
             {
-                _status = "ERROR";
-                DeviceListMessage = "Main.RestoreError";
+                // A failed restore is usually a false positive (e.g. devices that never report battery), so it is not an error state.
+                _status = "DISCONNECTED";
                 NotifyState();
             });
             await _logger.LogAsync("Connection failed");
@@ -252,7 +252,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         catch (OperationCanceledException) { }
         catch (Exception ex)
         {
-            await InvokeOnUiAsync(() => DeviceListMessage = ex.Message);
+            await InvokeOnUiAsync(() =>
+            {
+                _status = "ERROR";
+                DeviceListMessage = ex.Message;
+                NotifyState();
+            });
             await _logger.LogAsync("Reconnect error: " + ex.Message);
         }
     }
@@ -527,7 +532,7 @@ public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? Bat
         ? AppLanguage.Format("Device.BatteryLevel", levelName)
         : BatteryPercent is int battery ? AppLanguage.Format("Device.Battery", battery) : AppLanguage.Get("Device.BatteryUnavailable");
     public bool IsBatteryLow => BatteryLevel is Models.BatteryLevel level ? BatteryLevels.IsLow(level) : BatteryPercent <= 15;
-    public string BatteryShortText => BatteryLevelName ?? (BatteryPercent is int battery ? $"{battery}%" : "—");
+    public string BatteryShortText => BatteryLevelName ?? (BatteryPercent is int battery ? $"{battery}%" : AppLanguage.Get("Device.BatteryNA"));
     public double BatteryFillWidth => BatteryLevel switch
     {
         Models.BatteryLevel.Empty => 1,
