@@ -89,7 +89,7 @@ Latest release: `0.25`.
 
 **Update notice**
 
-![Update notice next to the BETA badge in the main window](BTDeviceBatteryInfo/docs/images/update-notice.png)
+![Update notice next to the version badge in the main window](BTDeviceBatteryInfo/docs/images/update-notice.png)
 
 ## Quick start
 
@@ -272,7 +272,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Aviso de nueva versión**
 
-![Aviso de nueva versión junto a la etiqueta BETA en la ventana principal](BTDeviceBatteryInfo/docs/images/update-notice.png)
+![Aviso de nueva versión junto a la etiqueta de versión en la ventana principal](BTDeviceBatteryInfo/docs/images/update-notice.png)
 
 ### Inicio rápido
 
