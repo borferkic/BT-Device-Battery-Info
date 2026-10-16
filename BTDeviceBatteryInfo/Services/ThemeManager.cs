@@ -46,7 +46,7 @@ public static class ThemeManager
         if (index >= 0) merged[index] = theme;
         else merged.Insert(0, theme);
 
-        var appFont = isElegantBlack ? EmbeddedFont("#Geist")
+        var appFont = isElegantBlack ? EmbeddedFont("GeistSans.ttf#Geist")
             : IsRetroY2K ? EmbeddedFont("Nunito-Bold.ttf#Nunito")
             : System.Windows.SystemFonts.MessageFontFamily;
         resources["AppFontFamily"] = appFont;
@@ -78,7 +78,7 @@ public static class ThemeManager
     /// <summary>Only the System theme follows the Windows light/dark mode and accent color.</summary>
     private static bool FollowsWindows(string? themeName) => themeName is not (ElegantBlackTheme or RetroY2KTheme);
 
-    /// <param name="location">"#Family" for the whole folder, or "File.ttf#Family" to name the file explicitly.</param>
+    /// <param name="location">"File.ttf#Family"; naming the file is more reliable than letting WPF search the folder.</param>
     private static System.Windows.Media.FontFamily EmbeddedFont(string location) =>
         new(new Uri("pack://application:,,,/"), "./Assets/Fonts/" + location);
 
