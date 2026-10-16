@@ -9,6 +9,7 @@ public partial class AboutWindow : Window
     public AboutWindow()
     {
         InitializeComponent();
+        Loaded += (_, _) => RetroEffects.PlayWindowSpawn(RootGrid);
         VersionRun.Text = Services.UpdateChecker.CurrentVersion;
     }
 

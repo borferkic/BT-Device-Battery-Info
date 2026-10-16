@@ -38,6 +38,8 @@
     <sys:String x:Key="Str.Options.Title">Options</sys:String>
     <sys:String x:Key="Str.Options.Subtitle">Customize startup, taskbar and appearance</sys:String>
     <sys:String x:Key="Str.Options.StartWithWindows">Start with Windows</sys:String>
+    <sys:String x:Key="Str.Options.StartMinimized">Start minimized to the tray</sys:String>
+    <sys:String x:Key="Str.Options.StartMinimizedTooltip">Opens with only the tray icon and the taskbar widget; double-click the tray icon to show the window.</sys:String>
     <sys:String x:Key="Str.Options.TaskbarWidget">Show compact taskbar widget</sys:String>
     <sys:String x:Key="Str.Options.Theme">Theme</sys:String>
     <sys:String x:Key="Str.Options.Language">Language</sys:String>

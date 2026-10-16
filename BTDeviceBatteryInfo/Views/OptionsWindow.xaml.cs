@@ -16,17 +16,24 @@ public partial class OptionsWindow : Window
     public OptionsWindow(AppSettings settings, IEnumerable<BluetoothDeviceItem> connectedDevices, Func<bool, Task> setTaskbarWidgetEnabled)
     {
         InitializeComponent();
+        Loaded += (_, _) => RetroEffects.PlayWindowSpawn(RootGrid);
         _settings = settings;
         _setTaskbarWidgetEnabled = setTaskbarWidgetEnabled;
         _originalTheme = settings.ThemeName;
         StartWithWindowsCheckBox.IsChecked = StartupService.IsEnabled();
+        StartMinimizedCheckBox.IsChecked = settings.StartMinimized;
         TaskbarWidgetCheckBox.IsChecked = settings.TaskbarWidgetEnabled;
         LowBatteryCheckBox.IsChecked = settings.LowBatteryNotificationsEnabled;
         TaskbarPositionComboBox.SelectedIndex = settings.TaskbarWidgetPosition == "Left" ? 0 : 1;
         foreach (var threshold in LowBatteryNotifier.ThresholdOptions)
             LowBatteryThresholdComboBox.Items.Add(new ComboBoxItem { Content = $"{threshold} %", Tag = threshold, Style = (Style)FindResource("OptionsPickerItemStyle") });
         LowBatteryThresholdComboBox.SelectedIndex = Array.IndexOf(LowBatteryNotifier.ThresholdOptions, LowBatteryNotifier.NormalizeThreshold(settings.LowBatteryThreshold));
-        ThemeComboBox.SelectedIndex = settings.ThemeName == ThemeManager.ElegantBlackTheme ? 1 : 0;
+        ThemeComboBox.SelectedIndex = settings.ThemeName switch
+        {
+            ThemeManager.ElegantBlackTheme => 1,
+            ThemeManager.RetroY2KTheme => 2,
+            _ => 0
+        };
         _originalLanguage = AppLanguage.Normalize(settings.Language);
         LanguageComboBox.SelectedIndex = _originalLanguage == AppLanguage.Spanish ? 1 : 0;
         var devices = connectedDevices.ToArray();
@@ -86,9 +93,8 @@ public partial class OptionsWindow : Window
     {
         try
         {
-            var startWithWindows = StartWithWindowsCheckBox.IsChecked == true;
-            StartupService.SetEnabled(startWithWindows);
-            _settings.StartWithWindows = startWithWindows;
+            StartupService.SetEnabled(StartWithWindowsCheckBox.IsChecked == true);
+            _settings.StartMinimized = StartMinimizedCheckBox.IsChecked == true;
             _settings.LowBatteryNotificationsEnabled = LowBatteryCheckBox.IsChecked == true;
             _settings.TaskbarWidgetPosition = (TaskbarPositionComboBox.SelectedItem as ComboBoxItem)?.Tag as string ?? "Right";
             if (LowBatteryThresholdComboBox.SelectedItem is ComboBoxItem { Tag: int threshold }) _settings.LowBatteryThreshold = threshold;

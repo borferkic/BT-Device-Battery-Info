@@ -30,9 +30,14 @@ internal sealed class TaskbarWidgetController : IDisposable
     private readonly Func<BluetoothDeviceCategory, BluetoothDeviceItem, Task> _selectDevice;
     private readonly FileLogger _logger;
     private readonly DispatcherTimer _timer;
+    /// <summary>Last time each categorized device was seen connected; keeps its pill through brief BLE sleep drops.</summary>
+    private readonly Dictionary<string, (BluetoothDeviceItem Device, DateTime LastSeen)> _recentDevices = new(StringComparer.OrdinalIgnoreCase);
     private TaskbarDockWindow? _window;
     private string? _lastStatus;
     private bool _enabled;
+
+    /// <summary>How long a device that stopped reporting as connected keeps its (dimmed) pill.</summary>
+    internal static readonly TimeSpan DisconnectGracePeriod = TimeSpan.FromSeconds(45);
 
     public TaskbarWidgetController(MainViewModel viewModel, AppSettings settings,
         Func<BluetoothDeviceCategory, BluetoothDeviceItem, Task> selectDevice, FileLogger logger)
@@ -58,6 +63,7 @@ internal sealed class TaskbarWidgetController : IDisposable
         else
         {
             _timer.Stop();
+            _recentDevices.Clear();
             _window?.Hide();
             SetStatus("Taskbar widget disabled by the user.");
         }
@@ -80,10 +86,11 @@ internal sealed class TaskbarWidgetController : IDisposable
 
     private void RefreshCore()
     {
-        var devices = _viewModel.ConnectedDevices
+        var connected = _viewModel.ConnectedDevices
             .Where(device => device.Category != BluetoothDeviceCategory.Unknown)
             .ToArray();
-        if (devices.Length == 0)
+        var devices = MergeRecentDevices(_recentDevices, connected, DateTime.UtcNow, DisconnectGracePeriod, out var staleIds);
+        if (devices.Count == 0)
         {
             _window?.Hide();
             SetStatus($"No compatible connected devices (connected: {_viewModel.ConnectedDevices.Count}; categorized: 0).");
@@ -97,17 +104,46 @@ internal sealed class TaskbarWidgetController : IDisposable
             _window.Show();
         }
 
-        _window.UpdateDevices(devices, _settings, _selectDevice);
-        if (_window.TryDock(_settings.TaskbarWidgetPosition != "Left", out var reason))
+        _window.UpdateDevices(devices, staleIds, _settings, _selectDevice);
+        var result = _window.TryDock(_settings.TaskbarWidgetPosition != "Left", out var reason);
+        switch (result)
         {
-            _window.Show();
-            SetStatus($"Taskbar widget visible (device categories: {devices.Select(device => device.Category).Distinct().Count()}).");
+            case DockResult.Docked:
+                _window.Show();
+                SetStatus($"Taskbar widget visible (device categories: {devices.Select(device => device.Category).Distinct().Count()}; in grace period: {staleIds.Count}).");
+                break;
+            case DockResult.KeptLastPosition:
+                SetStatus("Taskbar widget kept at its last position: " + reason);
+                break;
+            default:
+                _window.Hide();
+                SetStatus("Taskbar widget enabled but hidden: " + reason);
+                break;
         }
-        else
+    }
+
+    /// <summary>
+    /// Adds the devices seen connected within <paramref name="gracePeriod"/> to the connected ones, so a keyboard or
+    /// mouse that drops for a few seconds while sleeping does not make its pill (or the whole widget) vanish.
+    /// </summary>
+    internal static IReadOnlyList<BluetoothDeviceItem> MergeRecentDevices(
+        Dictionary<string, (BluetoothDeviceItem Device, DateTime LastSeen)> recent, IReadOnlyList<BluetoothDeviceItem> connected,
+        DateTime now, TimeSpan gracePeriod, out HashSet<string> staleIds)
+    {
+        foreach (var device in connected)
+            recent[device.PhysicalDeviceId] = (device, now);
+        foreach (var expired in recent.Where(entry => now - entry.Value.LastSeen > gracePeriod).Select(entry => entry.Key).ToArray())
+            recent.Remove(expired);
+
+        staleIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var merged = connected.ToList();
+        foreach (var (id, entry) in recent)
         {
-            _window.Hide();
-            SetStatus("Taskbar widget enabled but hidden: " + reason);
+            if (connected.Any(device => string.Equals(device.PhysicalDeviceId, id, StringComparison.OrdinalIgnoreCase))) continue;
+            staleIds.Add(id);
+            merged.Add(entry.Device);
         }
+        return merged;
     }
 
     private void SetStatus(string status)
@@ -135,13 +171,24 @@ internal sealed class TaskbarWidgetController : IDisposable
     {
         _enabled = false;
         _timer.Stop();
+        _recentDevices.Clear();
         ((INotifyCollectionChanged)_viewModel.ConnectedDevices).CollectionChanged -= OnDevicesChanged;
         CloseWindow();
     }
 }
 
+internal enum DockResult
+{
+    Docked,
+    /// <summary>The taskbar could not be read for a moment; the widget stays where it was.</summary>
+    KeptLastPosition,
+    Hidden
+}
+
 internal sealed class TaskbarDockWindow : Window
 {
+    /// <summary>Consecutive refreshes (about 4 s apart) with an unreadable taskbar tolerated before hiding (~1 min).</summary>
+    private const int MaxTransientFailures = 15;
     private const double TaskbarWidgetHeight = 40;
     private const int GwlStyle = -16;
     private const long WsChild = 0x40000000;
@@ -151,6 +198,10 @@ internal sealed class TaskbarDockWindow : Window
     private const uint SwpFrameChanged = 0x0020;
     private readonly StackPanel _panel = new() { Orientation = Orientation.Horizontal };
     private IntPtr _attachedTaskbar;
+    private List<(System.Windows.Rect Bounds, string Id)>? _lastButtons;
+    private NativeRect _lastTaskbarRect;
+    private int _transientFailures;
+    private bool _docked;
     private IntPtr Handle => new WindowInteropHelper(this).Handle;
     public bool HasValidHandle => Handle != IntPtr.Zero && IsWindow(Handle);
 
@@ -168,14 +219,17 @@ internal sealed class TaskbarDockWindow : Window
         Content = _panel;
     }
 
-    public void UpdateDevices(IReadOnlyList<BluetoothDeviceItem> devices, AppSettings settings,
+    public void UpdateDevices(IReadOnlyList<BluetoothDeviceItem> devices, IReadOnlySet<string> staleIds, AppSettings settings,
         Func<BluetoothDeviceCategory, BluetoothDeviceItem, Task> selectDevice)
     {
         if (_panel.Children.OfType<Button>().Any(button => button.ContextMenu?.IsOpen == true)) return;
         _panel.Children.Clear();
+        // Per category: the chosen device if connected, else another connected one, else one in its grace period.
         var selectedDevices = devices.GroupBy(device => device.Category)
-            .Select(group => group.FirstOrDefault(device => string.Equals(
-                device.PhysicalDeviceId, GetSelectedDeviceId(settings, group.Key), StringComparison.OrdinalIgnoreCase)) ?? group.First())
+            .Select(group => group
+                .OrderBy(device => staleIds.Contains(device.PhysicalDeviceId))
+                .ThenBy(device => !string.Equals(device.PhysicalDeviceId, GetSelectedDeviceId(settings, group.Key), StringComparison.OrdinalIgnoreCase))
+                .First())
             .ToArray();
         foreach (var device in selectedDevices)
         {
@@ -223,11 +277,13 @@ internal sealed class TaskbarDockWindow : Window
                 Padding = new Thickness(8, 0, 4, 0),
                 Margin = new Thickness(2, 0, 0, 0),
                 VerticalAlignment = VerticalAlignment.Center,
-                BorderThickness = new Thickness(1),
                 ToolTip = AppLanguage.Format("Widget.Tooltip", device.Name, device.BatteryText, CategoryLabel(device.Category)),
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                // Dimmed while the device is in its disconnect grace period.
+                Opacity = staleIds.Contains(device.PhysicalDeviceId) ? 0.5 : 1
             };
             button.SetResourceReference(HeightProperty, "ShadcnWidgetButtonHeight");
+            button.SetResourceReference(System.Windows.Controls.Control.BorderThicknessProperty, "ShadcnBorderThickness");
             button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "ShadcnWidgetBrush");
             button.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "ShadcnWidgetForegroundBrush");
             button.SetResourceReference(System.Windows.Controls.Control.BorderBrushProperty, "ShadcnWidgetBorderBrush");
@@ -294,8 +350,30 @@ internal sealed class TaskbarDockWindow : Window
         _ => AppLanguage.Get("Widget.Device")
     };
 
-    public bool TryDock(bool nextToNotificationArea, out string reason)
+    /// <summary>
+    /// Docks the widget. Explorer often answers UI Automation with an empty tree for a few seconds (Start menu,
+    /// animations, load); hiding then made the widget blink or vanish, so meanwhile the last good button layout is
+    /// reused, or the widget stays where it was, until the failure lasts about a minute.
+    /// </summary>
+    public DockResult TryDock(bool nextToNotificationArea, out string reason)
     {
+        if (TryDockCore(nextToNotificationArea, out reason, out var transient))
+        {
+            _transientFailures = transient ? _transientFailures + 1 : 0;
+            _docked = true;
+            return DockResult.Docked;
+        }
+        if (transient && _docked && ++_transientFailures <= MaxTransientFailures)
+            return DockResult.KeptLastPosition;
+        _transientFailures = 0;
+        _docked = false;
+        return DockResult.Hidden;
+    }
+
+    /// <param name="transient">True when the taskbar could not be read reliably; on success, the cached layout was used.</param>
+    private bool TryDockCore(bool nextToNotificationArea, out string reason, out bool transient)
+    {
+        transient = false;
         var taskbar = FindWindow("Shell_TrayWnd", null);
         if (taskbar == IntPtr.Zero || !GetWindowRect(taskbar, out var taskbarRect))
             return Fail("Windows primary taskbar was not found", out reason);
@@ -304,7 +382,10 @@ internal sealed class TaskbarDockWindow : Window
 
         var source = PresentationSource.FromVisual(this);
         if (source?.CompositionTarget is null)
+        {
+            transient = true;
             return Fail("Windows has not exposed the WPF window for positioning yet", out reason);
+        }
         var transform = source.CompositionTarget.TransformToDevice;
         var width = (int)Math.Ceiling(Width * transform.M11);
         var height = (int)Math.Ceiling(Height * transform.M22);
@@ -323,17 +404,22 @@ internal sealed class TaskbarDockWindow : Window
                 buttons.Add((rect, element.Current.AutomationId));
             }
         }
-        catch (ElementNotAvailableException)
+        catch (Exception ex) when (ex is ElementNotAvailableException or InvalidOperationException or COMException or TimeoutException)
         {
-            return Fail("UI Automation could not read the taskbar tree", out reason);
+            buttons.Clear();
         }
-        catch (InvalidOperationException)
+        if (buttons.Count > 0)
         {
-            return Fail("UI Automation could not read the taskbar tree", out reason);
+            _lastButtons = buttons;
+            _lastTaskbarRect = taskbarRect;
         }
-        if (buttons.Count == 0)
+        else
         {
-            return Fail("UI Automation found no taskbar buttons", out reason);
+            transient = true;
+            // The cached layout is only valid while the taskbar keeps its size and the failure is short.
+            if (_lastButtons is null || !_lastTaskbarRect.Equals(taskbarRect) || _transientFailures >= MaxTransientFailures)
+                return Fail("UI Automation could not read the taskbar buttons", out reason);
+            buttons = _lastButtons;
         }
 
         if (nextToNotificationArea)

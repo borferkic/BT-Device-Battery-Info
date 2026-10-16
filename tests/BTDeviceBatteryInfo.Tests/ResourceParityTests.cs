@@ -6,6 +6,7 @@ public class ResourceParityTests
     [Theory]
     [InlineData("Resources/Themes/System.xaml")]
     [InlineData("Resources/Themes/SystemLight.xaml")]
+    [InlineData("Resources/Themes/RetroY2K.xaml")]
     public void ThemeDefinesSameKeysAsElegantBlack(string theme)
     {
         var expected = RepositoryPaths.ReadKeys("Resources/Themes/ElegantBlack.xaml");

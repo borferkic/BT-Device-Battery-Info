@@ -38,7 +38,9 @@
     <sys:String x:Key="Str.Options.Title">Opciones</sys:String>
     <sys:String x:Key="Str.Options.Subtitle">Personaliza el inicio, la barra de tareas y la apariencia</sys:String>
     <sys:String x:Key="Str.Options.StartWithWindows">Iniciar con Windows</sys:String>
-    <sys:String x:Key="Str.Options.TaskbarWidget">Mostrar el widget compacto en la barra de tareas</sys:String>
+    <sys:String x:Key="Str.Options.StartMinimized">Iniciar minimizado en la bandeja</sys:String>
+    <sys:String x:Key="Str.Options.StartMinimizedTooltip">Se abre solo con el icono de la bandeja y el widget de la barra de tareas; haz doble clic en el icono para mostrar la ventana.</sys:String>
+    <sys:String x:Key="Str.Options.TaskbarWidget">Mostrar widget en la barra de tareas</sys:String>
     <sys:String x:Key="Str.Options.Theme">Tema</sys:String>
     <sys:String x:Key="Str.Options.Language">Idioma</sys:String>
     <sys:String x:Key="Str.Options.TaskbarDevices">Dispositivo por categoría en la barra de tareas</sys:String>

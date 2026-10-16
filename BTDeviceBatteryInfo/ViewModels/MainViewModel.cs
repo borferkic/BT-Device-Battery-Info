@@ -28,7 +28,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private bool _isDisposed;
     private bool _selectionResolved;
     private bool _disconnectedDevicesExpanded;
-    private string _status = "DISCONNECTED";
+    private ConnectionStatus _status = ConnectionStatus.Disconnected;
     private string _deviceListMessageKey = "Main.Searching";
     private bool _isLoading = true;
     private bool _isTurningOnBluetooth;
@@ -41,7 +41,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _logger = logger;
         _readOnlyConnectedDevices = new ReadOnlyObservableCollection<BluetoothDeviceItem>(_connectedDevices);
         _readOnlyDisconnectedDevices = new ReadOnlyObservableCollection<BluetoothDeviceItem>(_disconnectedDevices);
-        ReconnectCommand = new AsyncCommand(() => ReconnectAsync(force: false));
         TurnOnBluetoothCommand = new AsyncCommand(TurnOnBluetoothAsync);
         OpenBluetoothSettingsCommand = new AsyncCommand(OpenBluetoothSettingsAsync);
         OpenUpdateCommand = new AsyncCommand(OpenUpdateAsync);
@@ -54,7 +53,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    public ICommand ReconnectCommand { get; }
     public ICommand TurnOnBluetoothCommand { get; }
     public ICommand OpenBluetoothSettingsCommand { get; }
     public ICommand OpenUpdateCommand { get; }
@@ -147,9 +145,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public bool CanRefresh => !IsRefreshing;
     public string RefreshButtonText => AppLanguage.Get(IsRefreshing ? "Main.Refreshing" : "Main.RefreshNow");
     public Visibility LoadingVisibility => _isLoading && !IsBluetoothUnavailable ? Visibility.Visible : Visibility.Collapsed;
-    public string ActionText => _status == "CONNECTED" ? "RECONNECT" : "CONNECT";
-    public System.Windows.Media.Brush StatusBrush => _status == "ERROR" ? ThemeManager.Brush("ShadcnDestructiveBrush") : ConnectedDeviceCount <= 0 ? ThemeManager.Brush("ShadcnWarningBrush") : ThemeManager.Brush("ShadcnSuccessBrush");
-    public bool AutoReconnect { get => _settings.AutoReconnect; set { _settings.AutoReconnect = value; OnPropertyChanged(); } }
+    public System.Windows.Media.Brush StatusBrush => _status == ConnectionStatus.Error ? ThemeManager.Brush("ShadcnDestructiveBrush") : ConnectedDeviceCount <= 0 ? ThemeManager.Brush("ShadcnWarningBrush") : ThemeManager.Brush("ShadcnSuccessBrush");
 
     private async Task InvokeOnUiAsync(Action action)
     {
@@ -218,7 +214,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             await InvokeOnUiAsync(() =>
             {
-                _status = "CONNECTING";
+                _status = ConnectionStatus.Connecting;
                 NotifyState();
             });
             await _logger.LogAsync(force ? "Force reconnect started" : "Reconnect started");
@@ -232,7 +228,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                     await InvokeOnUiAsync(() =>
                     {
                         DeviceListMessage = string.Empty;
-                        _status = "CONNECTED";
+                        _status = ConnectionStatus.Connected;
                         NotifyState();
                     });
                     await RefreshDevicesAsync();
@@ -244,7 +240,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             await InvokeOnUiAsync(() =>
             {
                 // A failed restore is usually a false positive (e.g. devices that never report battery), so it is not an error state.
-                _status = "DISCONNECTED";
+                _status = ConnectionStatus.Disconnected;
                 NotifyState();
             });
             await _logger.LogAsync("Connection failed");
@@ -254,7 +250,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             await InvokeOnUiAsync(() =>
             {
-                _status = "ERROR";
+                _status = ConnectionStatus.Error;
                 DeviceListMessage = ex.Message;
                 NotifyState();
             });
@@ -367,11 +363,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         _selectionResolved = true;
         _settings.DeviceId = current.PhysicalDeviceId;
-        _settings.DeviceName = current.Name;
         await SettingsService.SaveAsync(_settings);
         await InvokeOnUiAsync(() =>
         {
-            _status = current.IsConnected ? "CONNECTED" : "DISCONNECTED";
+            _status = current.IsConnected ? ConnectionStatus.Connected : ConnectionStatus.Disconnected;
             NotifyState();
         });
     }
@@ -392,7 +387,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             await InvokeOnUiAsync(() =>
             {
-                _status = info.IsConnected ? "CONNECTED" : "DISCONNECTED";
+                _status = info.IsConnected ? ConnectionStatus.Connected : ConnectionStatus.Disconnected;
                 NotifyState();
             });
             await RefreshDevicesAsync();
@@ -426,8 +421,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             await _logger.LogAsync("Initial Bluetooth discovery completion error: " + ex.Message);
         }
     }
-    private void NotifyState() { OnPropertyChanged(nameof(ActionText)); OnPropertyChanged(nameof(StatusBrush)); }
-    private void Set<T>(ref T field, T value, [CallerMemberName] string? name = null) { field = value; OnPropertyChanged(name); }
+    private void NotifyState() => OnPropertyChanged(nameof(StatusBrush));
     private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
     private async Task TurnOnBluetoothAsync()
@@ -520,6 +514,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _bluetooth.InitialDiscoveryCompleted -= OnInitialDiscoveryCompleted;
     }
 }
+
+/// <summary>Connection state of the selected device; only <see cref="Error"/> changes the status color.</summary>
+public enum ConnectionStatus { Disconnected, Connecting, Connected, Error }
 
 public sealed record BluetoothDeviceItem(string Name, bool IsConnected, int? BatteryPercent, BluetoothDeviceCategory Category, string PhysicalDeviceId,
     BatteryLevel? BatteryLevel = null)

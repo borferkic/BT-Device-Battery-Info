@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.24` — **Fewer false alarms**.
+Latest release: `0.25`.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
@@ -44,9 +44,10 @@ Latest release: `0.24` — **Fewer false alarms**.
 - **Themes**
   - **Elegant Black**: a monochrome dark theme inspired by shadcn/ui, with the Geist Sans font and a subtle gradient on the main window.
   - **System**: follows the Windows 11 look, uses the Windows device icons and accent color, and switches automatically between light and dark mode when Windows changes.
+  - **Retro Y2K**: an early-2000s desktop look with the Bubblegum palette, OS-style title bars, the Press Start 2P pixel font for titles and buttons, square corners, hard shadows, a graph-paper background, and small animations.
   - The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`, plus light and dark app icons.
 - **Application**
-  - `Options` window with switches for Start with Windows and the taskbar widget, the theme and language selectors, and the device per category.
+  - `Options` window with switches for Start with Windows, starting minimized to the tray, and the taskbar widget, the theme and language selectors, and the device per category.
   - English and Spanish interface, switchable live from `Options`.
   - Compact main window anchored above the clock, with one device per line and a red border when the battery is low.
   - Windows notification with the device type icon when a device drops to the low-battery threshold (configurable in `Options`, 15 % by default).
@@ -70,11 +71,17 @@ Latest release: `0.24` — **Fewer false alarms**.
 |---|---|
 | ![Main window with the System theme](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Options window with the System theme](BTDeviceBatteryInfo/docs/images/options-window.png) |
 
+**Retro Y2K theme**
+
+| Main window | Options |
+|---|---|
+| ![Main window with the Retro Y2K theme](BTDeviceBatteryInfo/docs/images/main-window-retro-y2k.png) | ![Options window with the Retro Y2K theme](BTDeviceBatteryInfo/docs/images/options-window-retro-y2k.png) |
+
 **Taskbar widget**
 
-| Elegant Black | System |
-|---|---|
-| ![Taskbar widget with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) |
+| Elegant Black | System | Retro Y2K |
+|---|---|---|
+| ![Taskbar widget with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) | ![Taskbar widget with the Retro Y2K theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-retro-y2k.png) |
 
 **Low battery notification**
 
@@ -202,7 +209,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.24` — **Menos falsas alarmas**.
+Última versión: `0.25`.
 
 ### Funcionalidades
 
@@ -220,9 +227,10 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 - **Temas**
   - **Elegant Black**: tema oscuro monocromo inspirado en shadcn/ui, con la fuente Geist Sans y un gradiente sutil en la ventana principal.
   - **System**: sigue el aspecto de Windows 11, usa los iconos de dispositivos y el color de énfasis de Windows, y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
+  - **Retro Y2K**: aspecto de escritorio de principios de los 2000 con la paleta Bubblegum, barras de título estilo sistema operativo, la fuente pixel Press Start 2P en títulos y botones, esquinas rectas, sombras duras, fondo de papel cuadriculado y pequeñas animaciones.
   - El tema se aplica a todas las ventanas, tooltips, menús y al widget, con vista previa en vivo en `Options` e iconos de la app en versión clara y oscura.
 - **Aplicación**
-  - Ventana `Options` con interruptores para el inicio con Windows y el widget, los selectores de tema e idioma, y el dispositivo por categoría.
+  - Ventana `Options` con interruptores para el inicio con Windows, el inicio minimizado en la bandeja y el widget, los selectores de tema e idioma, y el dispositivo por categoría.
   - Interfaz en inglés y español, con cambio en vivo desde `Options`.
   - Ventana principal compacta anclada sobre el reloj, con un dispositivo por línea y borde rojo cuando la batería está baja.
   - Notificación de Windows con el icono del tipo de dispositivo cuando un dispositivo baja del umbral de batería (configurable en `Options`, 15 % por defecto).
@@ -246,11 +254,17 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 |---|---|
 | ![Ventana principal con el tema System](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Ventana de opciones con el tema System](BTDeviceBatteryInfo/docs/images/options-window.png) |
 
+**Tema Retro Y2K**
+
+| Ventana principal | Opciones |
+|---|---|
+| ![Ventana principal con el tema Retro Y2K](BTDeviceBatteryInfo/docs/images/main-window-retro-y2k.png) | ![Ventana de opciones con el tema Retro Y2K](BTDeviceBatteryInfo/docs/images/options-window-retro-y2k.png) |
+
 **Widget de la barra de tareas**
 
-| Elegant Black | System |
-|---|---|
-| ![Widget de la barra de tareas con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) |
+| Elegant Black | System | Retro Y2K |
+|---|---|---|
+| ![Widget de la barra de tareas con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) | ![Widget de la barra de tareas con el tema Retro Y2K](BTDeviceBatteryInfo/docs/images/taskbar-widget-retro-y2k.png) |
 
 **Aviso de batería baja**
 

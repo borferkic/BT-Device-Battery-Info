@@ -112,9 +112,6 @@ public sealed class BluetoothService : IDisposable
         QueueBatteryHydration(endpoints, force: true);
     }
 
-    public async Task<IReadOnlyList<BluetoothDeviceInfo>> FindConnectedDevicesAsync() =>
-        (await FindDevicesAsync()).Where(device => device.IsConnected).ToArray();
-
     public async Task<BluetoothDeviceInfo?> SelectAsync(string id)
     {
         await EnsureInitializedAsync();

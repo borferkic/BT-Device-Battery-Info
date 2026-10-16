@@ -58,7 +58,7 @@
             <Setter Property="FocusVisualStyle" Value="{StaticResource ShadcnFocusVisual}"/>
             <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource ShadcnInputBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource ShadcnBorderThickness}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="ItemContainerStyle" Value="{StaticResource OptionsPickerItemStyle}"/>
             <Setter Property="Template">
@@ -105,7 +105,7 @@
                                     <Border Background="{DynamicResource ShadcnPopoverBrush}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}"
                                             Effect="{DynamicResource ShadcnShadowMd}"/>
                                     <Border Background="{DynamicResource ShadcnPopoverBrush}"
-                                            BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1"
+                                            BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}"
                                             CornerRadius="{DynamicResource ShadcnControlCornerRadius}">
                                         <ScrollViewer Margin="4" CanContentScroll="True">
                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
@@ -124,26 +124,33 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid Margin="12">
+    <Grid x:Name="RootGrid" Margin="12">
     <Border Style="{StaticResource ShadcnWindowShadow}"/>
     <Border Style="{StaticResource ShadcnMainWindowBorder}">
-        <Grid Margin="16,12">
+        <Grid Margin="{DynamicResource ShadcnOptionsContentMargin}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid MouseLeftButtonDown="DragWindow">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Border Margin="{DynamicResource ShadcnTitleBarMargin}" Background="{DynamicResource ShadcnTitleBarBrush}"
+                        BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnTitleBarBorderThickness}" Grid.ColumnSpan="2" />
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Str.Options.Title}" Style="{StaticResource ShadcnMainTitle}"/>
                     <TextBlock Text="{DynamicResource Str.Options.Subtitle}" Style="{StaticResource ShadcnMutedText}" Margin="0,2,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="1" ToolTip="{DynamicResource Str.Options.Close}" Style="{StaticResource ShadcnIconButton}" Click="Cancel_Click">
-                    <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
+                    <Grid>
+                        <Border Style="{StaticResource RetroWindowControl}" Background="#FFFF5B5B" />
+                        <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
+                    </Grid>
                 </Button>
             </Grid>
             <ScrollViewer Grid.Row="1" Margin="0,12,0,10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <CheckBox x:Name="StartWithWindowsCheckBox" Content="{DynamicResource Str.Options.StartWithWindows}" Style="{StaticResource ShadcnSwitch}" Margin="4,2,0,8" HorizontalAlignment="Left"/>
+                <CheckBox x:Name="StartMinimizedCheckBox" Content="{DynamicResource Str.Options.StartMinimized}" Style="{StaticResource ShadcnSwitch}" Margin="4,0,0,8" HorizontalAlignment="Left"
+                          ToolTip="{DynamicResource Str.Options.StartMinimizedTooltip}"/>
                 <Grid Margin="4,0,0,8">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <CheckBox x:Name="TaskbarWidgetCheckBox" Content="{DynamicResource Str.Options.TaskbarWidget}" Style="{StaticResource ShadcnSwitch}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -170,6 +177,7 @@
                                   SelectionChanged="ThemeComboBox_SelectionChanged">
                             <ComboBoxItem Content="System" Tag="System"/>
                             <ComboBoxItem Content="Elegant Black" Tag="Elegant Black"/>
+                            <ComboBoxItem Content="Retro Y2K" Tag="Retro Y2K"/>
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="8,0,0,0">

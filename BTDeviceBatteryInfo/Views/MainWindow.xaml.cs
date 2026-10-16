@@ -43,25 +43,34 @@ public partial class MainWindow : Window, IDisposable
 
         ViewModel = new MainViewModel(settings, bluetooth, logger);
         _taskbarWidget = new TaskbarWidgetController(ViewModel, _settings, SelectTaskbarDeviceAsync, logger);
-        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         ((System.Collections.Specialized.INotifyCollectionChanged)ViewModel.ConnectedDevices).CollectionChanged += OnConnectedDevicesChanged;
         DataContext = ViewModel;
 
-        Loaded += async (_, _) =>
+        Loaded += (_, _) => AnchorToWorkArea();
+        IsVisibleChanged += (_, e) =>
         {
-            try
-            {
-                AnchorToWorkArea();
-                await ViewModel.InitializeAsync();
-                CreateTrayIcon();
-                _taskbarWidget.SetEnabled(_settings.TaskbarWidgetEnabled);
-            }
-            catch (Exception ex)
-            {
-                await HandleBackgroundErrorAsync("Window initialization", ex);
-            }
+            if (e.NewValue is true) RetroEffects.PlayWindowSpawn(RootGrid);
         };
         Closing += OnClosing;
+    }
+
+    /// <summary>
+    /// Starts Bluetooth discovery, the tray icon and the taskbar widget. It does not depend on the window being
+    /// shown, so the app can start minimized to the tray.
+    /// </summary>
+    public async Task InitializeAsync()
+    {
+        // The tray icon comes first: when starting minimized it is the only way back to the window.
+        CreateTrayIcon();
+        try
+        {
+            await ViewModel.InitializeAsync();
+            _taskbarWidget.SetEnabled(_settings.TaskbarWidgetEnabled);
+        }
+        catch (Exception ex)
+        {
+            await HandleBackgroundErrorAsync("Window initialization", ex);
+        }
     }
 
     public void CreateTrayIcon()
@@ -85,7 +94,7 @@ public partial class MainWindow : Window, IDisposable
         {
             Checked = StartupService.IsEnabled()
         };
-        _startWithWindowsMenuItem.Click += async (_, _) => await ToggleStartWithWindowsAsync();
+        _startWithWindowsMenuItem.Click += (_, _) => ToggleStartWithWindows();
         menu.Items.Add(_startWithWindowsMenuItem);
         _exitMenuItem = new Forms.ToolStripMenuItem();
         _exitMenuItem.Click += (_, _) => ExitApplication();
@@ -102,10 +111,6 @@ public partial class MainWindow : Window, IDisposable
         };
         _tray.DoubleClick += (_, _) => ToggleWidgetFromTray();
         UpdateWidgetMenuItem();
-    }
-
-    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
     }
 
     /// <summary>
@@ -284,15 +289,13 @@ public partial class MainWindow : Window, IDisposable
             return (Drawing.Icon)icon.Clone();
     }
 
-    private async Task ToggleStartWithWindowsAsync()
+    private void ToggleStartWithWindows()
     {
         var enabled = _startWithWindowsMenuItem?.Checked != true;
 
         try
         {
             StartupService.SetEnabled(enabled);
-            _settings.StartWithWindows = enabled;
-            await SettingsService.SaveAsync(_settings);
 
             if (_startWithWindowsMenuItem is not null)
                 _startWithWindowsMenuItem.Checked = enabled;
@@ -332,7 +335,6 @@ public partial class MainWindow : Window, IDisposable
         _tray?.Dispose();
         _trayIcon?.Dispose();
         ((System.Collections.Specialized.INotifyCollectionChanged)ViewModel.ConnectedDevices).CollectionChanged -= OnConnectedDevicesChanged;
-        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
         ViewModel.Dispose();
         _bluetooth.Dispose();
     }

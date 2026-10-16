@@ -56,4 +56,28 @@
     <Visibility x:Key="ShadcnSystemDeviceIconVisibility">Visible</Visibility>
     <SolidColorBrush x:Key="ShadcnSuccessTintBrush" Color="#1A0F7B0F" />
     <SolidColorBrush x:Key="ShadcnSuccessTintHoverBrush" Color="#2E0F7B0F" />
+    <!-- Primary button and switch borders follow the primary color here; Retro Y2K outlines them in its border color. -->
+    <SolidColorBrush x:Key="ShadcnPrimaryBorderBrush" Color="#FF00857F" />
+    <SolidColorBrush x:Key="ShadcnPrimaryHoverBorderBrush" Color="#FF1A958F" />
+    <SolidColorBrush x:Key="ShadcnSwitchTrackOnBorderBrush" Color="#FF00857F" />
+    <CornerRadius x:Key="ShadcnSwitchCornerRadius">10</CornerRadius>
+    <CornerRadius x:Key="ShadcnSwitchThumbCornerRadius">6</CornerRadius>
+    <!-- Structure shared by every theme; only Retro Y2K turns on the title bar, decorations and hard button shadows. -->
+    <Thickness x:Key="ShadcnBorderThickness">1</Thickness>
+    <Visibility x:Key="ShadcnRetroVisibility">Collapsed</Visibility>
+    <SolidColorBrush x:Key="ShadcnTitleBarBrush" Color="#00000000" />
+    <Thickness x:Key="ShadcnTitleBarBorderThickness">0</Thickness>
+    <Thickness x:Key="ShadcnTitleBarMargin">0</Thickness>
+    <Thickness x:Key="ShadcnMainContentMargin">14,12,14,12</Thickness>
+    <Thickness x:Key="ShadcnOptionsContentMargin">16,12,16,12</Thickness>
+    <Thickness x:Key="ShadcnAboutContentMargin">24,20,24,20</Thickness>
+    <Thickness x:Key="ShadcnCardMargin">0,0,0,4</Thickness>
+    <Thickness x:Key="ShadcnButtonPressedMargin">0</Thickness>
+    <sys:Double x:Key="ShadcnMainTitleFontSize">17</sys:Double>
+    <sys:Double x:Key="ShadcnWindowTitleFontSize">15</sys:Double>
+    <sys:Double x:Key="ShadcnSectionTitleFontSize">13</sys:Double>
+    <sys:Double x:Key="ShadcnButtonFontSize">12</sys:Double>
+    <sys:Double x:Key="ShadcnCompactButtonFontSize">11</sys:Double>
+    <sys:Double x:Key="ShadcnToolbarIconSize">16</sys:Double>
+    <sys:Double x:Key="ShadcnIconButtonSize">32</sys:Double>
 </ResourceDictionary>

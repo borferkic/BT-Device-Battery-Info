@@ -2,7 +2,7 @@
 
 Backlog canónico de BT Device Battery Info. Las tareas se priorizan por impacto observable y se mantienen aquí hasta que exista implementación y evidencia de validación.
 
-Última revisión documental: `2026-09-25`.
+Última revisión documental: `2026-10-16`.
 
 ## Cómo usar este documento
 
@@ -18,7 +18,9 @@ Sin pendientes de prioridad alta.
 
 ## Prioridad media
 
-Sin pendientes de prioridad media.
+### P-040 — Limpieza de código (segunda parte)
+
+- [ ] Dividir `BluetoothService.cs` (lectura de batería frente a watcher y endpoints), plantilla del widget en XAML y `NativeMethods`.
 
 ## Prioridad baja
 
@@ -41,6 +43,11 @@ Sin pendientes de prioridad media.
 - [ ] Cubrir con xUnit el anillo al 100% sin etiqueta, el fallo de reconexión sin mensaje ni estado ERROR y el texto `N/A`/`N/D`.
 
 ## Completado recientemente
+
+- [x] P-038 — El widget no se oculta por fallos pasajeros de UI Automation y mantiene 45 s la pastilla de un dispositivo que se desconecta; validado por el usuario en `0.25-dev2` (`2026-10-16`).
+- [x] P-039 — Opción `Start minimized to the tray` y argumento `--minimized`; validado por el usuario en `0.25-dev2` (`2026-10-16`).
+- [x] P-040 (primera parte) — Código sin uso, `StartWithWindows` duplicado y estados en texto limpiados; validado por el usuario en `0.25-dev2` (`2026-10-16`).
+- [x] P-041 — Tema `Retro Y2K` (Bubblegum, Press Start 2P + Nunito, barra de título, sombras duras, animaciones); validado por el usuario en `0.25-dev2` (`2026-10-16`).
 
 - [x] P-028 — Mandos por `Windows.Gaming.Input` muestran niveles; el valor fijo 100/1000 mWh de los 8BitDo se muestra como no disponible y sin avisos (`0.23`). Cerrado por el usuario sin validación final (`2026-09-25`).
 - [x] P-033 — El aviso de batería baja muestra el icono del tipo de dispositivo en rojo en lugar del triángulo; validado por el usuario (`2026-09-25`).

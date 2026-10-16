@@ -49,7 +49,8 @@ public partial class App : System.Windows.Application
             _logger = new FileLogger();
             var bluetooth = new BluetoothService(_logger);
             _window = new MainWindow(settings, bluetooth, _logger);
-            _window.Show();
+            if (!ShouldStartMinimized(settings, e.Args)) _window.Show();
+            await _window.InitializeAsync();
         }
         catch (Exception ex)
         {
@@ -62,6 +63,10 @@ public partial class App : System.Windows.Application
             Shutdown(1);
         }
     }
+
+    /// <summary>The window stays hidden (tray icon and taskbar widget only) by setting or with the --minimized argument.</summary>
+    internal static bool ShouldStartMinimized(Models.AppSettings settings, IEnumerable<string> args) =>
+        settings.StartMinimized || args.Any(arg => string.Equals(arg, "--minimized", StringComparison.OrdinalIgnoreCase));
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {

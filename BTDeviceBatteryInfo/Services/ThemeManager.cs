@@ -8,6 +8,7 @@ public static class ThemeManager
 {
     public const string SystemTheme = "System";
     public const string ElegantBlackTheme = "Elegant Black";
+    public const string RetroY2KTheme = "Retro Y2K";
 
     private const string ThemeFolder = "Resources/Themes/";
     private const string PersonalizeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
@@ -18,8 +19,11 @@ public static class ThemeManager
     // Kept alive so ColorValuesChanged keeps firing when the user changes the Windows accent color.
     private static UISettings? _uiSettings;
 
-    /// <summary>True when the applied palette is light (System theme with Windows in light mode).</summary>
+    /// <summary>True when the applied palette is light (Retro Y2K, or System theme with Windows in light mode).</summary>
     public static bool IsLight { get; private set; }
+
+    /// <summary>True while Retro Y2K is applied; windows use it to play the window spawn effect.</summary>
+    public static bool IsRetroY2K { get; private set; }
 
     /// <summary>Raised on the UI thread after a palette has been applied.</summary>
     public static event EventHandler? ThemeChanged;
@@ -29,10 +33,12 @@ public static class ThemeManager
         _resources = resources;
         _themeName = themeName;
         var isElegantBlack = themeName == ElegantBlackTheme;
-        IsLight = !isElegantBlack && WindowsUsesLightTheme();
-        var file = isElegantBlack ? "ElegantBlack" : IsLight ? "SystemLight" : "System";
+        IsRetroY2K = themeName == RetroY2KTheme;
+        var followsWindows = FollowsWindows(themeName);
+        IsLight = IsRetroY2K || (followsWindows && WindowsUsesLightTheme());
+        var file = isElegantBlack ? "ElegantBlack" : IsRetroY2K ? "RetroY2K" : IsLight ? "SystemLight" : "System";
         var theme = new ResourceDictionary { Source = new Uri($"pack://application:,,,/{ThemeFolder}{file}.xaml") };
-        if (!isElegantBlack) ApplyWindowsAccent(theme, IsLight);
+        if (followsWindows) ApplyWindowsAccent(theme, IsLight);
 
         var merged = resources.MergedDictionaries;
         var index = merged.ToList().FindIndex(dictionary =>
@@ -40,9 +46,17 @@ public static class ThemeManager
         if (index >= 0) merged[index] = theme;
         else merged.Insert(0, theme);
 
-        resources["AppFontFamily"] = isElegantBlack
-            ? new System.Windows.Media.FontFamily(new Uri("pack://application:,,,/"), "./Assets/Fonts/#Geist")
+        var appFont = isElegantBlack ? EmbeddedFont("#Geist")
+            : IsRetroY2K ? EmbeddedFont("Nunito-Bold.ttf#Nunito")
             : System.Windows.SystemFonts.MessageFontFamily;
+        resources["AppFontFamily"] = appFont;
+        // Retro Y2K uses the pixel font for window titles, section titles and buttons (its "UI chrome"). It has a
+        // single regular face, so those texts use normal weight instead of a synthesized bold.
+        var chromeFont = IsRetroY2K ? EmbeddedFont("PressStart2P-Regular.ttf#Press Start 2P") : appFont;
+        resources["TitleFontFamily"] = chromeFont;
+        resources["ButtonFontFamily"] = chromeFont;
+        resources["TitleFontWeight"] = IsRetroY2K ? FontWeights.Normal : FontWeights.SemiBold;
+        resources["ButtonFontWeight"] = IsRetroY2K ? FontWeights.Normal : FontWeights.Medium;
 
         if (!_listening)
         {
@@ -60,6 +74,13 @@ public static class ThemeManager
         }
         ThemeChanged?.Invoke(null, EventArgs.Empty);
     }
+
+    /// <summary>Only the System theme follows the Windows light/dark mode and accent color.</summary>
+    private static bool FollowsWindows(string? themeName) => themeName is not (ElegantBlackTheme or RetroY2KTheme);
+
+    /// <param name="location">"#Family" for the whole folder, or "File.ttf#Family" to name the file explicitly.</param>
+    private static System.Windows.Media.FontFamily EmbeddedFont(string location) =>
+        new(new Uri("pack://application:,,,/"), "./Assets/Fonts/" + location);
 
     public static void StopListening()
     {
@@ -83,6 +104,9 @@ public static class ThemeManager
             var hover = settings.GetColorValue(isLight ? UIColorType.AccentDark2 : UIColorType.AccentLight1);
             theme["ShadcnPrimaryBrush"] = Frozen(primary);
             theme["ShadcnPrimaryHoverBrush"] = Frozen(hover);
+            theme["ShadcnPrimaryBorderBrush"] = Frozen(primary);
+            theme["ShadcnPrimaryHoverBorderBrush"] = Frozen(hover);
+            theme["ShadcnSwitchTrackOnBorderBrush"] = Frozen(primary);
             theme["ShadcnRingBrush"] = Frozen(primary);
             theme["ShadcnPrimaryForegroundBrush"] = Frozen(ContrastingText(primary));
         }
@@ -115,7 +139,7 @@ public static class ThemeManager
 
     private static void OnColorValuesChanged(UISettings sender, object args)
     {
-        if (_resources is null || _themeName == ElegantBlackTheme) return;
+        if (_resources is null || !FollowsWindows(_themeName)) return;
         System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => Apply(_resources, _themeName));
     }
 
@@ -125,7 +149,7 @@ public static class ThemeManager
 
     private static void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
     {
-        if (e.Category != UserPreferenceCategory.General || _resources is null || _themeName == ElegantBlackTheme) return;
+        if (e.Category != UserPreferenceCategory.General || _resources is null || !FollowsWindows(_themeName)) return;
         if (WindowsUsesLightTheme() == IsLight) return;
         System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => Apply(_resources, _themeName));
     }

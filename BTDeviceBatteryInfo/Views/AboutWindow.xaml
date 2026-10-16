@@ -13,9 +13,9 @@
         ResizeMode="NoResize"
         Background="Transparent"
         FontFamily="{DynamicResource AppFontFamily}">
-    <Grid Margin="12">
+    <Grid x:Name="RootGrid" Margin="12">
     <Border Style="{StaticResource ShadcnWindowShadow}"/>
-    <Border Style="{StaticResource ShadcnMainWindowBorder}" Padding="24,20">
+    <Border Style="{StaticResource ShadcnMainWindowBorder}" Padding="{DynamicResource ShadcnAboutContentMargin}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -29,9 +29,14 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+                <Border Margin="{DynamicResource ShadcnTitleBarMargin}" Background="{DynamicResource ShadcnTitleBarBrush}"
+                        BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnTitleBarBorderThickness}" Grid.ColumnSpan="2" />
                 <TextBlock Text="{DynamicResource Str.About.Title}" Style="{StaticResource ShadcnMainTitle}" VerticalAlignment="Center"/>
                 <Button Grid.Column="1" ToolTip="{DynamicResource Str.About.Close}" Style="{StaticResource ShadcnIconButton}" Click="Close_Click">
-                    <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
+                    <Grid>
+                        <Border Style="{StaticResource RetroWindowControl}" Background="#FFFF5B5B" />
+                        <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
+                    </Grid>
                 </Button>
             </Grid>
 
@@ -46,7 +51,7 @@
                            Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
                             <Path Data="{x:Static icons:LucideIcons.Instagram}" Style="{StaticResource LucideToolbarIcon}" Width="15" Height="15" Stroke="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
@@ -54,7 +59,7 @@
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
                             <Path Data="{x:Static icons:LucideIcons.Twitch}" Style="{StaticResource LucideToolbarIcon}" Width="15" Height="15" Stroke="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
@@ -62,7 +67,7 @@
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
                             <Path Data="{x:Static icons:LucideIcons.LinkedIn}" Style="{StaticResource LucideToolbarIcon}" Width="15" Height="15" Stroke="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
@@ -73,7 +78,7 @@
                 <TextBlock Text="{DynamicResource Str.About.Support}" Foreground="{DynamicResource ShadcnMutedBrush}" FontSize="12" TextWrapping="Wrap" TextAlignment="Center" Margin="0,14,0,0"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
                             <Path Data="{x:Static icons:LucideIcons.PayPal}" Width="13" Height="13" Stretch="Uniform" Fill="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">
@@ -81,7 +86,7 @@
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Width="76">
-                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
+                        <Border Width="28" Height="28" Background="{DynamicResource ShadcnElevatedBrush}" BorderBrush="{DynamicResource ShadcnBorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}" HorizontalAlignment="Center">
                             <Path Data="{x:Static icons:LucideIcons.Patreon}" Width="13" Height="13" Stretch="Uniform" Fill="{DynamicResource ShadcnForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <TextBlock HorizontalAlignment="Center" FontSize="12" Margin="0,5,0,0">

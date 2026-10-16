@@ -3,6 +3,11 @@
                     xmlns:icons="clr-namespace:BTDeviceBatteryInfo.Services">
     <!-- Colors, radii, sizes and shadows come from Themes/*.xaml, swapped at runtime by ThemeManager. -->
     <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+    <!-- Titles and buttons; ThemeManager points them to the pixel font in Retro Y2K and to AppFontFamily otherwise. -->
+    <FontFamily x:Key="TitleFontFamily">Segoe UI</FontFamily>
+    <FontFamily x:Key="ButtonFontFamily">Segoe UI</FontFamily>
+    <FontWeight x:Key="TitleFontWeight">SemiBold</FontWeight>
+    <FontWeight x:Key="ButtonFontWeight">Medium</FontWeight>
     <!-- Windows device glyphs: Segoe Fluent Icons (Windows 11) with Segoe MDL2 Assets fallback (Windows 10). -->
     <FontFamily x:Key="SystemIconFontFamily">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
@@ -10,7 +15,7 @@
         <Setter Property="Background" Value="{DynamicResource ShadcnBackgroundBrush}" />
         <Setter Property="CornerRadius" Value="{DynamicResource ShadcnWindowCornerRadius}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ShadcnBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="{DynamicResource ShadcnBorderThickness}" />
     </Style>
     <Style x:Key="TitleText" TargetType="TextBlock">
         <Setter Property="FontSize" Value="16" />
@@ -32,7 +37,7 @@
         <Setter Property="Background" Value="{DynamicResource ShadcnBackgroundBrush}" />
         <Setter Property="CornerRadius" Value="{DynamicResource ShadcnWindowCornerRadius}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ShadcnBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="{DynamicResource ShadcnBorderThickness}" />
     </Style>
     <Style x:Key="ShadcnWindowShadow" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource ShadcnBackgroundBrush}" />
@@ -49,14 +54,16 @@
 
     <!-- Type scale: 17 window title, 13 section title, 12 body, 11 caption. -->
     <Style x:Key="ShadcnMainTitle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="17" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontFamily" Value="{DynamicResource TitleFontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource ShadcnMainTitleFontSize}" />
+        <Setter Property="FontWeight" Value="{DynamicResource TitleFontWeight}" />
         <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
     </Style>
 
     <Style x:Key="ShadcnSectionTitle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontFamily" Value="{DynamicResource TitleFontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource ShadcnSectionTitleFontSize}" />
+        <Setter Property="FontWeight" Value="{DynamicResource TitleFontWeight}" />
         <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
     </Style>
 
@@ -89,27 +96,38 @@
         <Setter Property="Background" Value="{DynamicResource ShadcnElevatedBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ShadcnForegroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ShadcnInputBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="BorderThickness" Value="{DynamicResource ShadcnBorderThickness}" />
+        <Setter Property="FontFamily" Value="{DynamicResource ButtonFontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource ShadcnButtonFontSize}" />
+        <Setter Property="FontWeight" Value="{DynamicResource ButtonFontWeight}" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource ShadcnFocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="ButtonBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource ShadcnButtonCornerRadius}">
-                        <ContentPresenter Margin="{TemplateBinding Padding}"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          RecognizesAccessKey="True" />
-                    </Border>
+                    <Grid>
+                        <!-- Retro Y2K hard shadow (3 px, zero blur); pressing moves the button onto it. -->
+                        <Border x:Name="HardShadow" Margin="3,3,-3,-3" Background="{DynamicResource ShadcnBorderBrush}"
+                                Visibility="{DynamicResource ShadcnRetroVisibility}" />
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource ShadcnButtonCornerRadius}">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True" />
+                        </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ButtonBorder" Property="Margin" Value="{DynamicResource ShadcnButtonPressedMargin}" />
+                            <Setter TargetName="HardShadow" Property="Opacity" Value="0" />
+                        </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.5" />
+                            <Setter TargetName="HardShadow" Property="Visibility" Value="Hidden" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -131,18 +149,93 @@
 
     <!-- Ghost icon button (shadcn size-8). -->
     <Style x:Key="ShadcnIconButton" TargetType="Button" BasedOn="{StaticResource ShadcnButtonBase}">
-        <Setter Property="Width" Value="32" />
-        <Setter Property="Height" Value="32" />
+        <Setter Property="Width" Value="{DynamicResource ShadcnIconButtonSize}" />
+        <Setter Property="Height" Value="{DynamicResource ShadcnIconButtonSize}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="1" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource ShadcnMutedBrush}" />
+        <!-- Own template: ghost buttons never get the Retro Y2K hard shadow. -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource ShadcnButtonCornerRadius}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Retro Y2K window control square (title bar); hidden in the other themes. Background set per button. -->
+    <Style x:Key="RetroWindowControl" TargetType="Border">
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Height" Value="20" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShadcnBorderBrush}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Visibility" Value="{DynamicResource ShadcnRetroVisibility}" />
+    </Style>
+
+    <!-- Retro Y2K 4-pointed sparkle star. It only animates while visible, so the other themes and the hidden
+         window run no animation clock. Each instance sets its own RenderTransform (rotate + scale). -->
+    <Style x:Key="RetroSparkle" TargetType="Path">
+        <Setter Property="Data" Value="M6,0 L7.4,4.6 12,6 7.4,7.4 6,12 4.6,7.4 0,6 4.6,4.6 Z" />
+        <Setter Property="Width" Value="12" />
+        <Setter Property="Height" Value="12" />
+        <Setter Property="Stretch" Value="Uniform" />
+        <Setter Property="Fill" Value="#FFFF3D9A" />
+        <Setter Property="Stroke" Value="{DynamicResource ShadcnBorderBrush}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeLineJoin" Value="Miter" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Visibility" Value="{DynamicResource ShadcnRetroVisibility}" />
+        <Style.Triggers>
+            <Trigger Property="IsVisible" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="SparkleSpin">
+                        <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(RotateTransform.Angle)" Duration="0:0:3">
+                                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="180" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:3" Value="360" />
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleX)" Duration="0:0:3">
+                                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="1.3" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleY)" Duration="0:0:3">
+                                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="1.3" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Duration="0:0:3">
+                                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:1.5" Value="0.7" />
+                                <LinearDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="SparkleSpin" />
+                </Trigger.ExitActions>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="LucideToolbarIcon" TargetType="Path">
-        <Setter Property="Width" Value="16" />
-        <Setter Property="Height" Value="16" />
+        <!-- 16 px; 12 px in Retro Y2K so it fits inside the title bar control squares. -->
+        <Setter Property="Width" Value="{DynamicResource ShadcnToolbarIconSize}" />
+        <Setter Property="Height" Value="{DynamicResource ShadcnToolbarIconSize}" />
         <Setter Property="Stretch" Value="Uniform" />
         <Setter Property="Fill" Value="Transparent" />
         <Setter Property="Stroke" Value="{DynamicResource ShadcnMutedBrush}" />
@@ -160,7 +253,7 @@
     <Style x:Key="ShadcnPrimaryButton" TargetType="Button" BasedOn="{StaticResource ShadcnButtonBase}">
         <Setter Property="Background" Value="{DynamicResource ShadcnPrimaryBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ShadcnPrimaryForegroundBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ShadcnPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShadcnPrimaryBorderBrush}" />
         <Style.Triggers>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
@@ -168,7 +261,7 @@
                     <Condition Property="IsEnabled" Value="True" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource ShadcnPrimaryHoverBrush}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource ShadcnPrimaryHoverBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ShadcnPrimaryHoverBorderBrush}" />
             </MultiTrigger>
             <Trigger Property="IsPressed" Value="True">
                 <Setter Property="Background" Value="{DynamicResource ShadcnPrimaryHoverBrush}" />
@@ -181,7 +274,7 @@
     <Style x:Key="ShadcnUpdateButton" TargetType="Button" BasedOn="{StaticResource ShadcnButtonBase}">
         <Setter Property="Height" Value="22" />
         <Setter Property="Padding" Value="8,0" />
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="{DynamicResource ShadcnCompactButtonFontSize}" />
         <Setter Property="Foreground" Value="{DynamicResource ShadcnSuccessBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ShadcnSuccessBrush}" />
         <Setter Property="Background" Value="{DynamicResource ShadcnSuccessTintBrush}" />
@@ -212,22 +305,30 @@
                         </Grid.ColumnDefinitions>
                         <Border x:Name="Track"
                                 Width="{DynamicResource ShadcnSwitchWidth}" Height="{DynamicResource ShadcnSwitchHeight}"
-                                CornerRadius="10" BorderThickness="1"
+                                CornerRadius="{DynamicResource ShadcnSwitchCornerRadius}" BorderThickness="{DynamicResource ShadcnBorderThickness}"
                                 Background="{DynamicResource ShadcnSwitchTrackOffBrush}"
                                 BorderBrush="{DynamicResource ShadcnSwitchTrackOffBorderBrush}"
                                 VerticalAlignment="Center">
-                            <Ellipse x:Name="Thumb"
-                                     Width="{DynamicResource ShadcnSwitchThumbSize}" Height="{DynamicResource ShadcnSwitchThumbSize}"
-                                     Fill="{DynamicResource ShadcnSwitchThumbOffBrush}"
-                                     HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,0" />
+                            <Border x:Name="Thumb"
+                                    Width="{DynamicResource ShadcnSwitchThumbSize}" Height="{DynamicResource ShadcnSwitchThumbSize}"
+                                    CornerRadius="{DynamicResource ShadcnSwitchThumbCornerRadius}"
+                                    Background="{DynamicResource ShadcnSwitchThumbOffBrush}"
+                                    HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,0" />
                         </Border>
-                        <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                        <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True">
+                            <!-- Long labels (Spanish, wider fonts) end in an ellipsis instead of running under the picker next to them. -->
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Track" Property="Background" Value="{DynamicResource ShadcnPrimaryBrush}" />
-                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource ShadcnPrimaryBrush}" />
-                            <Setter TargetName="Thumb" Property="Fill" Value="{DynamicResource ShadcnSwitchThumbOnBrush}" />
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource ShadcnSwitchTrackOnBorderBrush}" />
+                            <Setter TargetName="Thumb" Property="Background" Value="{DynamicResource ShadcnSwitchThumbOnBrush}" />
                             <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
                         </Trigger>
                         <MultiTrigger>
@@ -265,7 +366,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
-                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}"
                             CornerRadius="{DynamicResource ShadcnControlCornerRadius}" Padding="{TemplateBinding Padding}" MaxWidth="320">
                         <ContentPresenter>
                             <ContentPresenter.Resources>
@@ -294,7 +395,7 @@
                     <Grid Margin="8,4,8,12">
                         <Border Background="{TemplateBinding Background}" CornerRadius="{DynamicResource ShadcnControlCornerRadius}"
                                 Effect="{DynamicResource ShadcnShadowMd}" />
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{DynamicResource ShadcnBorderThickness}"
                                 CornerRadius="{DynamicResource ShadcnControlCornerRadius}" Padding="4" MinWidth="128">
                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" />
                         </Border>

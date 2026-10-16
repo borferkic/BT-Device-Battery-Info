@@ -4,6 +4,23 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.25]
+
+### Added
+
+- New `Retro Y2K` theme in `Options`: an early-2000s desktop look with the Bubblegum palette, OS-style title bars with colored window buttons, the Press Start 2P pixel font for titles and buttons, square corners, hard shadows, a graph-paper background, sparkles, and a short window entrance animation. The taskbar widget follows the theme.
+- `Start minimized to the tray` in `Options`: the app opens with only the tray icon and the taskbar widget. The `--minimized` argument does the same for a single launch.
+
+### Fixed
+
+- The taskbar widget no longer disappears for a few seconds (or until the next change) when Windows is slow to report the taskbar buttons, for example while the Start menu is open; it stays at its last position.
+- A keyboard or mouse that disconnects briefly while sleeping keeps its pill, dimmed, for 45 seconds instead of vanishing from the widget.
+- Long switch labels in `Options` (Spanish) no longer run under the picker next to them; the Spanish taskbar widget label is shorter.
+
+### Changed
+
+- Removed unused settings and code (old window position, duplicated "Start with Windows" flag, unused reconnect command).
+
 ## [0.24] — Fewer false alarms
 
 ### Changed

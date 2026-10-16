@@ -25,8 +25,7 @@ public sealed class SettingsServiceTests : IDisposable
             TaskbarHeadphonesDeviceId = "headphones-id",
             LowBatteryNotificationsEnabled = false,
             LowBatteryThreshold = 25,
-            Left = -9,
-            Top = 281
+            StartMinimized = true
         };
 
         await SettingsService.SaveAsync(original, SettingsFile);
@@ -38,8 +37,7 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Equal(original.TaskbarHeadphonesDeviceId, loaded.TaskbarHeadphonesDeviceId);
         Assert.Equal(original.LowBatteryNotificationsEnabled, loaded.LowBatteryNotificationsEnabled);
         Assert.Equal(original.LowBatteryThreshold, loaded.LowBatteryThreshold);
-        Assert.Equal(original.Left, loaded.Left);
-        Assert.Equal(original.Top, loaded.Top);
+        Assert.Equal(original.StartMinimized, loaded.StartMinimized);
         Assert.False(File.Exists(SettingsFile + ".tmp"));
     }
 
