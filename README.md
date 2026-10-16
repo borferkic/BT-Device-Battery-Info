@@ -21,9 +21,9 @@
 Latest release: `0.25`.
 
 <div align="center">
-  <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png" width="420" />
+  <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant.png" width="420" />
   <br />
-  <img alt="Taskbar widget with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png" />
+  <img alt="Taskbar widget with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant.png" />
 </div>
 
 ---
@@ -63,13 +63,13 @@ Latest release: `0.25`.
 
 | Main window | Options |
 |---|---|
-| ![Main window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png) | ![Options window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/options-window-elegant-black.png) |
+| ![Main window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/main-window-elegant.png) | ![Options window with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/options-window-elegant.png) |
 
 **System theme (Windows 11 dark)**
 
 | Main window | Options |
 |---|---|
-| ![Main window with the System theme](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Options window with the System theme](BTDeviceBatteryInfo/docs/images/options-window.png) |
+| ![Main window with the System theme](BTDeviceBatteryInfo/docs/images/main-window-system.png) | ![Options window with the System theme](BTDeviceBatteryInfo/docs/images/options-window-system.png) |
 
 **Retro Y2K theme**
 
@@ -81,15 +81,15 @@ Latest release: `0.25`.
 
 | Elegant Black | System | Retro Y2K |
 |---|---|---|
-| ![Taskbar widget with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) | ![Taskbar widget with the Retro Y2K theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-retro-y2k.png) |
+| ![Taskbar widget with the Elegant Black theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant.png) | ![Taskbar widget with the System theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-system.png) | ![Taskbar widget with the Retro Y2K theme](BTDeviceBatteryInfo/docs/images/taskbar-widget-retro-y2k.png) |
 
 **Low battery notification**
 
-![Windows notification for a device with low battery](BTDeviceBatteryInfo/docs/images/low-battery-notification.png)
+![Windows notification for a device with low battery](BTDeviceBatteryInfo/docs/images/low-battery-notification-device.png)
 
 **Update notice**
 
-![Update notice next to the version badge in the main window](BTDeviceBatteryInfo/docs/images/update-notice.png)
+![Update notice next to the version badge in the main window](BTDeviceBatteryInfo/docs/images/update-notice-version.png)
 
 ## Quick start
 
@@ -246,13 +246,13 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 | Ventana principal | Opciones |
 |---|---|
-| ![Ventana principal con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/main-window-elegant-black.png) | ![Ventana de opciones con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/options-window-elegant-black.png) |
+| ![Ventana principal con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/main-window-elegant.png) | ![Ventana de opciones con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/options-window-elegant.png) |
 
 **Tema System (Windows 11 oscuro)**
 
 | Ventana principal | Opciones |
 |---|---|
-| ![Ventana principal con el tema System](BTDeviceBatteryInfo/docs/images/main-window.png) | ![Ventana de opciones con el tema System](BTDeviceBatteryInfo/docs/images/options-window.png) |
+| ![Ventana principal con el tema System](BTDeviceBatteryInfo/docs/images/main-window-system.png) | ![Ventana de opciones con el tema System](BTDeviceBatteryInfo/docs/images/options-window-system.png) |
 
 **Tema Retro Y2K**
 
@@ -264,15 +264,15 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 | Elegant Black | System | Retro Y2K |
 |---|---|---|
-| ![Widget de la barra de tareas con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant-black.png) | ![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget.png) | ![Widget de la barra de tareas con el tema Retro Y2K](BTDeviceBatteryInfo/docs/images/taskbar-widget-retro-y2k.png) |
+| ![Widget de la barra de tareas con el tema Elegant Black](BTDeviceBatteryInfo/docs/images/taskbar-widget-elegant.png) | ![Widget de la barra de tareas con el tema System](BTDeviceBatteryInfo/docs/images/taskbar-widget-system.png) | ![Widget de la barra de tareas con el tema Retro Y2K](BTDeviceBatteryInfo/docs/images/taskbar-widget-retro-y2k.png) |
 
 **Aviso de batería baja**
 
-![Notificación de Windows de un dispositivo con batería baja](BTDeviceBatteryInfo/docs/images/low-battery-notification.png)
+![Notificación de Windows de un dispositivo con batería baja](BTDeviceBatteryInfo/docs/images/low-battery-notification-device.png)
 
 **Aviso de nueva versión**
 
-![Aviso de nueva versión junto a la etiqueta de versión en la ventana principal](BTDeviceBatteryInfo/docs/images/update-notice.png)
+![Aviso de nueva versión junto a la etiqueta de versión en la ventana principal](BTDeviceBatteryInfo/docs/images/update-notice-version.png)
 
 ### Inicio rápido
 
