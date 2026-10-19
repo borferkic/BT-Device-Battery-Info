@@ -9,6 +9,7 @@ public static class ThemeManager
     public const string SystemTheme = "System";
     public const string ElegantBlackTheme = "Elegant Black";
     public const string RetroY2KTheme = "Retro Y2K";
+    public const string Y2KVaporwaveTheme = "Y2K Vaporwave";
 
     private const string ThemeFolder = "Resources/Themes/";
     private const string PersonalizeKey = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
@@ -19,10 +20,10 @@ public static class ThemeManager
     // Kept alive so ColorValuesChanged keeps firing when the user changes the Windows accent color.
     private static UISettings? _uiSettings;
 
-    /// <summary>True when the applied palette is light (Retro Y2K, or System theme with Windows in light mode).</summary>
+    /// <summary>True when the applied palette is light (Retro Y2K, Y2K Vaporwave, or System theme with Windows in light mode).</summary>
     public static bool IsLight { get; private set; }
 
-    /// <summary>True while Retro Y2K is applied; windows use it to play the window spawn effect.</summary>
+    /// <summary>True while Retro Y2K or Y2K Vaporwave (same structure, other palette) is applied; windows use it to play the window spawn effect.</summary>
     public static bool IsRetroY2K { get; private set; }
 
     /// <summary>Raised on the UI thread after a palette has been applied.</summary>
@@ -33,10 +34,10 @@ public static class ThemeManager
         _resources = resources;
         _themeName = themeName;
         var isElegantBlack = themeName == ElegantBlackTheme;
-        IsRetroY2K = themeName == RetroY2KTheme;
+        IsRetroY2K = themeName is RetroY2KTheme or Y2KVaporwaveTheme;
         var followsWindows = FollowsWindows(themeName);
         IsLight = IsRetroY2K || (followsWindows && WindowsUsesLightTheme());
-        var file = isElegantBlack ? "ElegantBlack" : IsRetroY2K ? "RetroY2K" : IsLight ? "SystemLight" : "System";
+        var file = isElegantBlack ? "ElegantBlack" : IsRetroY2K ? (themeName == Y2KVaporwaveTheme ? "Y2KVaporwave" : "RetroY2K") : IsLight ? "SystemLight" : "System";
         var theme = new ResourceDictionary { Source = new Uri($"pack://application:,,,/{ThemeFolder}{file}.xaml") };
         if (followsWindows) ApplyWindowsAccent(theme, IsLight);
 
@@ -76,7 +77,7 @@ public static class ThemeManager
     }
 
     /// <summary>Only the System theme follows the Windows light/dark mode and accent color.</summary>
-    private static bool FollowsWindows(string? themeName) => themeName is not (ElegantBlackTheme or RetroY2KTheme);
+    private static bool FollowsWindows(string? themeName) => themeName is not (ElegantBlackTheme or RetroY2KTheme or Y2KVaporwaveTheme);
 
     /// <param name="location">"File.ttf#Family"; naming the file is more reliable than letting WPF search the folder.</param>
     private static System.Windows.Media.FontFamily EmbeddedFont(string location) =>

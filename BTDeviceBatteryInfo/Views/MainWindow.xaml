@@ -120,19 +120,19 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button ToolTip="{DynamicResource Str.Main.MinimizeToTray}" Style="{StaticResource ShadcnIconButton}" Click="Minimize_Click">
                         <Grid>
-                            <Border Style="{StaticResource RetroWindowControl}" Background="#FFFFD84D" />
+                            <Border Style="{StaticResource RetroWindowControl}" Background="{DynamicResource ShadcnRetroMinimizeBrush}" />
                             <Path Data="{x:Static icons:LucideIcons.Minimize}" Style="{StaticResource LucideToolbarIcon}" />
                         </Grid>
                     </Button>
                     <Button ToolTip="{DynamicResource Str.Main.Options}" Style="{StaticResource ShadcnIconButton}" Click="Options_Click">
                         <Grid>
-                            <Border Style="{StaticResource RetroWindowControl}" Background="#FFC8A0FF" />
+                            <Border Style="{StaticResource RetroWindowControl}" Background="{DynamicResource ShadcnRetroOptionsBrush}" />
                             <Path Data="{x:Static icons:LucideIcons.Settings}" Style="{StaticResource LucideToolbarIcon}" />
                         </Grid>
                     </Button>
                     <Button ToolTip="{DynamicResource Str.Main.Exit}" Style="{StaticResource ShadcnIconButton}" Click="Exit_Click">
                         <Grid>
-                            <Border Style="{StaticResource RetroWindowControl}" Background="#FFFF5B5B" />
+                            <Border Style="{StaticResource RetroWindowControl}" Background="{DynamicResource ShadcnRetroCloseBrush}" />
                             <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
                         </Grid>
                     </Button>

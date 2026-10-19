@@ -65,6 +65,10 @@
     <!-- Structure shared by every theme; only Retro Y2K turns on the title bar, decorations and hard button shadows. -->
     <Thickness x:Key="ShadcnBorderThickness">1</Thickness>
     <Visibility x:Key="ShadcnRetroVisibility">Collapsed</Visibility>
+    <SolidColorBrush x:Key="ShadcnRetroMinimizeBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="ShadcnRetroOptionsBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="ShadcnRetroCloseBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="ShadcnRetroSparkleBrush" Color="Transparent" />
     <SolidColorBrush x:Key="ShadcnTitleBarBrush" Color="#00000000" />
     <Thickness x:Key="ShadcnTitleBarBorderThickness">0</Thickness>
     <Thickness x:Key="ShadcnTitleBarMargin">0</Thickness>

@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.25`.
+Latest release: `0.26`.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant.png" width="420" />
@@ -45,6 +45,7 @@ Latest release: `0.25`.
   - **Elegant Black**: a monochrome dark theme inspired by shadcn/ui, with the Geist Sans font and a subtle gradient on the main window.
   - **System**: follows the Windows 11 look, uses the Windows device icons and accent color, and switches automatically between light and dark mode when Windows changes.
   - **Retro Y2K**: an early-2000s desktop look with the Bubblegum palette, OS-style title bars, the Press Start 2P pixel font for titles and buttons, square corners, hard shadows, a graph-paper background, and small animations.
+  - **Y2K Vaporwave**: the Retro Y2K look with a pastel vaporwave palette, a pink-to-cyan title bar, a lavender grid background, and neon window buttons.
   - The theme applies to every window, tooltip, menu, and the taskbar widget, with a live preview in `Options`, plus light and dark app icons.
 - **Application**
   - `Options` window with switches for Start with Windows, starting minimized to the tray, and the taskbar widget, the theme and language selectors, and the device per category.
@@ -209,7 +210,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.25`.
+Última versión: `0.26`.
 
 ### Funcionalidades
 
@@ -228,6 +229,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
   - **Elegant Black**: tema oscuro monocromo inspirado en shadcn/ui, con la fuente Geist Sans y un gradiente sutil en la ventana principal.
   - **System**: sigue el aspecto de Windows 11, usa los iconos de dispositivos y el color de énfasis de Windows, y cambia automáticamente entre modo claro y oscuro cuando cambia Windows.
   - **Retro Y2K**: aspecto de escritorio de principios de los 2000 con la paleta Bubblegum, barras de título estilo sistema operativo, la fuente pixel Press Start 2P en títulos y botones, esquinas rectas, sombras duras, fondo de papel cuadriculado y pequeñas animaciones.
+  - **Y2K Vaporwave**: el aspecto Retro Y2K con una paleta vaporwave pastel, barra de título en degradado de rosa a cian, fondo cuadriculado lavanda y botones de ventana neón.
   - El tema se aplica a todas las ventanas, tooltips, menús y al widget, con vista previa en vivo en `Options` e iconos de la app en versión clara y oscura.
 - **Aplicación**
   - Ventana `Options` con interruptores para el inicio con Windows, el inicio minimizado en la bandeja y el widget, los selectores de tema e idioma, y el dispositivo por categoría.

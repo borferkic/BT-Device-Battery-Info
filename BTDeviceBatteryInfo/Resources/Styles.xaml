@@ -190,7 +190,7 @@
         <Setter Property="Width" Value="12" />
         <Setter Property="Height" Value="12" />
         <Setter Property="Stretch" Value="Uniform" />
-        <Setter Property="Fill" Value="#FFFF3D9A" />
+        <Setter Property="Fill" Value="{DynamicResource ShadcnRetroSparkleBrush}" />
         <Setter Property="Stroke" Value="{DynamicResource ShadcnBorderBrush}" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="StrokeLineJoin" Value="Miter" />

@@ -32,6 +32,7 @@ public partial class OptionsWindow : Window
         {
             ThemeManager.ElegantBlackTheme => 1,
             ThemeManager.RetroY2KTheme => 2,
+            ThemeManager.Y2KVaporwaveTheme => 3,
             _ => 0
         };
         _originalLanguage = AppLanguage.Normalize(settings.Language);

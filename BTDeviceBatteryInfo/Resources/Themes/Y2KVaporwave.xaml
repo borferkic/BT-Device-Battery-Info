@@ -1,0 +1,110 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- Y2K Vaporwave: the Retro Y2K structure with a pastel vaporwave palette (pink, cyan, violet), 2 px borders, square corners, hard zero-blur shadows. -->
+    <SolidColorBrush x:Key="ShadcnBackgroundBrush" Color="#FFFDF0FF" />
+    <SolidColorBrush x:Key="ShadcnSurfaceBrush" Color="#FFFDF0FF" />
+    <SolidColorBrush x:Key="ShadcnElevatedBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="ShadcnPopoverBrush" Color="#FFFDF0FF" />
+    <SolidColorBrush x:Key="ShadcnAccentBrush" Color="#FFD9F7FF" />
+    <SolidColorBrush x:Key="ShadcnPressedBrush" Color="#FF9BEBFF" />
+    <SolidColorBrush x:Key="ShadcnBorderBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnInputBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnForegroundBrush" Color="#FF241047" />
+    <!-- Dark enough for captions on the lavender desktop. -->
+    <SolidColorBrush x:Key="ShadcnMutedBrush" Color="#FF3F2A5E" />
+    <SolidColorBrush x:Key="ShadcnPrimaryBrush" Color="#FFFF71CE" />
+    <SolidColorBrush x:Key="ShadcnPrimaryHoverBrush" Color="#FFFF94DA" />
+    <SolidColorBrush x:Key="ShadcnPrimaryForegroundBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnPrimaryBorderBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnPrimaryHoverBorderBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnRingBrush" Color="#FFB967FF" />
+    <SolidColorBrush x:Key="ShadcnSuccessBrush" Color="#FF0B7A5A" />
+    <SolidColorBrush x:Key="ShadcnWarningBrush" Color="#FFA85F00" />
+    <SolidColorBrush x:Key="ShadcnDestructiveBrush" Color="#FFD6145F" />
+    <SolidColorBrush x:Key="ShadcnInactiveBrush" Color="#FF9A8AB0" />
+    <CornerRadius x:Key="ShadcnButtonCornerRadius">0</CornerRadius>
+    <CornerRadius x:Key="ShadcnControlCornerRadius">0</CornerRadius>
+    <CornerRadius x:Key="ShadcnBadgeCornerRadius">0</CornerRadius>
+    <CornerRadius x:Key="ShadcnCardCornerRadius">0</CornerRadius>
+    <CornerRadius x:Key="ShadcnWindowCornerRadius">0</CornerRadius>
+    <SolidColorBrush x:Key="ShadcnBatteryBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnTooltipBrush" Color="#FFFDF0FF" />
+    <SolidColorBrush x:Key="ShadcnTooltipForegroundBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnTooltipBorderBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnSwitchTrackOffBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="ShadcnSwitchTrackOffBorderBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnSwitchTrackOnBorderBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnSwitchThumbOffBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnSwitchThumbOnBrush" Color="#FF241047" />
+    <sys:Double x:Key="ShadcnSwitchWidth">36</sys:Double>
+    <sys:Double x:Key="ShadcnSwitchHeight">18</sys:Double>
+    <sys:Double x:Key="ShadcnSwitchThumbSize">10</sys:Double>
+    <CornerRadius x:Key="ShadcnSwitchCornerRadius">0</CornerRadius>
+    <CornerRadius x:Key="ShadcnSwitchThumbCornerRadius">0</CornerRadius>
+    <CornerRadius x:Key="ShadcnMenuItemCornerRadius">0</CornerRadius>
+    <!-- Hard offset shadows, zero blur: 3 px (cards), 4 px (menus, windows) down-right. -->
+    <DropShadowEffect x:Key="ShadcnShadowSm" Color="#FF241047" BlurRadius="0" ShadowDepth="4.24" Direction="315" Opacity="1" />
+    <DropShadowEffect x:Key="ShadcnShadowMd" Color="#FF241047" BlurRadius="0" ShadowDepth="5.66" Direction="315" Opacity="1" />
+    <DropShadowEffect x:Key="ShadcnShadowLg" Color="#FF241047" BlurRadius="0" ShadowDepth="5.66" Direction="315" Opacity="1" />
+    <SolidColorBrush x:Key="ShadcnWidgetBrush" Color="#FFFDF0FF" />
+    <SolidColorBrush x:Key="ShadcnWidgetHoverBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="ShadcnWidgetBorderBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnWidgetForegroundBrush" Color="#FF241047" />
+    <SolidColorBrush x:Key="ShadcnWidgetTrackBrush" Color="#FFD8CCF0" />
+    <SolidColorBrush x:Key="ShadcnWidgetRingBrush" Color="#FFB967FF" />
+    <CornerRadius x:Key="ShadcnWidgetCornerRadius">0</CornerRadius>
+    <sys:Double x:Key="ShadcnWidgetButtonHeight">34</sys:Double>
+    <!-- Main window: lavender "desktop" with a 16 px violet grid; device cards float on it as small windows. -->
+    <DrawingBrush x:Key="ShadcnWindowBackgroundBrush" TileMode="Tile" Stretch="None"
+                  Viewport="0,0,16,16" ViewportUnits="Absolute" Viewbox="0,0,16,16" ViewboxUnits="Absolute">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#FFC9B8FF">
+                    <GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,16,16" /></GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#FFB39DFF">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="0,0,16,1" />
+                            <RectangleGeometry Rect="0,0,1,16" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    <BitmapImage x:Key="ShadcnAppIconImage" UriSource="pack://application:,,,/Assets/Icons/icon-light-128.png" />
+    <BitmapImage x:Key="ShadcnAppWindowIcon" UriSource="pack://application:,,,/Assets/Icons/Icon-light.ico" />
+    <Visibility x:Key="ShadcnLucideDeviceIconVisibility">Visible</Visibility>
+    <Visibility x:Key="ShadcnSystemDeviceIconVisibility">Collapsed</Visibility>
+    <!-- Opaque so the hard button shadow does not show through. -->
+    <SolidColorBrush x:Key="ShadcnSuccessTintBrush" Color="#FFD2F7EA" />
+    <SolidColorBrush x:Key="ShadcnSuccessTintHoverBrush" Color="#FFBDF0DE" />
+    <!-- Structure shared by every theme; Retro Y2K and Y2K Vaporwave turn on the window title bar, decorations and hard button shadows. -->
+    <Thickness x:Key="ShadcnBorderThickness">2</Thickness>
+    <Visibility x:Key="ShadcnRetroVisibility">Visible</Visibility>
+    <SolidColorBrush x:Key="ShadcnRetroMinimizeBrush" Color="#FF05FFA1" />
+    <SolidColorBrush x:Key="ShadcnRetroOptionsBrush" Color="#FFFFFB96" />
+    <SolidColorBrush x:Key="ShadcnRetroCloseBrush" Color="#FFFF71CE" />
+    <SolidColorBrush x:Key="ShadcnRetroSparkleBrush" Color="#FF01CDFE" />
+    <!-- Sunset title bar: pink to cyan. -->
+    <LinearGradientBrush x:Key="ShadcnTitleBarBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#FFFF71CE" Offset="0" />
+        <GradientStop Color="#FF01CDFE" Offset="1" />
+    </LinearGradientBrush>
+    <Thickness x:Key="ShadcnTitleBarBorderThickness">0,0,0,2</Thickness>
+    <Thickness x:Key="ShadcnTitleBarMargin">-14,-8,-14,-8</Thickness>
+    <Thickness x:Key="ShadcnMainContentMargin">14,8,14,12</Thickness>
+    <Thickness x:Key="ShadcnOptionsContentMargin">14,8,14,12</Thickness>
+    <Thickness x:Key="ShadcnAboutContentMargin">14,8,14,16</Thickness>
+    <Thickness x:Key="ShadcnCardMargin">0,0,4,7</Thickness>
+    <Thickness x:Key="ShadcnButtonPressedMargin">3,3,-3,-3</Thickness>
+    <sys:Double x:Key="ShadcnMainTitleFontSize">10</sys:Double>
+    <sys:Double x:Key="ShadcnWindowTitleFontSize">8</sys:Double>
+    <sys:Double x:Key="ShadcnSectionTitleFontSize">8</sys:Double>
+    <sys:Double x:Key="ShadcnButtonFontSize">8</sys:Double>
+    <sys:Double x:Key="ShadcnCompactButtonFontSize">7</sys:Double>
+    <sys:Double x:Key="ShadcnToolbarIconSize">12</sys:Double>
+    <sys:Double x:Key="ShadcnIconButtonSize">26</sys:Double>
+</ResourceDictionary>

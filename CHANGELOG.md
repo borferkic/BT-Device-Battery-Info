@@ -4,6 +4,12 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.26]
+
+### Added
+
+- New `Y2K Vaporwave` theme in `Options`: the Retro Y2K look with a pastel vaporwave palette, a pink-to-cyan title bar, a lavender grid background and neon window buttons.
+
 ## [0.25]
 
 ### Added

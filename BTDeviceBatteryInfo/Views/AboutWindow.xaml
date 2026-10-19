@@ -34,7 +34,7 @@
                 <TextBlock Text="{DynamicResource Str.About.Title}" Style="{StaticResource ShadcnMainTitle}" VerticalAlignment="Center"/>
                 <Button Grid.Column="1" ToolTip="{DynamicResource Str.About.Close}" Style="{StaticResource ShadcnIconButton}" Click="Close_Click">
                     <Grid>
-                        <Border Style="{StaticResource RetroWindowControl}" Background="#FFFF5B5B" />
+                        <Border Style="{StaticResource RetroWindowControl}" Background="{DynamicResource ShadcnRetroCloseBrush}" />
                         <Path Data="{x:Static icons:LucideIcons.Close}" Style="{StaticResource LucideToolbarIcon}" />
                     </Grid>
                 </Button>
