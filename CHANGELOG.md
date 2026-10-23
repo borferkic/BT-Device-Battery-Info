@@ -4,6 +4,12 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+## [0.27]
+
+### Added
+
+- Battery of keyboards and mice connected through a Logitech USB receiver (Logi Bolt, Lightspeed and Unifying), with their name, keyboard or mouse icon and exact percentage. They appear in the list, the taskbar widget and the low-battery notification like Bluetooth devices, and are refreshed every minute and with `Refresh now`.
+
 ## [0.26]
 
 ### Added

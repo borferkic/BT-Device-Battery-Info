@@ -73,6 +73,10 @@ public sealed class BluetoothService : IDisposable
     private bool? _lastConnected;
     private readonly Dictionary<string, bool> _lastDeviceConnections = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _classicProtocolDeviceIds = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly TimeSpan ReceiverPollInterval = TimeSpan.FromMinutes(1);
+    // Devices seen on a Logitech receiver this session; offline ones stay listed as disconnected.
+    private readonly Dictionary<string, BluetoothDeviceInfo> _receiverDevices = new(StringComparer.OrdinalIgnoreCase);
+    private readonly System.Threading.Timer _receiverTimer;
 
     public event EventHandler<BluetoothDeviceInfo>? StateChanged;
     public event EventHandler? DevicesChanged;
@@ -81,6 +85,7 @@ public sealed class BluetoothService : IDisposable
     {
         _logger = logger;
         GamingInputBattery.Initialize();
+        _receiverTimer = new System.Threading.Timer(_ => _ = PollReceiverAsync(), null, TimeSpan.Zero, ReceiverPollInterval);
     }
 
     public bool IsInitialDiscoveryCompleted
@@ -100,6 +105,7 @@ public sealed class BluetoothService : IDisposable
     public async Task RefreshNowAsync()
     {
         await EnsureInitializedAsync();
+        _ = PollReceiverAsync();
         if (_watcherEnumerationCompleted)
         {
             await ReconcileEndpointsAsync(delay: false, forceBattery: true);
@@ -121,10 +127,18 @@ public sealed class BluetoothService : IDisposable
             var endpoint = _endpoints.Values.FirstOrDefault(candidate =>
                 string.Equals(candidate.Id, id, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(GetPhysicalDeviceId(candidate), id, StringComparison.OrdinalIgnoreCase));
-            if (endpoint is null) return null;
+            if (endpoint is not null)
+            {
+                _selectedEndpointId = endpoint.Id;
+                _selectedDeviceId = GetPhysicalDeviceId(endpoint);
+            }
+            else if (_receiverDevices.TryGetValue(id, out var receiverDevice))
+            {
+                _selectedEndpointId = receiverDevice.Id;
+                _selectedDeviceId = receiverDevice.PhysicalDeviceId;
+            }
+            else return null;
 
-            _selectedEndpointId = endpoint.Id;
-            _selectedDeviceId = GetPhysicalDeviceId(endpoint);
             current = BuildDeviceSnapshot().FirstOrDefault(device =>
                 string.Equals(device.PhysicalDeviceId, _selectedDeviceId, StringComparison.OrdinalIgnoreCase));
             _selectedName = current?.Name ?? _selectedName;
@@ -634,6 +648,45 @@ public sealed class BluetoothService : IDisposable
         finally { _gattGate.Release(); }
     }
 
+    private async Task PollReceiverAsync()
+    {
+        if (_isDisposing) return;
+        IReadOnlyList<BluetoothDeviceInfo> found;
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            found = await LogitechReceiverBattery.ReadAsync(_batteryLifetime.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception ex)
+        {
+            await LogSafeAsync("Logitech receiver query error: " + ex.Message);
+            return;
+        }
+
+        var changed = false;
+        lock (_endpointsLock)
+        {
+            foreach (var device in found)
+            {
+                changed |= !_receiverDevices.TryGetValue(device.PhysicalDeviceId, out var previous) || previous != device;
+                _receiverDevices[device.PhysicalDeviceId] = device;
+            }
+            foreach (var (id, device) in _receiverDevices.ToArray())
+            {
+                if (!device.IsConnected || found.Any(item => string.Equals(item.PhysicalDeviceId, id, StringComparison.OrdinalIgnoreCase))) continue;
+                _receiverDevices[id] = device with { IsConnected = false, BatteryPercent = null };
+                changed = true;
+            }
+        }
+        if (!changed) return;
+        await LogSafeAsync($"Battery source {LogitechReceiverBattery.SourceName}: {found.Count(device => device.BatteryPercent.HasValue)} of {found.Count} device(s) in {stopwatch.ElapsedMilliseconds} ms.");
+        PublishChanges("Logitech receiver");
+    }
+
     private static BatteryQueryValue ToBatteryQueryValue(BatteryReadResult result) => new(result.Value, result.Source);
 
     private IReadOnlyList<BluetoothDeviceInfo> BuildDeviceSnapshot() =>
@@ -641,6 +694,7 @@ public sealed class BluetoothService : IDisposable
             .GroupBy(GetPhysicalDeviceId, StringComparer.OrdinalIgnoreCase)
             .Select(group => BuildPhysicalDeviceSnapshot(group.Key, group.ToArray()))
             .Where(device => (device.IsPaired || device.IsConnected) && !string.IsNullOrWhiteSpace(device.Name))
+            .Concat(_receiverDevices.Values)
             .OrderByDescending(device => device.IsConnected)
             .ThenBy(device => device.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToArray();
@@ -1140,6 +1194,7 @@ public sealed class BluetoothService : IDisposable
             _reconciliationTimer = null;
         }
         timer?.Dispose();
+        _receiverTimer.Dispose();
         StopWatcher();
         _batteryLifetime.Cancel();
         _initialDiscoveryCts?.Cancel();

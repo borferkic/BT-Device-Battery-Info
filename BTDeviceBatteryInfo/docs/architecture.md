@@ -81,6 +81,14 @@ El log local registra la fuente ganadora y el tiempo de cada lectura, por ejempl
 
 La reconciliación de diez segundos permanece como recuperación y comienza también al cerrar el descubrimiento por timeout. Las instantáneas idénticas no generan notificaciones y el ViewModel reemplaza únicamente filas cuyo contenido cambió. La posición se guarda al terminar el arrastre y al salir, evitando escrituras por cada movimiento.
 
+### Receptores USB de Logitech
+
+`LogitechReceiverBattery` lee los dispositivos conectados a receptores Logi Bolt, Lightspeed y Unifying mediante HID++ 2.0, sobre la colección de fabricante de reportes largos (`UsagePage 0xFF00`, `Usage 0x0002`). `HidDevice` de WinRT no puede abrir esa colección desde una app sin empaquetar, así que se abre con `CreateFile` en modo compartido y un `FileStream` sin búfer; un lector continuo vuelca los reportes en una cola.
+
+Se envía el ping a las seis ranuras a la vez y se recogen respuestas durante dos segundos: un dispositivo en reposo tarda más de un segundo en despertar y las ranuras vacías responden con un error en la colección de reportes cortos, que no se lee. De cada ranura que responde se obtienen el nombre y el tipo (`0x0005`) y la batería con `0x1004` (Unified Battery), `0x1000` o, en ratones Lightspeed antiguos, el voltaje de `0x1001` convertido con una curva Li-ion. Cada petición usa un software ID distinto para que una respuesta tardía no se tome por la de otra petición.
+
+`BluetoothService` consulta los receptores al arrancar, cada minuto y con `Refresh now`, y añade sus dispositivos al inventario. Un dispositivo que deja de responder permanece en la lista como desconectado y sin batería. Un mismo ratón emparejado por Bluetooth y por receptor aparece dos veces, una por conexión.
+
 ## Límites técnicos
 
 - La aplicación es de solo lectura respecto al adaptador: no elimina emparejamientos, no desactiva adaptadores y no modifica controladores.

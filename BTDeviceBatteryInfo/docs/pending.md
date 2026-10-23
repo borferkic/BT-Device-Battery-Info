@@ -44,6 +44,7 @@ Sin pendientes de prioridad alta.
 
 ## Completado recientemente
 
+- [x] P-043 — Batería de teclados y ratones por receptor USB de Logitech (Bolt, Lightspeed, Unifying) mediante HID++; validado por el usuario en `0.27` (`2026-10-22`).
 - [x] P-038 — El widget no se oculta por fallos pasajeros de UI Automation y mantiene 45 s la pastilla de un dispositivo que se desconecta; validado por el usuario en `0.25-dev2` (`2026-10-16`).
 - [x] P-039 — Opción `Start minimized to the tray` y argumento `--minimized`; validado por el usuario en `0.25-dev2` (`2026-10-16`).
 - [x] P-040 (primera parte) — Código sin uso, `StartWithWindows` duplicado y estados en texto limpiados; validado por el usuario en `0.25-dev2` (`2026-10-16`).

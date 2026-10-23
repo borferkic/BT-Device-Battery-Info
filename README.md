@@ -18,7 +18,7 @@
 
 **A lightweight, read-only Windows widget that shows your Bluetooth devices and their battery level, right from the system tray and the taskbar.**
 
-Latest release: `0.26`.
+Latest release: `0.27`.
 
 <div align="center">
   <img alt="Main window with the Elegant Black theme" src="BTDeviceBatteryInfo/docs/images/main-window-elegant.png" width="420" />
@@ -35,6 +35,7 @@ Latest release: `0.26`.
   - Shows battery percentage through Windows PnP properties or the standard GATT Battery Service when available.
   - Groups the endpoints of the same physical device and keeps devices with the same name separate when they have different Windows identities.
   - Shows loading placeholders during the initial scan and a clear message when no devices are available.
+  - Reads the battery of Logitech keyboards and mice connected through a USB receiver (Logi Bolt, Lightspeed, and Unifying) over the HID++ protocol, with their name, type, and exact percentage. A device paired both by Bluetooth and by receiver appears once per connection.
   - Reads the battery of wireless game controllers in X-input mode over Bluetooth through Windows.Gaming.Input, shown as a level (Empty, Low, Medium, Full) because these controllers only report coarse ranges. 8BitDo controllers in this mode report a fixed value, so their battery is shown as unavailable.
   - `Refresh now` in the widget and system tray refreshes devices and triggers a new battery query.
 - **Taskbar widget**
@@ -111,7 +112,7 @@ The release is self-contained and does not require the .NET Desktop Runtime.
 ## Requirements
 
 - Windows 10 version 19041 or later, or Windows 11.
-- A Bluetooth adapter and paired Bluetooth devices. Battery reporting depends on the device, profile, driver, and information exposed by Windows.
+- A Bluetooth adapter and paired Bluetooth devices, or a Logitech Logi Bolt, Lightspeed, or Unifying receiver. Battery reporting depends on the device, profile, driver, and information exposed by Windows.
 
 ## How it works
 
@@ -210,7 +211,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
 
 **Un widget ligero y de solo lectura para Windows que muestra tus dispositivos Bluetooth y su nivel de batería, desde el área de notificaciones y la barra de tareas.**
 
-Última versión: `0.26`.
+Última versión: `0.27`.
 
 ### Funcionalidades
 
@@ -219,6 +220,7 @@ If you like BT Device Battery Info and find it useful, you can support its devel
   - Muestra el porcentaje de batería mediante propiedades PnP de Windows o el servicio estándar GATT Battery Service cuando está disponible.
   - Agrupa los endpoints de un mismo dispositivo físico y mantiene separados los dispositivos con el mismo nombre cuando tienen identidades diferentes en Windows.
   - Muestra marcadores de carga durante la búsqueda inicial y un mensaje claro cuando no hay dispositivos.
+  - Lee la batería de teclados y ratones Logitech conectados mediante receptor USB (Logi Bolt, Lightspeed y Unifying) con el protocolo HID++, con su nombre, tipo y porcentaje exacto. Un dispositivo emparejado por Bluetooth y por receptor aparece una vez por cada conexión.
   - Lee la batería de mandos inalámbricos en modo X-input por Bluetooth mediante Windows.Gaming.Input y la muestra como nivel (vacía, baja, media, llena), porque estos mandos solo reportan rangos. Los mandos 8BitDo en este modo reportan un valor fijo, así que su batería aparece como no disponible.
   - `Refresh now`, en el widget y el área de notificaciones, actualiza los dispositivos y vuelve a consultar la batería.
 - **Widget de la barra de tareas**
@@ -295,7 +297,7 @@ La versión publicada es autocontenida y no requiere el .NET Desktop Runtime.
 ### Requisitos
 
 - Windows 10 versión 19041 o posterior, o Windows 11.
-- Un adaptador Bluetooth y dispositivos Bluetooth emparejados. La información de batería depende del dispositivo, el perfil, el controlador y los datos que Windows exponga.
+- Un adaptador Bluetooth y dispositivos Bluetooth emparejados, o un receptor Logitech Logi Bolt, Lightspeed o Unifying. La información de batería depende del dispositivo, el perfil, el controlador y los datos que Windows exponga.
 
 ### Privacidad y seguridad
 
