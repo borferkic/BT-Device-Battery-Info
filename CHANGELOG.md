@@ -4,6 +4,10 @@ All notable user-facing changes to BT Device Battery Info are documented in this
 
 ## [Unreleased]
 
+### Fixed
+
+- The compact taskbar widget no longer disappears when the taskbar is crowded: it looks for free space on both sides of the app buttons, honours the chosen position first, and shrinks its pills (icon + ring, then ring only) to fit. The tray menu now shows whether the widget is actually displayed and why not, the log records the measured free space, and the widget repositions when the display configuration changes.
+
 ## [0.27]
 
 ### Added

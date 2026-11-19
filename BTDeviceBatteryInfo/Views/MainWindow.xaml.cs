@@ -21,6 +21,7 @@ public partial class MainWindow : Window, IDisposable
     private Forms.ToolStripMenuItem? _refreshMenuItem;
     private Forms.ToolStripMenuItem? _startWithWindowsMenuItem;
     private Forms.ToolStripMenuItem? _taskbarWidgetMenuItem;
+    private Forms.ToolStripMenuItem? _widgetStatusMenuItem;
     private Forms.ToolStripMenuItem? _exitMenuItem;
     private readonly TaskbarWidgetController _taskbarWidget;
     private bool _isExiting;
@@ -87,6 +88,10 @@ public partial class MainWindow : Window, IDisposable
         };
         _taskbarWidgetMenuItem.Click += async (_, _) => await ToggleTaskbarWidgetAsync(hideMainWindow: false);
         menu.Items.Add(_taskbarWidgetMenuItem);
+        // The check mark above is the setting; this line tells whether the widget is really on the taskbar.
+        _widgetStatusMenuItem = new Forms.ToolStripMenuItem { Enabled = false };
+        menu.Items.Add(_widgetStatusMenuItem);
+        _taskbarWidget.DisplayStateChanged += (_, _) => UpdateWidgetStatusMenuItem();
         _refreshMenuItem = new Forms.ToolStripMenuItem();
         _refreshMenuItem.Click += async (_, _) => await ViewModel.RefreshNowAsync();
         menu.Items.Add(_refreshMenuItem);
@@ -148,6 +153,7 @@ public partial class MainWindow : Window, IDisposable
     {
         _settings.TaskbarWidgetEnabled = enabled;
         _taskbarWidget.SetEnabled(_settings.TaskbarWidgetEnabled);
+        UpdateWidgetStatusMenuItem();
         if (_taskbarWidgetMenuItem is not null)
             _taskbarWidgetMenuItem.Checked = _settings.TaskbarWidgetEnabled;
         if (hideMainWindow && _settings.TaskbarWidgetEnabled)
@@ -239,8 +245,18 @@ public partial class MainWindow : Window, IDisposable
         UpdateWidgetMenuItem();
     }
 
+    private void UpdateWidgetStatusMenuItem()
+    {
+        if (_widgetStatusMenuItem is null) return;
+        _widgetStatusMenuItem.Visible = _settings.TaskbarWidgetEnabled;
+        _widgetStatusMenuItem.Text = _taskbarWidget.IsDisplayed
+            ? AppLanguage.Get("Tray.WidgetShown")
+            : AppLanguage.Format("Tray.WidgetNotShown", _taskbarWidget.HiddenReason);
+    }
+
     private void UpdateWidgetMenuItem()
     {
+        UpdateWidgetStatusMenuItem();
         if (_toggleWidgetMenuItem is not null)
             _toggleWidgetMenuItem.Text = AppLanguage.Get(IsVisible ? "Tray.HideWidget" : "Tray.ShowWidget");
     }

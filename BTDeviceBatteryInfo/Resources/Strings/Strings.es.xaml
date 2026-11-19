@@ -67,6 +67,8 @@
     <sys:String x:Key="Str.Tray.ShowWidget">Mostrar widget</sys:String>
     <sys:String x:Key="Str.Tray.HideWidget">Ocultar widget</sys:String>
     <sys:String x:Key="Str.Tray.TaskbarWidget">Mostrar el widget compacto en la barra de tareas</sys:String>
+    <sys:String x:Key="Str.Tray.WidgetShown">Widget de la barra de tareas: visible</sys:String>
+    <sys:String x:Key="Str.Tray.WidgetNotShown">Widget de la barra de tareas: no visible ({0})</sys:String>
     <sys:String x:Key="Str.Tray.RefreshNow">Actualizar</sys:String>
     <sys:String x:Key="Str.Tray.StartWithWindows">Iniciar con Windows</sys:String>
     <sys:String x:Key="Str.Tray.Exit">Salir</sys:String>
